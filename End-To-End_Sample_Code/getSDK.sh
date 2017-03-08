@@ -16,7 +16,7 @@ rm -rf plugin/*.jar
 echo "Dowloading JARs..."
 
 curl -o $SDK_FILE http://engci-maven-master.cisco.com/artifactory/context-service-release/com/cisco/thunderhead/context-service-sdk/$SDK_VERSION/context-service-sdk-$SDK_VERSION.jar 1> /dev/null 2>&1
-curl -u partner1:partner1 -o $PLUGIN_FILE https://context-service-downloads.produs1.ciscoccservice.com/files/latest/context-service-sdk-extension-$SDK_EXT_VERSION.jar 1> /dev/null 2>&1
+wget -O $PLUGIN_FILE https://context-service-downloads.rciad.ciscoccservice.com/files/latest/context-service-sdk-extension-$SDK_EXT_VERSION.jar
 curl -o $POM_FILE http://engci-maven-master.cisco.com/artifactory/context-service-release/com/cisco/thunderhead/context-service-sdk/$SDK_VERSION/context-service-sdk-$SDK_VERSION.pom 1> /dev/null 2>&1
 echo "path=plugin" > $PROP_FILE
 echo "jar-name=context-service-sdk-extension-$SDK_EXT_VERSION.jar" >> $PROP_FILE
