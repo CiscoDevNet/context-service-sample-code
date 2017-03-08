@@ -4,7 +4,7 @@ CUR_PATH=$(pwd)
 TMP_DIR="tmp_sdk"
 echo "Your java application should run from $CUR_PATH"
 SDK_VERSION="2.0.1"
-SDK_EXT_VERSION="2.0.2"
+SDK_EXT_VERSION="2.0.3"
 PROP_FILE="connector.property"
 SDK_FILE="$TMP_DIR/context-service-sdk-$SDK_VERSION.jar"
 POM_FILE="$TMP_DIR/context-service-sdk-pom.xml"
