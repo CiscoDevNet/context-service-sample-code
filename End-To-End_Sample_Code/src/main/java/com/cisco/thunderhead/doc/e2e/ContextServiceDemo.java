@@ -23,7 +23,7 @@ public class ContextServiceDemo {
      * Show full initialization flow for Context Service,
      * demonstrate a basic operation.
      */
-    public static void main() {
+    public static void main(String ... args) {
         // load our pre-created connection data
         String connectionData = ConnectionData.getConnectionData();
 
