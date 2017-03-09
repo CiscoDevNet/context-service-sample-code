@@ -1,19 +1,28 @@
 # Run Context Service SDK End-To-End Sample Code
-
-## End-To-End Sample Code
 The end-to-end sample code helps you understand the general workflow of the Context Service SDK. Create a project directory and download the example code to this directory.
 
 ## Prerequisites
-Before you run the example:
+The following is needed for this project:
 
-* Register with Context Service. You need the **ConnectionData** string to connect to Context Service. The connection data string is generated when you register with Context Service. Once you register and receive the connection data string, save the string to **connectiondata.txt** file in your project directory.
-* Run this command in the root of your project directory to load the Context Service SDK and POM into the maven project:
+* Java 7
+* Maven
 
-    ```
-./getSDK.sh
-./updateBaseSDK.sh
-``` 
-   For more information, see [Getting Started](https://developer.cisco.com/site/context-service/discover/getting-started)
+## Getting Started
+To get started:
+
+1. Go to https://developer.cisco.com/site/context-service/discover/getting-started/
+2. There you will see a link to "Context Service Downloads": https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405
+3. You will get a context-service-sdk-X.X.X.tar.gz file
+4. Run `prepareSDK.sh` with parameters [targz-filename] [project-dir] [sdk-version]
+* This sets up your connector.properties file
+5. Run `mvn clean install`
+6. Create the connectiondata.txt file 
+
+## Creating connectiondata.txt file
+Register with Context Service. You need the ConnectionData string to connect to Context Service. The connection data string is generated when you register with Context Service. Once you register and receive the connection data string, save the string to connectiondata.txt file in your project directory.
+
+## Running the code
+For more information, see [Getting Started](https://developer.cisco.com/site/context-service/discover/getting-started)
 
 * To compile the code without running tests, run:
     `mvn -U clean install -DskipTests`
