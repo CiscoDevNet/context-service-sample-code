@@ -31,7 +31,7 @@ public class Utils {
 
         boolean labMode = true;
         int requestTimeOut = 40000;
-        boolean noFms = true;
+        boolean noFms = false;
         int shutdownDelay = 0;
 
         ConnectorInfo connectorInfo = new ConnectorInfoImpl(labMode ? "lab_connector" : "production_connector");
