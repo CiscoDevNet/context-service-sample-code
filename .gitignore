@@ -1,8 +1,9 @@
-*.iml
+**/*.iml
 .idea/
 plugin/
-connectiondata.txt
-connector.property
+**/connectiondata.txt
+**/connector.property
 src/main/resources/context-service-sdk-*.jar
 src/main/resources/context-service-sdk-*-pom.xml
 target/
+plugin/
