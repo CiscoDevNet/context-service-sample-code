@@ -53,8 +53,11 @@ public class ConnectionDataDialog extends JDialog {
     }
 
     private void onDecode() {
-        String decoded = ConnectionData.getDecodedConnectionData(textConnectionDataEncoded.getText());
-        textConnectionDataDecoded.setText(decoded);
+        String encodedConnectionData = textConnectionDataEncoded.getText();
+        if (encodedConnectionData.length()>0) {
+            String decoded = ConnectionData.getDecodedConnectionData(textConnectionDataEncoded.getText());
+            textConnectionDataDecoded.setText(decoded);
+        }
     }
 
     private void onOK() {

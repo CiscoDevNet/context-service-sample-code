@@ -7,26 +7,6 @@ Use the export sample code to extract your organization's objects in a set of JS
 
 The import sample code uses the JSON file created by the export sample code to insert Customer, Request and POD objects for your organization. The import sample code does not preserve original creation and last modified timestamps for objects. Although relationship between objects is maintained, object IDs are recreated and no longer have the original IDs. Consider using the sample codes in Lab mode to test and build custom apps for your production use.
 
-## Prerequisites
-Before you run the example:
-
-* Register with Context Service. You need the **ConnectionData** string to connect to Context Service. The connection data string is generated when you register with Context Service. Once you register and receive the connection data string, save the string to **connectiondata.txt** file in your project directory.
-* Run this command in the root of your project directory to load the Context Service SDK and POM into the maven project:
-
-    ```
-./getSDK.sh
-./updateBaseSDK.sh
-``` 
-   For more information, see [Getting Started](https://developer.cisco.com/site/context-service/discover/getting-started)
-
-* To compile the code without running tests, run:
-    `mvn -U clean install -DskipTests`
-* To compile code and run all the necessary tests, run:
-    `mvn -U clean install`
-
-## Run the Example
-Once you have installed all the SDK components, open the project in an IDE and explore the examples and tests.
-
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
 
