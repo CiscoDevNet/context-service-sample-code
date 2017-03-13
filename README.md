@@ -1,6 +1,8 @@
 # Context Service Sample Code
 This project contains sample code to be used with [Context Service](https://developer.cisco.com/site/context-service).
 
+Any issues can be posted on the [DevNet community site](https://communities.cisco.com/community/developer/context-service).
+
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
 
