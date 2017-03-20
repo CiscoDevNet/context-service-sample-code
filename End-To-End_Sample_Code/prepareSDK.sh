@@ -1,14 +1,15 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]; then
-    echo Parameters: [targz-filename] [project-dir] [static-sdk-version]
-    echo i.e. context-service-sdk-2.0.1.tar.gz /Users/tweissin/dev/cs-java-sdk-swing-ui 2.0.1
+if [ $# -ne 1 ]; then
+    echo Parameters: [targz-filename]
+    echo i.e. context-service-sdk-2.0.1.tar.gz
     exit
 fi
 
 TAR_GZ=$1
-PROJECT_DIR=$2
-SDK_VERSION=$3
+
+SDK_VERSION=`echo $TAR_GZ | sed -n 's/.*context-service-sdk-\([0-9]\.[0-9]\.[0-9]\)\.tar\.gz/\1/p'`
+PROJECT_DIR=$PWD
 PROP_FILE="connector.property"
 
 if [ ! -e $TAR_GZ ] ; then
