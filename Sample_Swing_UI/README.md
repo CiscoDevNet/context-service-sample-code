@@ -23,7 +23,7 @@ To get started:
 1. Go to https://developer.cisco.com/site/context-service/discover/getting-started/
 2. There you will see a link to "Context Service Downloads": https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405
 3. You will get a context-service-sdk-X.X.X.tar.gz file
-4. Run `prepareSDK.sh` with parameters [targz-filename] [project-dir] [sdk-version]
+4. Run `prepareSDK.sh` with parameters [targz-filename]
 * This sets up your connector.properties file
 5. Run `mvn clean install`
 6. Create the connectiondata.txt file (see below)
