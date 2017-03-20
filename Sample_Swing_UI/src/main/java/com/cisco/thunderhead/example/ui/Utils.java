@@ -6,7 +6,6 @@ import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
-import com.cisco.thunderhead.connector.info.ConnectorInfo;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
 import com.cisco.thunderhead.connector.states.ConnectorStateListener;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
@@ -32,17 +31,15 @@ public class Utils {
         boolean labMode = true;
         int requestTimeOut = 40000;
         boolean noFms = false;
-        int shutdownDelay = 0;
 
-        ConnectorInfo connectorInfo = new ConnectorInfoImpl(labMode ? "lab_connector" : "production_connector");
-        ConnectorConfiguration config = new ConnectorConfiguration();
-        config.addProperty(ContextServiceClientConstants.LAB_MODE, labMode);
-        config.addProperty(ContextServiceClientConstants.REQUEST_TIMEOUT, requestTimeOut);
-        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, noFms);
-        config.addProperty("SDK_POLLING_INTERVAL_SECONDS", 5);
-        config.addProperty("SHUTDOWN_DELAY", shutdownDelay);
-
-        contextServiceClient.init(jsonConnectionData, connectorInfo, config);
+        String hostname = "doctest.example.com";
+        ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
+        ConnectorConfiguration configuration = new ConnectorConfiguration(){{
+            addProperty(ContextServiceClientConstants.LAB_MODE, labMode); // exclude this line for prod mode
+            addProperty(ContextServiceClientConstants.REQUEST_TIMEOUT, requestTimeOut);
+            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, noFms);
+        }};
+        contextServiceClient.init(jsonConnectionData, connInfo, configuration);
         return contextServiceClient;
     }
 
