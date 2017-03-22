@@ -2,41 +2,44 @@
 The end-to-end sample code helps you understand the general workflow of the Context Service SDK. Create a project directory and download the example code to this directory.
 
 ## Prerequisites
-The following is needed for this project:
+This project requires:
 
-* Java 7
+* Java 7+ 
 * Maven
 
 ## Getting Started
-To get started:
+To set up sample code components:
 
-1. Go to https://developer.cisco.com/site/context-service/discover/getting-started/
-2. There you will see a link to "Context Service Downloads": https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405
-3. You will get a context-service-sdk-X.X.X.tar.gz file
-4. Run `prepareSDK.sh` with parameters [targz-filename]
-* This sets up your connector.properties file
-5. Run `mvn clean install`
-6. Create the connectiondata.txt file 
+1. Create a project directory.
+2. Download the End-To-End example code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) to your project directory.
+3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).
+    
+    You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
+4. Run `prepareSDK.sh` with parameters \[targz-filename\] \[project-dir\] \[sdk-version\].
+    
+    This sets up your connector.properties file.
+5. Run `mvn clean install`.
+7. [Register with Context Service](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/index.gsp#register-your-application-with-context-service) to receive the connectionData string. 
+    The connectionData string is required to connect to Context Service.
+8. Save your connectionData string to connectiondata.txt in your project directory.
 
-## Creating connectiondata.txt file
-Register with Context Service. You need the ConnectionData string to connect to Context Service. The connection data string is generated when you register with Context Service. Once you register and receive the connection data string, save the string to connectiondata.txt file in your project directory.
-
-## Running the code
-For more information, see [Getting Started](https://developer.cisco.com/site/context-service/discover/getting-started)
+## Compiling and Testing the End-To-End Sample Code
 
 * To compile the code without running tests, run:
     `mvn -U clean install -DskipTests`
-* To compile code and run all the necessary tests, run:
+* To compile the code and run all necessary tests, run:
     `mvn -U clean install`
 
-## Run the Example
-Once you have installed all the SDK components, open the project in an IDE and explore the examples and tests.
+For more information, see [Getting Started with the Context Service SDK](https://developer.cisco.com/site/context-service/discover/getting-started).
+
+## Running the Example
+After you have installed the SDK components, open the project in an IDE to explore the examples and tests.
 
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
 
 ## Support Notice
 
-Support for the sample is provided on a "best effort" basis via DevNet. Like any custom deployment, it is the responsibility of the partner and/or customer to ensure that the customization works correctly.
+DevNet provides sample support on a “best effort” basis. Like any custom deployment, it is the responsibility of the partner and/or customer to ensure that the customization works correctly.
 
 [https://developer.cisco.com/site/context-service](https://developer.cisco.com/site/context-service)
