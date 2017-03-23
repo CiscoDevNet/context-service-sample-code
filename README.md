@@ -4,9 +4,9 @@ This project contains sample code to be used with [Context Service](https://deve
 Cisco provides the following sample code:
 
 
-*  [End-To-End Sample Code](https://sqbu-github.cisco.com/CBABU/context-service-sample-code/tree/master/End-To-End_Sample_Code)
-*  [Import/Export Sample Code](https://sqbu-github.cisco.com/CBABU/context-service-sample-code/tree/master/Import_Export_Sample_Code)
-*  [Sample Swing UI](https://sqbu-github.cisco.com/CBABU/context-service-sample-code/tree/master/Sample_Swing_UI)
+*  [End-To-End Sample Code](https://github.com/CiscoDevNet/context-service-sample-code/tree/master/End-To-End_Sample_Code)
+*  [Import/Export Sample Code](https://github.com/CiscoDevNet/context-service-sample-code/blob/master/Import_Export_Sample_Code/README.md)
+*  [Sample Swing UI](https://github.com/CiscoDevNet/context-service-sample-code/tree/master/Sample_Swing_UI)
 
 All other sample code is provided by users.
 ## Disclaimer
