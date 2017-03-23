@@ -36,6 +36,14 @@ To set up sample code components:
 
 9. Run the script `run.sh` to start the application.
 
+## Registering Application
+To register with the Context Service and obtain a connection data string:
+
+1. Run the script `register.sh` to begin registration.
+2. It will launch a web browser.  Login using your organization admin account.
+3. Click **Allow** to allow the application to access the Context Service.
+4. A few seconds later, the browser will redirect and print the connection data string.  The connection data string will also be saved to a file with the name `connectiondata.txt` if it does not already exist.
+
 ## Usage notes
 
 * To search, specify **key:value pairs** where: 
