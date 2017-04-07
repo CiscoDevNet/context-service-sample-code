@@ -9,6 +9,8 @@ The **import sample code** uses the JSON file created by the export sample code 
 
 Consider using the sample codes in Lab mode to test and build custom apps for your production use.
 
+After compiling with `mvn clean install` you can run `export.sh` to export or `import.sh` to import.
+
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
 
