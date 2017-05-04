@@ -61,10 +61,15 @@ public class Register {
         public void handle(HttpExchange t) throws IOException {
             Pattern pattern = Pattern.compile("/test\\?connectionData=(.*)");
             Matcher matcher = pattern.matcher(t.getRequestURI().toString());
-            if (matcher.find())
-            {
+            if (matcher.find()) {
                 String connectionData = matcher.group(1);
                 writeConnectionData(connectionData, t);
+            } else {
+                LOGGER.error("There was a problem retrieving the connection data string from the callback URI");
+                LOGGER.error("URI: " + t.getRequestURI().toString());
+                String htmlMessage = "<h1>There was a problem retrieving the connection data</h1>URI:<br>" +
+                        "<textarea rows=25 cols=100>" + t.getRequestURI().toString() + "</textarea>";
+                writeResponseBody(t, htmlMessage, HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
             LOGGER.info("*** Stopping embedded web server");
             server.stop(0);
@@ -75,10 +80,7 @@ public class Register {
 
         String htmlMessage = "This is the connection data string.  Use this to initialize the connection to the Context Service.<br>" +
                 "<textarea rows=25 cols=100>" + connectionData + "</textarea>";
-        t.getResponseHeaders().add("Content-Type", "text/html");
-        t.sendResponseHeaders(HttpURLConnection.HTTP_OK, htmlMessage.length());
-        t.getResponseBody().write(htmlMessage.getBytes());
-        t.close();
+        writeResponseBody(t, htmlMessage, HttpURLConnection.HTTP_OK);
         if (!new File(ConnectionData.connectionDataFileName).exists()) {
             Path path = Paths.get(ConnectionData.connectionDataFileName);
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -86,5 +88,12 @@ public class Register {
             }
             LOGGER.info("*** Wrote connection data string to: " + ConnectionData.connectionDataFileName);
         }
+    }
+
+    private static void writeResponseBody(HttpExchange t, String htmlMessage, int code) throws IOException {
+        t.getResponseHeaders().add("Content-Type", "text/html");
+        t.sendResponseHeaders(code, htmlMessage.length());
+        t.getResponseBody().write(htmlMessage.getBytes());
+        t.close();
     }
 }

@@ -322,9 +322,8 @@ public class FieldSetDialog extends JDialog {
                     textFieldSetName.setText(fieldSet.getKey());
                     textFieldSetName.setEnabled(false);
                     checkBoxFieldSetPublic.setSelected(fieldSet.getPubliclyAccessible());
-                    SearchParameters searchParameters = new SearchParameters();
-                    fieldSet.getFields().forEach((field) -> searchParameters.add("id", field));
-                    List<Field> fields = ConnectionData.getContextServiceClient().search(Field.class, searchParameters, Operation.OR);
+
+                    List<Field> fields = Utils.search(ConnectionData.getContextServiceClient(), fieldSet.getFields(), Field.class);
                     fields.forEach(fieldModel::addField);
                 }
                 SwingUtilities.invokeLater(() -> {

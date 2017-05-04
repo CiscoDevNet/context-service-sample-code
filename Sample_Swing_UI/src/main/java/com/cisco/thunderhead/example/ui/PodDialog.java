@@ -128,10 +128,6 @@ public class PodDialog extends JDialog {
     }
 
     private void onSave() {
-        if (pod!=null) {
-            setFieldsOnPod(pod);
-        }
-
         boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, pod, Pod.class, ((dataElements) -> {
             Pod pod = new Pod(dataElements);
 
@@ -141,33 +137,30 @@ public class PodDialog extends JDialog {
             if (request != null) {
                 pod.setRequestId(request.getRequestId());
             }
-            setFieldsOnPod(pod);
+            if (!comboState.getSelectedItem().equals(SELECT)) {
+                pod.setState((String) comboState.getSelectedItem());
+            } else {
+                pod.setState(null);
+            }
+
+            if (!comboMediaType.getSelectedItem().equals(SELECT)) {
+                pod.setMediaType((String) comboMediaType.getSelectedItem());
+            } else {
+                pod.setMediaType(null);
+            }
+
+            Set<Tag> tags = new HashSet<>();
+            DefaultListModel<Tag> listModel = (DefaultListModel<Tag>) listTags.getModel();
+            for (Object o : listModel.toArray()) {
+                tags.add((Tag) o);
+            }
+            pod.setTags(tags);
+
             return pod;
         }));
         if (success) {
             dispose();
         }
-    }
-
-    private void setFieldsOnPod(Pod pod) {
-        if (!comboState.getSelectedItem().equals(SELECT)) {
-            pod.setState((String) comboState.getSelectedItem());
-        } else {
-            pod.setState(null);
-        }
-
-        if (!comboMediaType.getSelectedItem().equals(SELECT)) {
-            pod.setMediaType((String) comboMediaType.getSelectedItem());
-        } else {
-            pod.setMediaType(null);
-        }
-
-        Set<Tag> tags = new HashSet<>();
-        DefaultListModel<Tag> listModel = (DefaultListModel<Tag>) listTags.getModel();
-        for (Object o : listModel.toArray()) {
-            tags.add((Tag) o);
-        }
-        pod.setTags(tags);
     }
 
     private void onClose() {

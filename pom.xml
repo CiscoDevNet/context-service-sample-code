@@ -11,6 +11,7 @@
 
     <modules>
         <module>End-To-End_Sample_Code</module>
+        <module>Import_Export_Sample_Code</module>
         <module>Sample_Swing_UI</module>
     </modules>
 

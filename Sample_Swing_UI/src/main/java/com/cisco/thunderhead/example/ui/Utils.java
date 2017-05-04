@@ -12,7 +12,7 @@ import com.cisco.thunderhead.plugin.ConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -20,6 +20,7 @@ import java.util.function.Function;
  */
 public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+    private static final int MAX_RESULTS = 25;
 
     public static ContextServiceClient getInitializedContextServiceClient(String jsonConnectionData, ConnectorStateListener listener) {
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
@@ -30,7 +31,7 @@ public class Utils {
 
         boolean labMode = true;
         int requestTimeOut = 40000;
-        boolean noFms = false;
+        boolean noFms = true;
 
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
@@ -63,22 +64,41 @@ public class Utils {
         System.out.println("\n\n*** Finished ***\n\n");
     }
 
-    static void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<? extends BaseDbBean> clazz) {
-        SearchParameters sp = new SearchParameters();
-        sp.addAll("id", fields);
+    static <T extends BaseDbBean> void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<T> clazz) {
         java.util.List result;
         do {
-            result = contextServiceClient.search(clazz, sp, Operation.OR);
+            result = search(contextServiceClient, fields, clazz);
             LOGGER.info("waitForSearchable expected: " + fields.size() + ", actual: " + result.size());
         } while (result.size()!=fields.size());
     }
 
+    /**
+     * This returns all the beans represented by the ids.  Search has a max limit on the result set so this
+     * does multiple search requests to return all the beans requested.
+     */
+    static <T extends BaseDbBean> List<T> search(ContextServiceClient contextServiceClient, Collection<String> ids, Class<T> clazz) {
+        List<T> beans = new ArrayList<>();
+        Set<String> idsToSearch = new HashSet<>(ids);
+        while (idsToSearch.size()>0) {
+            SearchParameters searchParameters = new SearchParameters();
+            Iterator<String> it = idsToSearch.iterator();
+            for (int i=0; i<MAX_RESULTS; i++) {
+                if (!it.hasNext()) {
+                    break;
+                }
+                searchParameters.add("id", it.next());
+                it.remove();
+            }
+            List<T> beanSubset = contextServiceClient.search(clazz, searchParameters, Operation.OR);
+            beans.addAll(beanSubset);
+        }
+        return beans;
+    }
+
     static void waitForNotSearchable(ContextServiceClient contextServiceClient, BaseDbBean contextBean, Class<? extends BaseDbBean> clazz) {
-        SearchParameters sp = new SearchParameters();
-        sp.add("id", contextBean.getId().toString());
         java.util.List result;
         do {
-            result = contextServiceClient.search(clazz, sp, Operation.OR);
+            result = search(contextServiceClient, Collections.singletonList(contextBean.getId().toString()), clazz);
             LOGGER.info("waitForSearchable expected: 0, actual: " + result.size());
         } while (result.size()!=0);
     }
