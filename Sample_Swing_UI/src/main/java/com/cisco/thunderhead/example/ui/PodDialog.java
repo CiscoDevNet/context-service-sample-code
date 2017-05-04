@@ -128,6 +128,28 @@ public class PodDialog extends JDialog {
     }
 
     private void onSave() {
+        if (pod!=null) {
+            setFieldsOnPod(pod);
+        }
+
+        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, pod, Pod.class, ((dataElements) -> {
+            Pod pod = new Pod(dataElements);
+
+            if (customer != null) {
+                pod.setCustomerId(customer.getCustomerId());
+            }
+            if (request != null) {
+                pod.setRequestId(request.getRequestId());
+            }
+            setFieldsOnPod(pod);
+            return pod;
+        }));
+        if (success) {
+            dispose();
+        }
+    }
+
+    private void setFieldsOnPod(Pod pod) {
         if (!comboState.getSelectedItem().equals(SELECT)) {
             pod.setState((String) comboState.getSelectedItem());
         } else {
@@ -146,21 +168,6 @@ public class PodDialog extends JDialog {
             tags.add((Tag) o);
         }
         pod.setTags(tags);
-
-        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, pod, Pod.class, ((dataElements) -> {
-            Pod pod = new Pod(dataElements);
-
-            if (customer != null) {
-                pod.setCustomerId(customer.getCustomerId());
-            }
-            if (request != null) {
-                pod.setRequestId(request.getRequestId());
-            }
-            return pod;
-        }));
-        if (success) {
-            dispose();
-        }
     }
 
     private void onClose() {
