@@ -198,12 +198,14 @@ public class CustomerPodRequestDialog extends JDialog {
         String[] terms = query.split(" ");
         SearchParameters sp = new SearchParameters();
         for (String term : terms) {
-            String[] split = term.split(":");
-            if (split.length != 2) {
+            int colonPos = term.indexOf(':');
+            if (colonPos==-1) {
                 showError("badly formed query.  Terms must be in field:value form");
                 return;
             }
-            sp.add(split[0], split[1]);
+            String key = term.substring(0, colonPos);
+            String value = term.substring(colonPos+1);
+            sp.add(key, value);
         }
         try {
             List<? extends BaseDbBean> items = ConnectionData.getContextServiceClient().search(clazz, sp, Operation.OR);
