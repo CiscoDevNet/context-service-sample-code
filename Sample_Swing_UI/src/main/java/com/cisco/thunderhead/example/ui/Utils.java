@@ -6,12 +6,14 @@ import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
+import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
 import com.cisco.thunderhead.connector.states.ConnectorStateListener;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 
@@ -23,24 +25,38 @@ public class Utils {
     private static final int MAX_RESULTS = 25;
 
     public static ContextServiceClient getInitializedContextServiceClient(String jsonConnectionData, ConnectorStateListener listener) {
-        ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
-
-        if (listener!=null) {
-            contextServiceClient.addStateListener(listener);
-        }
+        // initialize connector factory
+        String pathToConnectorProperty = Paths.get("./connector.property").toAbsolutePath().toString();
+        ConnectorFactory.initializeFactory(pathToConnectorProperty);
+        LOGGER.info("Initialized Connector Factory");
 
         boolean labMode = true;
-        int requestTimeOut = 40000;
+        int requestTimeOut = 10000;
         boolean noFms = true;
 
+        // initialize management connector
+        ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        if (listener!=null) {
+            managementConnector.addStateListener(listener);
+        }
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty(ContextServiceClientConstants.LAB_MODE, labMode); // exclude this line for prod mode
             addProperty(ContextServiceClientConstants.REQUEST_TIMEOUT, requestTimeOut);
-            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, noFms);
+//            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, noFms);
         }};
+        managementConnector.init(jsonConnectionData, connInfo, configuration);
+        LOGGER.info("Initialized management connector");
+
+        // initialize context service client
+        ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+        if (listener!=null) {
+            contextServiceClient.addStateListener(listener);
+        }
+        // reuse configuration we used for management connector
         contextServiceClient.init(jsonConnectionData, connInfo, configuration);
+        LOGGER.info("Initialized Context Service client");
         return contextServiceClient;
     }
 

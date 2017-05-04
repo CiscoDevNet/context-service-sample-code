@@ -1,6 +1,7 @@
 package com.cisco.thunderhead.example.ui;
 
 import com.cisco.thunderhead.client.ContextServiceClient;
+import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.states.ConnectorState;
 import com.cisco.thunderhead.connector.states.ConnectorStateListener;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
@@ -124,6 +125,11 @@ public class ContextServiceSdkUI extends JFrame {
             contextServiceClient.destroy();
             contextServiceClient.removeStateListener(connectorStateListener);
         }
+        ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        if (managementConnector != null) {
+            managementConnector.destroy();
+            managementConnector.removeStateListener(connectorStateListener);
+        }
         ConnectionData.setContextServiceClient(null);
         statusLabel.setText(NOT_INITIALIZED);
         versionLabel.setText("");
@@ -132,12 +138,6 @@ public class ContextServiceSdkUI extends JFrame {
 
     private void handleInitialize() {
         handleDestroy();
-        String configFilePath = "connector.property";
-        try {
-            ConnectorFactory.initializeFactory(configFilePath);
-        } catch (Exception e) {
-            System.out.println("Error Initializing Factory! The Error is: " + e);
-        }
 
         new Thread(() -> {
             addLog("Start - Initialize context service client");
