@@ -35,11 +35,26 @@ For more information, see [Getting Started with the Context Service SDK](https:/
 ## Running the Example
 After you have installed the SDK components, open the project in an IDE to explore the examples and tests.
 
-Note: one simple example is provided to generate a registration URL.  After compiling, run the following for command-line syntax. 
+## Packaging
+After building, a ZIP file is available for distribution.
+
+## Command-line examples
+Some command-line examples exist.  To see them:
 
 ```
-java -jar target/Context-Service-SDK-Examples.jar
+./run.sh
 ```
+
+Examples:
+* Generating a registration URL
+* Parsing a connection data string
+* Searching for pod, customer, or request
+
+For example, to search for all customers with a Context_City of Boston and save to a file:
+ 
+ ```
+ ./run.sh search --query "Context_City:Boston" --type customer --output customer.txt
+ ```
 
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
