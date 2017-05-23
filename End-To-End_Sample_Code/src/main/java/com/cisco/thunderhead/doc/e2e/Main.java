@@ -75,7 +75,7 @@ public class Main {
         }
     }
 
-    private ContextServiceClient getContextServiceClient() {
+    private ContextServiceClient getContextServiceClient(final String requestTimeout) {
         String connectionData = ConnectionData.getConnectionData();
 
         // initialize connector factory
@@ -89,7 +89,7 @@ public class Main {
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
-            addProperty("REQUEST_TIMEOUT", 10000);
+            addProperty("REQUEST_TIMEOUT", requestTimeout!=null ? Integer.parseInt(requestTimeout) : 10000);
         }};
         managementConnector.init(connectionData, connInfo, configuration);
         LOGGER.info("Initialized management connector");
@@ -102,7 +102,7 @@ public class Main {
     }
 
     private void search(CommandSearch search) {
-        ContextServiceClient client = getContextServiceClient();
+        ContextServiceClient client = getContextServiceClient(search.requestTimeout);
         Class<? extends ContextBean> clazz;
         switch (search.type) {
             case "pod":
@@ -208,5 +208,8 @@ public class Main {
 
         @Parameter(names="--output", description = "Output file (optional)")
         private String outputFilename;
+
+        @Parameter(names="--timeout", description = "Request timeout (optional)")
+        private String requestTimeout;
     }
 }
