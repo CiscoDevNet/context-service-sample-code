@@ -13,7 +13,7 @@ import java.util.List;
 
 public class CreateEntities {
     /**
-     * Create POD with default fields and field sets.
+     * Create POD with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
      * @return a newly-created pod with the cisco.base.pod fieldset
      */
@@ -32,7 +32,7 @@ public class CreateEntities {
     }
 
     /**
-     * Create a Customer with default fields and field sets.
+     * Create a Customer with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
      * @return a newly-created customer with the cisco.base.customer fieldset
      */
@@ -58,7 +58,7 @@ public class CreateEntities {
     }
 
     /**
-     * Create a Request with default fields and field sets.
+     * Create a Request with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
      * @return a newly-created request with the cisco.base.request fieldset
      */
@@ -142,7 +142,7 @@ public class CreateEntities {
     }
 
     /**
-     * Create multiple PODS associated with one customer. 
+     * Create multiple PODS associated with one customer.
      * One Customer can have many Pods associated with it.
      * @param contextServiceClient an initialized ContextServiceClient
      * @param customer a pre-existing Customer object
