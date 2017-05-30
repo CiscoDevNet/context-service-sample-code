@@ -24,7 +24,7 @@ import java.util.Set;
 import static com.cisco.thunderhead.client.Operation.OR;
 
 /**
- * This class shows how to create new fields and field sets.
+ * This class shows how to create new fields and fieldsets.
  */
 public class FieldSets {
 
@@ -56,10 +56,10 @@ public class FieldSets {
     }
 
     /**
-     * Create two new fields and add them to a field set.
+     * Create two new fields and add them to a fieldset.
      *
      * @param initialized Context Service Client
-     * @return a field set
+     * @return a fieldset
      */
     public static FieldSet createFieldSet(ContextServiceClient contextServiceClient){
 
@@ -77,11 +77,11 @@ public class FieldSets {
     }
 
     /**
-     * Add a new field to the specified field set.
-     * 
+     * Add a new field to the specified fieldset.
+     *
      * @param initialized Context Service Client
-     * @param field set a field set to be updated
-     * @return a field set
+     * @param fieldset a fieldset to be updated
+     * @return a fieldset
      */
     public static FieldSet updateFieldSet(ContextServiceClient contextServiceClient, FieldSet fieldSet){
 
@@ -96,10 +96,10 @@ public class FieldSets {
     }
 
     /**
-     * Delete the specified field set.
-     * 
+     * Delete the specified fieldset.
+     *
      * @param initialized Context Service Client
-     * @param field set a field set
+     * @param fieldset a fieldset
      */
     public static void deleteFieldSet(ContextServiceClient contextServiceClient, FieldSet fieldSet){
         contextServiceClient.delete(fieldSet);
@@ -107,10 +107,10 @@ public class FieldSets {
     }
 
     /**
-     * Search field sets using a search query.
+     * Search fieldsets using a search query.
      *
      * @param initialized Context Service Client
-     * @return List<FieldSet> a list of field set which matches the search query
+     * @return List<FieldSet> a list of fieldsets that match the search query
      */
     public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient){
 
@@ -128,9 +128,9 @@ public class FieldSets {
 
     /**
      * Search fields using a search query.
-     * 
+     *
      * @param initialized Context Service Client
-     * @return List<Field> a list of fields which matches the search query
+     * @return List<Field> a list of fields that match the search query
      */
     public static List<Field> searchField(ContextServiceClient contextServiceClient){
 
@@ -149,10 +149,10 @@ public class FieldSets {
     }
 
     /**
-     * This method describes usage of Cisco FieldSets to create a Pod in ContextService.
+     * This method describes usage of Cisco Fieldsets to create a Pod in ContextService.
      * Similarly, Customer and Request objects can be created in ContextService.
      * @param initialized Context Service Client
-     * @return a pod uses Cisco base field set
+     * @return a pod uses Cisco base fieldset
      */
     public static Pod ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
 
@@ -173,10 +173,10 @@ public class FieldSets {
     }
 
     /**
-     * This method describe usage of Cisco FieldSets and Custom FieldSet to create a Pod
+     * This method describe usage of Cisco Fieldsets and Custom Fieldsets to create a Pod
      * in ContextService. Similarly, Customer and Request objects can be created.
      * @param initialized Context Service Client
-     * @return a pod uses Custom FieldSet
+     * @return a pod uses Custom Fieldset
      */
     public static Pod customFieldSetUsage(ContextServiceClient contextServiceClient){
 
@@ -209,10 +209,10 @@ public class FieldSets {
     }
 
     /**
-     * This method describes usage of Cisco base field set and Custom field set to create a Pod
+     * This method describes usage of Cisco Base fieldset and Custom fieldset to create a Pod
      * in ContextService. Similarly, Customer and Request can be created.
      * @param initialized Context Service Client
-     * @return a pod which uses Cisco Base FieldSet and Custom FieldSet
+     * @return a pod which uses Cisco Base Fieldset and Custom Fieldset
      */
     public static Pod customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
 
