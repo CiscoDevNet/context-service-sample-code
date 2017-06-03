@@ -11,7 +11,7 @@ Consider using the sample codes in Lab mode to test and build custom apps for yo
 
 After compiling with `mvn clean install` you can run `export.sh` to export or `import.sh` to import.
 
-w## Getting Started
+## Getting Started
 To set up sample code components:
 
 1. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).

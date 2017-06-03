@@ -74,47 +74,58 @@ public class Import {
     public static void main(String args[]) throws Exception {
 
         Arguments arguments = new Arguments(args);
-
-        try{
-            // validate the arguments
-            Path inputDirectoryPath = Paths.get(arguments.inputDirectory);
-            Path outputDirectoryPath = Paths.get(arguments.outputDirectory);
-            setupAndVerifyFiles(inputDirectoryPath, outputDirectoryPath);
-
-            // initialize the Context Service SDK using the connection data
-            contextServiceClient = Utils.initContextServiceClient(arguments.connection);
-
-            // create error files
-            createFailedObjectFiles(outputDirectoryPath, "pod_error", "customer_error", "request_error");
-
-            // write summary and error log to summary.txt
-            setupLogger();
-
-            // flush all workgroup data from the database
-            if (arguments.flush) {
-                flush();
-            }
-
-            // Open input streams to the import object files. Read each json object from the file.
-            // Create context objects. Log summary of results.
-            try(BufferedReader pod = new BufferedReader(new FileReader(podFile));
-                BufferedReader cust = new BufferedReader(new FileReader(custFile));
-                BufferedReader req = new BufferedReader(new FileReader(reqFile));
-            ){
-                long lStartTime = System.currentTimeMillis();
-                readAndVisit(cust, Customer.class, createAndMapCustomerAndRequest);
-                readAndVisit(req, Request.class, createAndMapCustomerAndRequest);
-                readAndVisit(pod, Pod.class, createPodEntity);
-                long lEndTime = System.currentTimeMillis();
-
-                LOGGER.info("Total number of objects imported : " + numberOfImportedEntities);
-                LOGGER.info("Total number of objects that failed to import : " + numberOfFailedEntities);
-                LOGGER.info("Total time elapsed in importing : " + (lEndTime - lStartTime) + " milliseconds");
-            }
-        }
-        finally {
+        ContextServiceClient contextServiceClient = Utils.initContextServiceClient(arguments.connection);
+        try {
+            doImport(contextServiceClient, arguments.inputDirectory, arguments.outputDirectory, arguments.flush);
+        } finally {
             cleanup();
         }
+    }
+
+    static void doImport(ContextServiceClient contextServiceClient, String inputDirectory, String outputDirectory, boolean flush) throws Exception {
+        // validate the arguments
+        Path inputDirectoryPath = Paths.get(inputDirectory);
+        Path outputDirectoryPath = Paths.get(outputDirectory);
+        setupAndVerifyFiles(inputDirectoryPath, outputDirectoryPath);
+
+        // initialize the Context Service SDK using the connection data
+        Import.contextServiceClient = contextServiceClient;
+
+        // create error files
+        createFailedObjectFiles(outputDirectoryPath, "pod_error", "customer_error", "request_error");
+
+        // write summary and error log to summary.txt
+        setupLogger();
+
+        // flush all workgroup data from the database
+        if (flush) {
+            flush();
+        }
+
+        // Open input streams to the import object files. Read each json object from the file.
+        // Create context objects. Log summary of results.
+        try(BufferedReader pod = new BufferedReader(new FileReader(podFile));
+            BufferedReader cust = new BufferedReader(new FileReader(custFile));
+            BufferedReader req = new BufferedReader(new FileReader(reqFile));
+        ){
+            long lStartTime = System.currentTimeMillis();
+            readAndVisit(cust, Customer.class, createAndMapCustomerAndRequest);
+            readAndVisit(req, Request.class, createAndMapCustomerAndRequest);
+            readAndVisit(pod, Pod.class, createPodEntity);
+            long lEndTime = System.currentTimeMillis();
+
+            LOGGER.info("Total number of objects imported : " + numberOfImportedEntities);
+            LOGGER.info("Total number of objects that failed to import : " + numberOfFailedEntities);
+            LOGGER.info("Total time elapsed in importing : " + (lEndTime - lStartTime) + " milliseconds");
+        }
+    }
+
+    static int getNumberOfImportedEntities() {
+        return numberOfImportedEntities;
+    }
+
+    static int getNumberOfFailedEntities() {
+        return numberOfFailedEntities;
     }
 
     /**
