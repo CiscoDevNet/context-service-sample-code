@@ -7,3 +7,4 @@ src/main/resources/context-service-sdk-*.jar
 src/main/resources/context-service-sdk-*-pom.xml
 target/
 plugin/
+.DS_Store

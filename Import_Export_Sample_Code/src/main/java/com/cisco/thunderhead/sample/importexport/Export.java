@@ -4,30 +4,20 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.cisco.thunderhead.ContextBean;
-import com.cisco.thunderhead.SDKTestBase;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
-import com.cisco.thunderhead.connector.ConnectorConfiguration;
-import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
 import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.plugin.ConnectorFactory;
 import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.util.RFC3339Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**+
@@ -52,9 +42,19 @@ public class Export {
     public static void main(String[] args) throws Exception {
 
         Arguments arguments = new Arguments(args);
-
         // initialize the Context Service SDK using the connection data passed from arguments
-        contextServiceClient = initContextServiceClient(arguments.connection);
+        contextServiceClient = Utils.initContextServiceClient(arguments.connection);
+
+        try {
+            doExport(contextServiceClient, arguments.outputDir, arguments.pretty, arguments.deleteExistingExports, arguments.windowSize, arguments.startDate, arguments.endDate, arguments.maxSummaryIds);
+        } finally {
+            // Destroys and cleanups connector threads and tokens.
+            contextServiceClient.destroy();
+        }
+    }
+
+    static void doExport(ContextServiceClient contextServiceClient, String outDir, boolean pretty, boolean deleteExistingExports, int windowSize, RFC3339Date startDate, RFC3339Date endDate, int maxSummaryIds) throws Exception {
+        Export.contextServiceClient = contextServiceClient;
 
         // start timer to log performance
         long lStartTime = System.currentTimeMillis();
@@ -63,10 +63,10 @@ public class Export {
         // We want to write entities to file as we fetch them, instead of all at once
         // because for large exports, the amount of memory required to hold every entity might be very large
         LOGGER.info("Creating output files...");
-        Path outputDir = Paths.get(arguments.outputDir);
-        JsonArrayWriter podWriter = new JsonArrayWriter("pod", outputDir, arguments.pretty, arguments.deleteExistingExports);
-        JsonArrayWriter custWriter = new JsonArrayWriter("customer", outputDir, arguments.pretty, arguments.deleteExistingExports);
-        JsonArrayWriter reqWriter = new JsonArrayWriter("request", outputDir, arguments.pretty, arguments.deleteExistingExports);
+        Path outputDir = Paths.get(outDir);
+        JsonArrayWriter podWriter = new JsonArrayWriter("pod", outputDir, pretty, deleteExistingExports);
+        JsonArrayWriter custWriter = new JsonArrayWriter("customer", outputDir, pretty, deleteExistingExports);
+        JsonArrayWriter reqWriter = new JsonArrayWriter("request", outputDir, pretty, deleteExistingExports);
 
         try {
             // First, fetch pod IDs only from search API (with summary=true)
@@ -74,9 +74,9 @@ public class Export {
             // In summary mode, search returns up to 100000 entities (vs. 200 wth normal search API)
             // So we fetch all of the IDs in summary mode, and based on those IDs list, fetch each entity
             // Limit the search to the entities changed within the given time window
-            Set<String> podIds = fetchEntityIds(Pod.class, arguments.startDate, arguments.endDate, arguments.maxSummaryIds);
-            Set<String> customerIds = fetchEntityIds(Customer.class, arguments.startDate, arguments.endDate, arguments.maxSummaryIds);
-            Set<String> requestIds = fetchEntityIds(Request.class, arguments.startDate, arguments.endDate, arguments.maxSummaryIds);
+            Set<String> podIds = fetchEntityIds(Pod.class, startDate, endDate, maxSummaryIds);
+            Set<String> customerIds = fetchEntityIds(Customer.class, startDate, endDate, maxSummaryIds);
+            Set<String> requestIds = fetchEntityIds(Request.class, startDate, endDate, maxSummaryIds);
 
             // Java 8 lambda expression to run on each pod that is retrieved
             // The customer and request associated with each pod might not have been updated within the given window
@@ -98,9 +98,9 @@ public class Export {
             // Now that we have a list of ids for each entity type,
             // fetch the full entities from Context Service in chunks.
             // Write them to the file as we go so that we don't have to store them in memory.
-            fetchVisitAndWriteEntities(Pod.class, podIds, podWriter, arguments.windowSize, extractCustomerIdAndRequestId);
-            fetchAndWriteEntities(Customer.class, customerIds, custWriter, arguments.windowSize);
-            fetchAndWriteEntities(Request.class, requestIds, reqWriter, arguments.windowSize);
+            fetchVisitAndWriteEntities(Pod.class, podIds, podWriter, windowSize, extractCustomerIdAndRequestId);
+            fetchAndWriteEntities(Customer.class, customerIds, custWriter, windowSize);
+            fetchAndWriteEntities(Request.class, requestIds, reqWriter, windowSize);
         } finally {
             // Finish writing the files
             LOGGER.info("Closing writers...");
@@ -114,39 +114,9 @@ public class Export {
             LOGGER.info("Number of pod written: " + podWriter.getNumberOfEntities());
             LOGGER.info("Number of customer written: " + custWriter.getNumberOfEntities());
             LOGGER.info("Number of request written: " + reqWriter.getNumberOfEntities());
-
-            // Destroys and cleanups connector threads and tokens.
-            contextServiceClient.destroy();
         }
     }
 
-    /**
-     * Initialize the Context Service SDK
-     * @param connectionData Connector data to initialize Context Service
-     * @return the initialized ContextServiceClient
-     */
-    private static ContextServiceClient initContextServiceClient(String connectionData) {
-        // host name of the connector
-        String connectorHostName = "lab_connector";
-
-        // The Connector factory has to be iniatialized before we can extract the connector
-        ConnectorFactory.initializeFactory(SDKTestBase.DEFAULT_CONNECTOR_PROPERTIES_PATH);
-
-        // Status information object for a given connector.
-        ConnectorInfoImpl connectorInfo = new ConnectorInfoImpl(connectorHostName);
-
-        // Configure client to disable upgrades, and use lab mode
-        ConnectorConfiguration config = new ConnectorConfiguration();
-        config.addProperty(ContextServiceClientConstants.LAB_MODE, true); // enable lab mode
-        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, true); // Disable updates
-
-        // get connector for ContextServiceClient
-        ContextServiceClient client = ConnectorFactory.getConnector(ContextServiceClient.class);
-
-        // Initialize with our configuration objects
-        client.init(connectionData.trim(), connectorInfo, config);
-        return client;
-    }
 
     /**
      * Fetch all of the entity IDs of the given type within the given window.
@@ -308,7 +278,7 @@ public class Export {
          */
         public void parseArguments(String args[]){
             try {
-                JCommander jc = new JCommander(this, args);
+                new JCommander(this, args);
 
                 if (maxSummaryIds > MAX_SUMMARY_ENTRIES || maxSummaryIds < 2) { // DEFAULT_SUMMARY_ENTRIES
                     throw new ParameterException("maxSummaryIds must be between " + 2 + " and " + MAX_SUMMARY_ENTRIES);
@@ -316,6 +286,15 @@ public class Export {
 
                 if (windowSize > MAX_WINDOW_SIZE || windowSize < 1) { // MAX_POD_ENTRIES_LIMIT
                     throw new ParameterException("windowSize must be between " + 1 + " and " + MAX_WINDOW_SIZE);
+                }
+
+                File outDir = new File(outputDir);
+                if (!outDir.exists()) {
+                    throw new ParameterException("Output directory " + outputDir + " does not exist");
+                }
+
+                if (!outDir.isDirectory()) {
+                    throw new ParameterException("Output directory specified is not a directory: " + outputDir);
                 }
 
                 LOGGER.info("Arguments- " + "StartDate: " + startDate + ", EndDate: " + endDate + ", Connection String: " + connection);
