@@ -21,6 +21,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.concurrent.TimeoutException;
 
+import static com.cisco.thunderhead.doc.e2e.ContextServiceDemo.getNoManagementConnector;
 import static org.junit.Assert.assertEquals;
 
 public class BaseExamplesTest {
@@ -51,15 +52,6 @@ public class BaseExamplesTest {
         mgmtConnector.init(ConnectionData.getConnectionData(), connInfo, config);
         // Flush Data, so we start with a clean slate...
         flushAllData();
-    }
-
-    private static boolean getNoManagementConnector() {
-        String noManagementConnector = System.getenv(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR);
-        LOGGER.info("NO_MANAGEMENT_CONNECTOR: " + noManagementConnector);
-        if (noManagementConnector==null) {
-            noManagementConnector = "false";
-        }
-        return StringUtils.equalsIgnoreCase(noManagementConnector,"true");
     }
 
     @AfterClass
