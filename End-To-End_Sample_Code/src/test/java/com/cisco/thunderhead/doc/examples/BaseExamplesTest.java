@@ -2,6 +2,7 @@ package com.cisco.thunderhead.doc.examples;
 
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
+import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
@@ -11,12 +12,10 @@ import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.rest.FlushStatusBean;
 import org.apache.commons.lang3.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
@@ -42,6 +41,7 @@ public class BaseExamplesTest {
         ConnectorConfiguration config = new ConnectorConfiguration();
         config.addProperty("LAB_MODE", true);
         config.addProperty("REQUEST_TIMEOUT", 10000);
+        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
         final String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
 
@@ -51,6 +51,14 @@ public class BaseExamplesTest {
         mgmtConnector.init(ConnectionData.getConnectionData(), connInfo, config);
         // Flush Data, so we start with a clean slate...
         flushAllData();
+    }
+
+    private static boolean getNoManagementConnector() {
+        String noManagementConnector = System.getenv(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR);
+        if (noManagementConnector==null) {
+            noManagementConnector = "false";
+        }
+        return StringUtils.equalsIgnoreCase(noManagementConnector,"true");
     }
 
     @AfterClass

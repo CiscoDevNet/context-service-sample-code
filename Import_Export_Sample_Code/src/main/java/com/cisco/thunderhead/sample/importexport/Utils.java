@@ -42,7 +42,7 @@ public class Utils {
         // Configure client to disable upgrades, and use lab mode
         ConnectorConfiguration config = new ConnectorConfiguration();
         config.addProperty(ContextServiceClientConstants.LAB_MODE, true); // enable lab mode
-        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, false); // Enable updates
+        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
 
         // get connector for ContextServiceClient
         ContextServiceClient client = ConnectorFactory.getConnector(ContextServiceClient.class);
@@ -50,6 +50,17 @@ public class Utils {
         // Initialize with our configuration objects
         client.init(connectionData.trim(), connectorInfo, config);
         return client;
+    }
+
+    /**
+     * False to enable updates, true to disable.
+     */
+    private static boolean getNoManagementConnector() {
+        String noManagementConnector = System.getenv(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR);
+        if (noManagementConnector==null) {
+            noManagementConnector = "false"; // default to always update
+        }
+        return StringUtils.equalsIgnoreCase(noManagementConnector,"true");
     }
 
     public static synchronized String getConnectionData() {
