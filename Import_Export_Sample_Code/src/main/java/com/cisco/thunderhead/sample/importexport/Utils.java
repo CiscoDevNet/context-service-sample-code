@@ -57,6 +57,7 @@ public class Utils {
      */
     private static boolean getNoManagementConnector() {
         String noManagementConnector = System.getenv(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR);
+        System.out.println("NO_MANAGEMENT_CONNECTOR: " + noManagementConnector);
         if (noManagementConnector==null) {
             noManagementConnector = "false"; // default to always update
         }

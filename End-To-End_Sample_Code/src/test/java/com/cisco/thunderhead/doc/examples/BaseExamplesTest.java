@@ -55,6 +55,7 @@ public class BaseExamplesTest {
 
     private static boolean getNoManagementConnector() {
         String noManagementConnector = System.getenv(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR);
+        LOGGER.info("NO_MANAGEMENT_CONNECTOR: " + noManagementConnector);
         if (noManagementConnector==null) {
             noManagementConnector = "false";
         }
