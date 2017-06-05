@@ -1,6 +1,7 @@
 package com.cisco.thunderhead.doc.examples;
 
 import com.cisco.thunderhead.client.ContextServiceClient;
+import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.connector.Connector;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+
+import static com.cisco.thunderhead.doc.e2e.ContextServiceDemo.getNoManagementConnector;
 
 public class ConfigurationAndInitialization {
 
@@ -43,6 +46,7 @@ public class ConfigurationAndInitialization {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
         }};
         contextServiceClient.init(connectionData, connInfo, configuration);
 
@@ -65,6 +69,7 @@ public class ConfigurationAndInitialization {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
         }};
         managementConnector.init(connectionData, connInfo, configuration);
 

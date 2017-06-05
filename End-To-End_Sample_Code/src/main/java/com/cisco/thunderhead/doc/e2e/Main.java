@@ -6,6 +6,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.cisco.thunderhead.ContextBean;
 import com.cisco.thunderhead.client.ContextServiceClient;
+import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
@@ -32,6 +33,8 @@ import java.net.URLDecoder;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+
+import static com.cisco.thunderhead.doc.e2e.ContextServiceDemo.getNoManagementConnector;
 
 /**
  * This is a simple example for running different commands (currently just one, register)
@@ -90,6 +93,7 @@ public class Main {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", requestTimeout!=null ? Integer.parseInt(requestTimeout) : 10000);
+            addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
         }};
         managementConnector.init(connectionData, connInfo, configuration);
         LOGGER.info("Initialized management connector");
