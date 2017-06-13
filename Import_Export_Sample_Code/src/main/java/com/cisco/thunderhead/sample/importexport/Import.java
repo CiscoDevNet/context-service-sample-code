@@ -4,14 +4,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.cisco.thunderhead.ContextBean;
-import com.cisco.thunderhead.SDKTestBase;
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.client.ContextServiceClientConstants;
-import com.cisco.thunderhead.connector.ConnectorConfiguration;
-import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
 import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.plugin.ConnectorFactory;
 import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.rest.FlushStatusBean;
@@ -20,11 +15,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,74 +74,58 @@ public class Import {
     public static void main(String args[]) throws Exception {
 
         Arguments arguments = new Arguments(args);
-
-        try{
-            // validate the arguments
-            Path inputDirectoryPath = Paths.get(arguments.inputDirectory);
-            Path outputDirectoryPath = Paths.get(arguments.outputDirectory);
-            setupAndVerifyFiles(inputDirectoryPath, outputDirectoryPath);
-
-            // initialize the Context Service SDK using the connection data
-            initContextServiceClient(arguments.connection);
-
-            // create error files
-            createFailedObjectFiles(outputDirectoryPath, "pod_error", "customer_error", "request_error");
-
-            // write summary and error log to summary.txt
-            setupLogger();
-
-            // flush all workgroup data from the database
-            if (arguments.flush) {
-                flush();
-            }
-
-            // Open input streams to the import object files. Read each json object from the file.
-            // Create context objects. Log summary of results.
-            try(BufferedReader pod = new BufferedReader(new FileReader(podFile));
-                BufferedReader cust = new BufferedReader(new FileReader(custFile));
-                BufferedReader req = new BufferedReader(new FileReader(reqFile));
-            ){
-                long lStartTime = System.currentTimeMillis();
-                readAndVisit(cust, Customer.class, createAndMapCustomerAndRequest);
-                readAndVisit(req, Request.class, createAndMapCustomerAndRequest);
-                readAndVisit(pod, Pod.class, createPodEntity);
-                long lEndTime = System.currentTimeMillis();
-
-                LOGGER.info("Total number of objects imported : " + numberOfImportedEntities);
-                LOGGER.info("Total number of objects that failed to import : " + numberOfFailedEntities);
-                LOGGER.info("Total time elapsed in importing : " + (lEndTime - lStartTime) + " milliseconds");
-            }
-        }
-        finally {
+        ContextServiceClient contextServiceClient = Utils.initContextServiceClient(arguments.connection);
+        try {
+            doImport(contextServiceClient, arguments.inputDirectory, arguments.outputDirectory, arguments.flush);
+        } finally {
             cleanup();
         }
     }
 
-    /**
-     * Initialize context service client
-     * @param connectionData  Connection data to initialize Context Service SDK
-     */
-    private static void initContextServiceClient(String connectionData) {
+    static void doImport(ContextServiceClient contextServiceClient, String inputDirectory, String outputDirectory, boolean flush) throws Exception {
+        // validate the arguments
+        Path inputDirectoryPath = Paths.get(inputDirectory);
+        Path outputDirectoryPath = Paths.get(outputDirectory);
+        setupAndVerifyFiles(inputDirectoryPath, outputDirectoryPath);
 
-        // host name of the connector
-        String connectorHostName = "lab_connector";
+        // initialize the Context Service SDK using the connection data
+        Import.contextServiceClient = contextServiceClient;
 
-        // The Connector factory has to be iniatialized before we can extract the connector
-        ConnectorFactory.initializeFactory(SDKTestBase.DEFAULT_CONNECTOR_PROPERTIES_PATH);
+        // create error files
+        createFailedObjectFiles(outputDirectoryPath, "pod_error", "customer_error", "request_error");
 
-        // Status information object for a given connector.
-        ConnectorInfoImpl connectorInfo = new ConnectorInfoImpl(connectorHostName);
+        // write summary and error log to summary.txt
+        setupLogger();
 
-        // Configure client to disable upgrades, and use lab mode
-        ConnectorConfiguration config = new ConnectorConfiguration();
-        config.addProperty(ContextServiceClientConstants.LAB_MODE, true); // enable lab mode
-        config.addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, true); // Disable updates
+        // flush all workgroup data from the database
+        if (flush) {
+            flush();
+        }
 
-        // get connector for ContextServiceClient
-        contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+        // Open input streams to the import object files. Read each json object from the file.
+        // Create context objects. Log summary of results.
+        try(BufferedReader pod = new BufferedReader(new FileReader(podFile));
+            BufferedReader cust = new BufferedReader(new FileReader(custFile));
+            BufferedReader req = new BufferedReader(new FileReader(reqFile));
+        ){
+            long lStartTime = System.currentTimeMillis();
+            readAndVisit(cust, Customer.class, createAndMapCustomerAndRequest);
+            readAndVisit(req, Request.class, createAndMapCustomerAndRequest);
+            readAndVisit(pod, Pod.class, createPodEntity);
+            long lEndTime = System.currentTimeMillis();
 
-        // Initialize with our configuration objects
-        contextServiceClient.init(connectionData.trim(), connectorInfo, config);
+            LOGGER.info("Total number of objects imported : " + numberOfImportedEntities);
+            LOGGER.info("Total number of objects that failed to import : " + numberOfFailedEntities);
+            LOGGER.info("Total time elapsed in importing : " + (lEndTime - lStartTime) + " milliseconds");
+        }
+    }
+
+    static int getNumberOfImportedEntities() {
+        return numberOfImportedEntities;
+    }
+
+    static int getNumberOfFailedEntities() {
+        return numberOfFailedEntities;
     }
 
     /**
@@ -207,15 +182,15 @@ public class Import {
         int totalReadEntities = 0;
         int totalCreatedEntities = 0;
 
-        JsonReader reader = new JsonReader(bufferedReader);
-        reader.beginArray();
-        while (reader.hasNext()) {
-            // deserialize a bean from json and invoke the callback function
-            totalCreatedEntities += (int) visitor.apply(gson.fromJson(reader, type));
-            totalReadEntities++;
+        try (JsonReader reader = new JsonReader(bufferedReader)) {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                // deserialize a bean from json and invoke the callback function
+                totalCreatedEntities += (int) visitor.apply(gson.fromJson(reader, type));
+                totalReadEntities++;
+            }
+            reader.endArray();
         }
-        reader.endArray();
-        reader.close();
 
         LOGGER.info("Total number of " + type.getSimpleName() + " created : " + totalCreatedEntities);
 
