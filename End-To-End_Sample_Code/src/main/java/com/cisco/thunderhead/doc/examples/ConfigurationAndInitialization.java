@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.cisco.thunderhead.doc.e2e.ContextServiceDemo.getNoManagementConnector;
 
@@ -41,6 +42,9 @@ public class ConfigurationAndInitialization {
      */
     public static ContextServiceClient createAndInitContextServiceClientWithCustomConfiguration(String connectionData) {
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+        //Adding CS connector state listener. It needs to be done before calling init on a connector
+        addStateListenerToContextConnector(contextServiceClient);
+
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
@@ -63,7 +67,13 @@ public class ConfigurationAndInitialization {
      * @return an initialized ManagementConnector
      */
     public static ManagementConnector createAndInitManagementConnectorWithCustomConfiguration(String connectionData){
+        AtomicBoolean isStarted = new AtomicBoolean(false);
+        AtomicBoolean isStopped = new AtomicBoolean(false);
+
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        //Adding management connector state listener. It needs to be done before calling init on a connector
+        ConnectorStateListener stateListener = addStateListenerToManagementConnector(managementConnector, isStarted, isStopped);
+
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
@@ -76,6 +86,17 @@ public class ConfigurationAndInitialization {
         // Optionally, parse the JSON returned by getStatus for additional status information
         String status = managementConnector.getStatus();
 
+        //wait 3 sec for connector to be initialised.
+        long startTime = System.currentTimeMillis();
+        while((System.currentTimeMillis() - startTime) <= 3*1000 &&
+                !isStarted.get()){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("Management Connector initialized successfully");
+        }
         return managementConnector;
     }
 
@@ -112,9 +133,11 @@ public class ConfigurationAndInitialization {
     /**
      * Before initializing the connector, create and add a ConnectorStateListener to the ManagementConnector.
      * @param managementConnector
+     * @param isStarted
+     * @param isStopped
      * @return the created ConnectorStateListener
      */
-    public static ConnectorStateListener addStateListenerToManagementConnector(ManagementConnector managementConnector){
+    public static ConnectorStateListener addStateListenerToManagementConnector(ManagementConnector managementConnector, final AtomicBoolean isStarted, final AtomicBoolean isStopped){
         ConnectorStateListener stateListener = new ConnectorStateListener() {
             public ConnectorState connectorState;
 
@@ -125,9 +148,20 @@ public class ConfigurationAndInitialization {
                 LOGGER.info("Management Connector state changed: " + newState);
                 if (newState == ConnectorState.STOPPED) {
                     // Perform optional cleanup tasks
+                    if(null!= isStopped)
+                        isStopped.set(true);
+                    if(null!= isStarted)
+                        isStarted.set(false);
                     LOGGER.info("Management Connector stopped.");
-
+                }else if (newState == ConnectorState.REGISTERED) {
+                    // Perform optional cleanup tasks
+                    if(null!= isStopped)
+                        isStopped.set(false);
+                    if(null!= isStarted)
+                        isStarted.set(true);
+                    LOGGER.info("Management Connector stopped.");
                 }
+
             }
         };
         managementConnector.addStateListener(stateListener);

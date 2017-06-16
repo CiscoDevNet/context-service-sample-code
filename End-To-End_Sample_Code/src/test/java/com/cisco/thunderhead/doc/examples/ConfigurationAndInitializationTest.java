@@ -68,7 +68,7 @@ public class ConfigurationAndInitializationTest {
     @Test
     public void addStateListenerToManagementConnectorTest() {
         ManagementConnector managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
-        ConnectorStateListener connectorStateListener = ConfigurationAndInitialization.addStateListenerToManagementConnector(managementConnector);
+        ConnectorStateListener connectorStateListener = ConfigurationAndInitialization.addStateListenerToManagementConnector(managementConnector, null, null);
         assertNotNull(connectorStateListener);
     }
 
