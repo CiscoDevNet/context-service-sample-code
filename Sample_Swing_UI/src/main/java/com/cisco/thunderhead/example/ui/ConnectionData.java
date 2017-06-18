@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Map;
 
 /**]
@@ -61,6 +62,15 @@ public class ConnectionData {
         }
     }
 
+    public static String getEncodedConnectionData(String decodedConnectionData) {
+        try {
+            String encodedConnectionData = URLEncoder.encode(new String(Base64.encode(decodedConnectionData.getBytes())), "UTF-8");
+            return encodedConnectionData;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("failed to decode connection data", e);
+        }
+    }
+
     public static Map getDecodedConnectionDataAsMap(String encodedConnectionData) {
         return new Gson().fromJson(getDecodedConnectionData(encodedConnectionData), Map.class);
     }
@@ -71,5 +81,17 @@ public class ConnectionData {
 
     public static ContextServiceClient getContextServiceClient() {
         return contextServiceClient;
+    }
+
+    public static boolean saveConnectionData(String text) {
+        String connectDataFilePath = (new File(".")).getAbsolutePath() + "/" + connectionDataFileName;
+        try (FileWriter fw = new FileWriter(connectDataFilePath)) {
+            fw.write(text);
+            LOGGER.info("Saved connection data to " + connectDataFilePath);
+            return true;
+        } catch (IOException e) {
+            LOGGER.error("Error writing to file " + connectionDataFileName);
+            return false;
+        }
     }
 }
