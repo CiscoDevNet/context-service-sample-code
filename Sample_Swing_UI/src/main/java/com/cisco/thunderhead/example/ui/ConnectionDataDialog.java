@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 /**
  * This allows the user to retrieve and set the connection data string used to initialize the SDK.
@@ -23,6 +21,9 @@ public class ConnectionDataDialog extends JDialog {
     private JTextField textConnectionDataEncoded;
     private JTextArea textConnectionDataDecoded;
     private JButton decodeButton;
+    private JButton encodeButton;
+    private JButton saveButton;
+    private JButton cancelButton;
 
     public ConnectionDataDialog() {
         this(null);
@@ -47,16 +48,53 @@ public class ConnectionDataDialog extends JDialog {
         // call onOK() on ESCAPE
         contentPane.registerKeyboardAction(e -> onOK(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         decodeButton.addActionListener(e -> onDecode());
+        encodeButton.addActionListener(e -> onEncode());
+        saveButton.addActionListener(e -> onSave());
+        cancelButton.addActionListener(e -> onCancel());
 
         textConnectionDataEncoded.setText(ConnectionData.getConnectionData());
         onDecode();
     }
 
+    private void onCancel() {
+        dispose();
+    }
+
+    private void onSave() {
+        String txt =  textConnectionDataEncoded.getText();
+
+        try {
+            ConnectionData.getDecodedConnectionData(txt);
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(this, "connection data string is malformed: " + e.getMessage());
+            return;
+        }
+
+        int sel = JOptionPane.showConfirmDialog(this,"Replace connectiondata.txt file?");
+        if (sel==JOptionPane.YES_OPTION) {
+            if (!ConnectionData.saveConnectionData(textConnectionDataEncoded.getText())) {
+                JOptionPane.showMessageDialog(this, "failed to save connection data");
+            }
+        }
+    }
+
     private void onDecode() {
         String encodedConnectionData = textConnectionDataEncoded.getText();
         if (encodedConnectionData.length()>0) {
-            String decoded = ConnectionData.getDecodedConnectionData(textConnectionDataEncoded.getText());
-            textConnectionDataDecoded.setText(decoded);
+            try {
+                String decoded = ConnectionData.getDecodedConnectionData(encodedConnectionData);
+                textConnectionDataDecoded.setText(decoded);
+            } catch (RuntimeException e) {
+                JOptionPane.showMessageDialog(this, "failed to decode string: " + e.getMessage());
+            }
+        }
+    }
+
+    private void onEncode() {
+        String decodedConnectionData = textConnectionDataDecoded.getText();
+        if (decodedConnectionData.length()>0) {
+            String encoded = ConnectionData.getEncodedConnectionData(decodedConnectionData);
+            textConnectionDataEncoded.setText(encoded);
         }
     }
 
