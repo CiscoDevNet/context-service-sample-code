@@ -19,9 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.List;
 
 /**
@@ -55,6 +53,8 @@ public class CustomerPodRequestDialog extends JDialog {
     private JButton createFieldSetButton;
     private JButton editFieldSetButton;
     private JButton deleteFieldSetButton;
+    private JTextField textPodQuery;
+    private JButton searchPodsButton;
 
     private static final String CISCO_BASE_CUSTOMER = "cisco.base.customer";
     private static final String CISCO_BASE_POD = "cisco.base.pod";
@@ -140,8 +140,9 @@ public class CustomerPodRequestDialog extends JDialog {
         });
 
         buttonRefreshLists.addActionListener(e -> handleRefreshLists());
-        searchCustomersButton.addActionListener(e -> handleSearchCustomers());
-        searchRequestsButton.addActionListener(e -> handleSearchRequests());
+        searchCustomersButton.addActionListener(e -> handleSearchCustomers(false));
+        searchRequestsButton.addActionListener(e -> handleSearchRequests(false));
+        searchPodsButton.addActionListener(e -> handleSearchPods(false));
 
         textCustomerQuery.setText(DEFAULT_CUSTOMER_QUERY);
         textRequestQuery.setText(DEFAULT_REQUEST_QUERY);
@@ -185,16 +186,23 @@ public class CustomerPodRequestDialog extends JDialog {
         }
     }
 
-    private void handleSearchRequests() {
-        handleSearch(textRequestQuery, requestsList, Request.class);
+    private void handleSearchRequests(boolean initLists) {
+        handleSearch(textRequestQuery, requestsList, Request.class, initLists);
     }
 
-    private void handleSearchCustomers() {
-        handleSearch(textCustomerQuery, customersList, Customer.class);
+    private void handleSearchCustomers(boolean initLists) {
+        handleSearch(textCustomerQuery, customersList, Customer.class, initLists);
     }
 
-    private void handleSearch(JTextField textQueryField, JList<? extends ContextBean> list, Class<? extends BaseDbBean> clazz) {
+    private void handleSearchPods(boolean initLists) {
+        handleSearch(textPodQuery, podsList, Pod.class, initLists);
+    }
+
+    private void handleSearch(JTextField textQueryField, JList<? extends ContextBean> list, Class<? extends BaseDbBean> clazz, boolean initLists) {
         String query = textQueryField.getText();
+        if (initLists && query.length()==0) {
+            return;
+        }
         String[] terms = query.split(" ");
         SearchParameters sp = new SearchParameters();
         for (String term : terms) {
@@ -252,11 +260,6 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleCreatePod() {
-        if (customersList.isSelectionEmpty() && requestsList.isSelectionEmpty()) {
-            showError("Must select a customer or pod");
-            return;
-        }
-
         if (fieldsetsList.isSelectionEmpty()) {
             showError("Must select one or more fieldsets");
             return;
@@ -396,8 +399,9 @@ public class CustomerPodRequestDialog extends JDialog {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         new Thread(() -> {
             DefaultListModel fsModel = populateList(FieldSet.class, "id", "*");
-            handleSearchCustomers();
-            handleSearchRequests();
+            handleSearchCustomers(true);
+            handleSearchRequests(true);
+            handleSearchPods(true);
             podsList.setModel(new DefaultListModel<>());
             SwingUtilities.invokeLater(() -> {
                 fieldsetsList.setModel(fsModel);
