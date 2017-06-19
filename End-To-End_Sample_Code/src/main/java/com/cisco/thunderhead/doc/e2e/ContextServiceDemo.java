@@ -5,6 +5,8 @@ import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
+import com.cisco.thunderhead.connector.states.ConnectorState;
+import com.cisco.thunderhead.connector.states.ConnectorStateListener;
 import com.cisco.thunderhead.doc.examples.ConnectionData;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
 import com.cisco.thunderhead.pod.Pod;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ContextServiceDemo {
     private final static Logger LOGGER = LoggerFactory.getLogger(ContextServiceDemo.class);
@@ -42,11 +45,19 @@ public class ContextServiceDemo {
             addProperty("REQUEST_TIMEOUT", 10000);
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
         }};
+
+        // Add state listener to ManagementConnector before init
+        addStateListenerToManagementConnector(managementConnector);
+
         managementConnector.init(connectionData, connInfo, configuration);
         LOGGER.info("Initialized management connector");
 
         // initialize context service client
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+
+        // Add state listener to ClientConnector before init
+        addStateListenerToContextConnector(contextServiceClient);
+
         // reuse configuration we used for management connector
         contextServiceClient.init(connectionData, connInfo, configuration);
         LOGGER.info("Initialized Context Service client");
@@ -76,5 +87,48 @@ public class ContextServiceDemo {
             noManagementConnector = "false";
         }
         return StringUtils.equalsIgnoreCase(noManagementConnector,"true");
+    }
+
+    public static ConnectorStateListener addStateListenerToManagementConnector(ManagementConnector managementConnector){
+        ConnectorStateListener stateListener = new ConnectorStateListener() {
+            public ConnectorState connectorState;
+
+            @Override
+            public void stateChanged(ConnectorState previousState, ConnectorState newState)
+            {
+                connectorState = newState;
+                LOGGER.info("Management Connector state changed: " + newState);
+                if (newState == ConnectorState.STOPPED) {
+                    // Perform optional cleanup tasks
+                    LOGGER.info("Management Connector stopped.");
+                }else if (newState == ConnectorState.REGISTERED) {
+                    // Perform optional cleanup tasks
+                    LOGGER.info("Management Connector registered.");
+                }
+
+            }
+        };
+        managementConnector.addStateListener(stateListener);
+        return stateListener;
+    }
+
+    public static ConnectorStateListener addStateListenerToContextConnector(ContextServiceClient contextServiceClient){
+        ConnectorStateListener stateListener = new ConnectorStateListener() {
+            public ConnectorState connectorState;
+
+            @Override
+            public void stateChanged(ConnectorState previousState, ConnectorState newState)
+            {
+                connectorState = newState;
+                LOGGER.info("Context Service Client state changed: " + newState);
+                if (newState == ConnectorState.STOPPED) {
+                    // Perform optional cleanup tasks
+                    LOGGER.info("Context Service Client stopped.");
+
+                }
+            }
+        };
+        contextServiceClient.addStateListener(stateListener);
+        return stateListener;
     }
 }
