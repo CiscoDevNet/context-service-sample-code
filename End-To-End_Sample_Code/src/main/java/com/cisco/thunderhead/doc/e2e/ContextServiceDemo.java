@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ContextServiceDemo {
     private final static Logger LOGGER = LoggerFactory.getLogger(ContextServiceDemo.class);
@@ -172,5 +173,4 @@ public class ContextServiceDemo {
             throw new Exception("Timeout waiting for connector to register.");
         }
     }
-
 }
