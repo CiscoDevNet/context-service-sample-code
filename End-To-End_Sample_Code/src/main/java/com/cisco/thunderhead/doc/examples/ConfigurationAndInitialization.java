@@ -46,9 +46,9 @@ public class ConfigurationAndInitialization {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
-            //----Test Only Begin - Not needed for production implementation ----
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
-            //----Test Only End - Not needed for production implementation ----
+            //TEST ONLY END - Do not use in production
         }};
         contextServiceClient.init(connectionData, connInfo, configuration);
 
@@ -71,9 +71,9 @@ public class ConfigurationAndInitialization {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
-            //----Test Only Begin - Not needed for production implementation ----
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
-            //----Test Only End - Not needed for production implementation ----
+            //TEST ONLY END - Do not use in production
         }};
         managementConnector.init(connectionData, connInfo, configuration);
 
