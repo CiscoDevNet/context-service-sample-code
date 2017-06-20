@@ -23,7 +23,7 @@ public class SearchEntities {
     /**
      * Search for customer by ID.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param id the customer ID
      * @return List (of at most one, since ID is unique) of customer matching ID
      */
@@ -37,7 +37,7 @@ public class SearchEntities {
     /**
      * Search for customer matching all specified fields.
      * 
-     * @param an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List of customers matching the criteria
      */
     public static List<Customer> searchForCustomerByFirstAndLastName (ContextServiceClient contextServiceClient) {
@@ -55,7 +55,7 @@ public class SearchEntities {
     /**
      * Search for customer matching any of the specified fields.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @return List of customers matching the criteria
      */
     public static List<Customer> searchForCustomerByFirstOrLastName (ContextServiceClient contextServiceClient) {
@@ -74,7 +74,7 @@ public class SearchEntities {
      * Search for customer that matches any of multiple values of the custom field "sdkExample_fieldOne"
      * whose field value is either "gold" or "silver".
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @return List of customers matching the criteria
      */
     public static List<Customer> searchForCustomerByGoldOrSilver (ContextServiceClient contextServiceClient) {
@@ -92,7 +92,7 @@ public class SearchEntities {
     /**
      * Search for Pod by podID.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param id the Pod ID
      * @return List (of at most one, since ID is unique) of Pod matching ID
      */
@@ -111,7 +111,7 @@ public class SearchEntities {
     /**
      * Search for Pod by CustomerID.
      * 
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param id the Customer ID
      * @return List of Pods associated with the Customer ID
      */
@@ -130,7 +130,7 @@ public class SearchEntities {
     /**
      * Search for Pod by RequestID.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param id the Request ID
      * @return List of Pods associated with the Request ID
      */
@@ -149,7 +149,7 @@ public class SearchEntities {
     /**
      * Search for Pod by List of Pod IDs.
      * 
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param idList the list of Pod IDs
      * @return List of Pods matching any of the IDs in the list
      */
@@ -169,7 +169,7 @@ public class SearchEntities {
     /**
      * Returns list of PODs that any of the specified tags.  
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @return List of Pods that match at least one of the tags
      */
     public static List<Pod> searchForPodsTaggedAsSalesOrMarketing (ContextServiceClient contextServiceClient) {
@@ -187,7 +187,7 @@ public class SearchEntities {
     /**
      * Returns list of PODs that match ALL specified tags.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @return List of Pods that match all of the tags
      */
     public static List<Pod> searchForPodsTaggedAsMajorIssueForPreferredCustomer (ContextServiceClient contextServiceClient) {
@@ -207,7 +207,7 @@ public class SearchEntities {
      * Returns list of PODs that match either of two fields.  In this case,
      * we show a search for any pod that has source phone number "111-111-1111"
      * or source email "John.Doe@example.com".
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @return List of Pods that match any of the field criteria
      */
     public static List<Pod> searchForPodsBySourceEmailOrSourcePhone (ContextServiceClient contextServiceClient) {
@@ -225,7 +225,7 @@ public class SearchEntities {
     /**
      * Search for PODs created within a specified date and time range.
      * 
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param startTime return PODs that were created no earlier than this time
      * @param endTime return PODs that were created no later than this time
      * @return List of PODs that were created within the date/time range.
@@ -251,7 +251,7 @@ public class SearchEntities {
     /**
      * Search for PODs last updated within a specified date and time range.
      * 
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param startTime return PODs that were updated no earlier than this time
      * @param endTime return PODs that were dupated no later than this time
      * @return List of Pods that were updated within the date range
@@ -277,7 +277,7 @@ public class SearchEntities {
     /**
      * Build a complex query checking for a custom field, a time range, and a tag.
      * 
-     * @param initialized Context Service Client
+     * @param contextServiceClient  an initialized Context Service Client
      * @param startTime return PODs that were created no earlier than this time
      * @param endTime return PODs that were created no later than this time
      * @return a list of Pods matching the query
@@ -305,7 +305,7 @@ public class SearchEntities {
     /**
      * Search for all active PODs.
      * 
-     * @param initialized ContextServiceClient
+     * @param contextServiceClient  an initialized ContextServiceClient
      * @return a list of open PODs
      */
     public static List<Pod> searchForActivePods(ContextServiceClient contextServiceClient) {
@@ -323,7 +323,7 @@ public class SearchEntities {
     /**
      * Search for PODs based on the last contributor, or the last person  to create or modify the POD.
      * 
-     * @param initialized ContextServiceClient
+     * @param contextServiceClient  an initialized ContextServiceClient
      * @param contributorUsername the username of a contributor
      * @return a list of PODs last modified by the given contributor
      */
@@ -342,7 +342,7 @@ public class SearchEntities {
     /**
      * Search for all PODs modified by the specified contributor.
      * 
-     * @param initialized ContextServiceClient
+     * @param contextServiceClient  an initialized ContextServiceClient
      * @param contributorUsername the username of a contributor
      * @return a list of PODs modified by the given contributor
      */
@@ -361,7 +361,7 @@ public class SearchEntities {
     /**
      *  Search for PODs with a specified query_string parameter.
      * 
-     *  @param initialized ContextServiceClient
+     *  @param contextServiceClient  an initialized ContextServiceClient
      *  @return a list of PODs found by the query_string sub queries
      */
     public static List<Pod> searchForPodsByQueryString(ContextServiceClient contextServiceClient){

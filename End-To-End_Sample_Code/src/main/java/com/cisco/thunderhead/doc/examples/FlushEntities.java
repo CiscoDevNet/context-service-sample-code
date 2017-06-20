@@ -22,7 +22,7 @@ public class FlushEntities {
      * Flush all entities (pods, request, customers) at once and wait for each flush to complete.
      * Note: Flush is only supported in lab mode.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient Context Service Client
      * @throws InterruptedException, when an interrupt signal is caught during wait
      * @throws TimeoutException, when flush is not complete and the timeout expires
      */

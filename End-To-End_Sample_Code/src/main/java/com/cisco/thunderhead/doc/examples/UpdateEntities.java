@@ -17,7 +17,7 @@ public class UpdateEntities {
 
     /**
      * Update a POD.
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param podId
      * @return the updated POD
      */
@@ -37,7 +37,7 @@ public class UpdateEntities {
 
     /**
      * Add a new contributor to a POD.
-     * @param initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param podId
      * @return the updated POD with the new contributor
      */
@@ -51,7 +51,7 @@ public class UpdateEntities {
 
     /**
      * Update a Customer.
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param customerId
      * @return the updated Customer
      */
@@ -66,7 +66,7 @@ public class UpdateEntities {
 
     /**
      * Update a Request.
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param requestId
      * @return the updated Request
      */
