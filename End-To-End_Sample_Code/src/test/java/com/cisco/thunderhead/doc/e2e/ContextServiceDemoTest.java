@@ -33,7 +33,7 @@ public class ContextServiceDemoTest {
         //Create CS connector and search for earlier created pod
         contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(ConnectionData.getConnectionData());
 
-        List<Pod> pods = contextServiceClient.search(Pod.class, new SearchParameters(){{ add("Context_Notes", ContextServiceDemo.podNote); }}, Operation.AND);
+        List<Pod> pods = contextServiceClient.search(Pod.class, new SearchParameters(){{ add("Context_Notes", "Context Service Demo POD - " + System.currentTimeMillis()); }}, Operation.AND);
         assertEquals("Pod was created", 1, pods.size());
     }
 }

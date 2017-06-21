@@ -23,33 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ContextServiceDemo {
     private final static Logger LOGGER = LoggerFactory.getLogger(ContextServiceDemo.class);
 
-    public static String podNote = "Context Service Demo POD - " + System.currentTimeMillis();
-
-    private static class CustomConnectorStateListener implements ConnectorStateListener {
-        public ConnectorState connectorState;
-
-        public ConnectorState getConnectorState(){
-            return connectorState;
-        }
-
-        @Override
-        public void stateChanged(ConnectorState previousState, ConnectorState newState)
-        {
-            connectorState = newState;
-            LOGGER.info("Connector state changed: " + newState);
-            if (newState == ConnectorState.STOPPED) {
-                // Perform optional cleanup tasks, etc ...
-                LOGGER.info("Connector stopped.");
-            }else if (newState == ConnectorState.REGISTERED) {
-                // Perform any actions needed once connector is registered, etc ...
-                LOGGER.info("Connector started.");
-            } else if (newState == ConnectorState.UNREGISTERED) {
-                // Perform any actions needed once connector is unregistered, etc ...
-                LOGGER.info("Connector unregistered.");
-            }
-        }
-    };
-
     /**
      * Show full initialization flow for Context Service,
      * demonstrate a basic operation.
@@ -106,7 +79,7 @@ public class ContextServiceDemo {
         Pod pod = new Pod(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
-                            put("Context_Notes", podNote);
+                            put("Context_Notes", "Context Service Demo POD - " + System.currentTimeMillis());
                             put("Context_POD_Activity_Link", "http://myservice.example.com/service/ID/xxxx");
                         }}
                 )
@@ -134,6 +107,34 @@ public class ContextServiceDemo {
         }
         return StringUtils.equalsIgnoreCase(noManagementConnector,"true");
     }
+
+    /**
+     * Create a Custom Connector State Listener to override the stateChanged behavior
+     */
+    public static class CustomConnectorStateListener implements ConnectorStateListener {
+        public ConnectorState connectorState;
+
+        public ConnectorState getConnectorState(){
+            return connectorState;
+        }
+
+        @Override
+        public void stateChanged(ConnectorState previousState, ConnectorState newState)
+        {
+            connectorState = newState;
+            LOGGER.info("Connector state changed: " + newState);
+            if (newState == ConnectorState.STOPPED) {
+                // Perform optional cleanup tasks, etc ...
+                LOGGER.info("Connector stopped.");
+            }else if (newState == ConnectorState.REGISTERED) {
+                // Perform any actions needed once connector is registered, etc ...
+                LOGGER.info("Connector started.");
+            } else if (newState == ConnectorState.UNREGISTERED) {
+                // Perform any actions needed once connector is unregistered, etc ...
+                LOGGER.info("Connector unregistered.");
+            }
+        }
+    };
 
     /**
      * Before initializing the connector, create and add a ConnectorStateListener to the ContextServiceClient.

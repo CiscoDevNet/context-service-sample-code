@@ -28,8 +28,8 @@ import static org.junit.Assert.assertEquals;
 public class BaseExamplesTest {
     protected static ContextServiceClient contextServiceClient;
     protected static ManagementConnector mgmtConnector;
-    protected static ConfigurationAndInitialization.CustomConnectorStateListener connectorStateListener;
-    protected static ConfigurationAndInitialization.CustomConnectorStateListener mgmtConnectorStateListener;
+    protected static ConfigurationAndInitialization.CustomCSConnectorStateListener connectorStateListener;
+    protected static ConfigurationAndInitialization.CustomCSConnectorStateListener mgmtConnectorStateListener;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BaseExamplesTest.class);
 

@@ -27,10 +27,13 @@ public class ConfigurationAndInitialization {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAndInitialization.class);
 
     // state listeners for Context Service Client and Management connectors
-    private static CustomConnectorStateListener connectorStateListener;
+    private static CustomCSConnectorStateListener connectorStateListener;
     private static ConnectorStateListener mgmtConnectorStateListener;
 
-    public static class CustomConnectorStateListener implements ConnectorStateListener {
+    /**
+     * Create a Custom Connector State Listener to override the stateChanged behavior
+     */
+    public static class CustomCSConnectorStateListener implements ConnectorStateListener {
         protected ConnectorState connectorState;
 
         public ConnectorState getConnectorState(){
@@ -41,16 +44,16 @@ public class ConfigurationAndInitialization {
         public void stateChanged(ConnectorState previousState, ConnectorState newState)
         {
             connectorState = newState;
-            LOGGER.info("Connector state changed: " + newState);
+            LOGGER.info("Context Service Client connector state changed: " + newState);
             if (newState == ConnectorState.STOPPED) {
                 // Perform optional cleanup tasks, etc ...
-                LOGGER.info("Connector stopped.");
+                LOGGER.info("Context Service Client connector stopped.");
             }else if (newState == ConnectorState.REGISTERED) {
                 // Perform any actions needed once connector is registered, etc ...
-                LOGGER.info("Connector started.");
+                LOGGER.info("Context Service Client connector started.");
             } else if (newState == ConnectorState.UNREGISTERED) {
                 // Perform any actions needed once connector is unregistered, etc ...
-                LOGGER.info("Connector unregistered.");
+                LOGGER.info("Context Service Client connector unregistered.");
             }
         }
     };
@@ -112,7 +115,7 @@ public class ConfigurationAndInitialization {
 
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
         // Add Management connector state listener. It needs to be done before calling init on the connector
-        mgmtConnectorStateListener = addStateListenerToManagementConnector(managementConnector, isRegistered);
+        mgmtConnectorStateListener = addStateListenerToManagementConnectorWithFlag(managementConnector, isRegistered);
 
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
@@ -176,7 +179,7 @@ public class ConfigurationAndInitialization {
      * @param isRegistered
      * @return the created ConnectorStateListener
      */
-    public static ConnectorStateListener addStateListenerToManagementConnector(ManagementConnector managementConnector, final AtomicBoolean isRegistered){
+    public static ConnectorStateListener addStateListenerToManagementConnectorWithFlag(ManagementConnector managementConnector, final AtomicBoolean isRegistered){
         ConnectorStateListener stateListener = new ConnectorStateListener() {
             public ConnectorState connectorState;
 
@@ -209,8 +212,8 @@ public class ConfigurationAndInitialization {
      * @param contextServiceClient
      * @return the created ConnectorStateListener
      */
-    public static CustomConnectorStateListener addStateListenerToContextConnector(ContextServiceClient contextServiceClient){
-        CustomConnectorStateListener stateListener = new CustomConnectorStateListener();
+    public static CustomCSConnectorStateListener addStateListenerToContextConnector(ContextServiceClient contextServiceClient){
+        CustomCSConnectorStateListener stateListener = new CustomCSConnectorStateListener();
         contextServiceClient.addStateListener(stateListener);
         return stateListener;
     }
@@ -220,8 +223,8 @@ public class ConfigurationAndInitialization {
      * @param mgmtConnector
      * @return the created ConnectorStateListener
      */
-    public static CustomConnectorStateListener addStateListenerToManagementConnector(ManagementConnector mgmtConnector){
-        CustomConnectorStateListener stateListener = new CustomConnectorStateListener();
+    public static CustomCSConnectorStateListener addStateListenerToManagementConnector(ManagementConnector mgmtConnector){
+        CustomCSConnectorStateListener stateListener = new CustomCSConnectorStateListener();
         mgmtConnector.addStateListener(stateListener);
         return stateListener;
     }
@@ -286,7 +289,7 @@ public class ConfigurationAndInitialization {
      * @param timeoutSec
      * @throws Exception
      */
-    public static void waitForConnectorState(CustomConnectorStateListener stateListener, ConnectorState expectedState, int timeoutSec) throws Exception{
+    public static void waitForConnectorState(CustomCSConnectorStateListener stateListener, ConnectorState expectedState, int timeoutSec) throws Exception{
         long startTime = System.currentTimeMillis();
         while((System.currentTimeMillis() - startTime) <= timeoutSec*1000 &&
                 expectedState.equals(stateListener.getConnectorState())){
