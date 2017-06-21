@@ -15,7 +15,7 @@ To set up sample code components:
 3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).
     
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
-4. Run `prepareSDK.sh` with parameters \[targz-filename\] \[project-dir\] \[sdk-version\].
+4. Run `prepareSDK.sh` with parameters \[targz-filename\].
     
     This sets up your connector.properties file.
 5. Run `mvn clean install`.
