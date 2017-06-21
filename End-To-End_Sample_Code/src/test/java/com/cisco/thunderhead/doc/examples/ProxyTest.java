@@ -34,6 +34,9 @@ public class ProxyTest {
     public void createAndInitContextServiceClientWithProxyTest() throws TimeoutException, InterruptedException {
         ContextServiceClient contextServiceClient = Proxy.createAndInitContextServiceClientWithProxy(connectionData);
         exerciseConnector(contextServiceClient);
+
+        //cleanup
+        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
     }
 
     @Test
@@ -46,6 +49,9 @@ public class ProxyTest {
         reloadListener.waitForCompletion(60000);
         // make sure client still works
         exerciseConnector(contextServiceClient);
+
+        //cleanup
+        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
     }
 
     @Test
@@ -58,6 +64,9 @@ public class ProxyTest {
         reloadListener.waitForCompletion(60000);
         // make sure client still works
         exerciseConnector(contextServiceClient);
+
+        //cleanup
+        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
     }
 
     private void exerciseConnector(ContextServiceClient contextServiceClient) throws TimeoutException, InterruptedException {

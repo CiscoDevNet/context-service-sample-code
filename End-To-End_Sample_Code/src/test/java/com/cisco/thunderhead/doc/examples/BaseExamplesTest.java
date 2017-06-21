@@ -6,6 +6,7 @@ import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
+import com.cisco.thunderhead.connector.states.ConnectorState;
 import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
 import com.cisco.thunderhead.pod.Pod;
@@ -27,6 +28,8 @@ import static org.junit.Assert.assertEquals;
 public class BaseExamplesTest {
     protected static ContextServiceClient contextServiceClient;
     protected static ManagementConnector mgmtConnector;
+    protected static ConfigurationAndInitialization.CustomCSConnectorStateListener connectorStateListener;
+    protected static ConfigurationAndInitialization.CustomCSConnectorStateListener mgmtConnectorStateListener;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BaseExamplesTest.class);
 
@@ -46,10 +49,16 @@ public class BaseExamplesTest {
         final String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
 
+        //Adding CS connector state listener. It needs to be done before calling init on a connector
+        connectorStateListener = ConfigurationAndInitialization.addStateListenerToContextConnector(contextServiceClient);
         contextServiceClient.init(ConnectionData.getConnectionData(), connInfo, config);
+        ConfigurationAndInitialization.waitForConnectorState(connectorStateListener, ConnectorState.REGISTERED, 3);
 
         mgmtConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        mgmtConnectorStateListener = ConfigurationAndInitialization.addStateListenerToManagementConnector(mgmtConnector);
         mgmtConnector.init(ConnectionData.getConnectionData(), connInfo, config);
+        ConfigurationAndInitialization.waitForConnectorState(mgmtConnectorStateListener, ConnectorState.REGISTERED, 3);
+
         // Flush Data, so we start with a clean slate...
         flushAllData();
     }
@@ -58,6 +67,7 @@ public class BaseExamplesTest {
     public static void clean() throws Exception {
         flushAllData();
         destroyContextClient();
+        destroyManagementConnector();
     }
 
     private static void flushAllData() throws Exception {
@@ -98,8 +108,26 @@ public class BaseExamplesTest {
         assertEquals(expectedStatus, response.getStatus());
         return parseIdFromLocationUrl(response.getLocation());
     }
-    private static void destroyContextClient() {
+
+    private static void destroyContextClient(){
+        if(contextServiceClient==null)
+            return;
+        if (connectorStateListener != null ) {
+            contextServiceClient.removeStateListener(connectorStateListener);
+            connectorStateListener = null;
+        }
         contextServiceClient.destroy();
     }
+
+    private static void destroyManagementConnector(){
+        if(mgmtConnector==null)
+            return;
+        if (mgmtConnectorStateListener != null ) {
+            mgmtConnector.removeStateListener(mgmtConnectorStateListener);
+            mgmtConnectorStateListener = null;
+        }
+        mgmtConnector.destroy();
+    }
+
 
 }

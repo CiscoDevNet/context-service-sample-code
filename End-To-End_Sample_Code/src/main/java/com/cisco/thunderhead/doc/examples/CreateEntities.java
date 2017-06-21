@@ -120,9 +120,9 @@ public class CreateEntities {
 
     /**
      * Create a POD with an associated customer and an associated request.
-     * @param an initialized ContextServiceClient
-     * @param pre-existing Customer object
-     * @param pre-existing Request object
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param customer pre-existing Customer object
+     * @param request pre-existing Request object
      * @return a pod associated with both a customer and a request
      */
     public static Pod createPodWithCustomerAndRequest(ContextServiceClient contextServiceClient, Customer customer, Request request) {
