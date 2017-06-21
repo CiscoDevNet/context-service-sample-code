@@ -26,7 +26,7 @@ public class ConfigurationAndInitialization {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAndInitialization.class);
 
-    //state listeners for Context Service and Management connectors
+    // state listeners for Context Service Client and Management connectors
     private static CustomConnectorStateListener connectorStateListener;
     private static ConnectorStateListener mgmtConnectorStateListener;
 
@@ -41,16 +41,16 @@ public class ConfigurationAndInitialization {
         public void stateChanged(ConnectorState previousState, ConnectorState newState)
         {
             connectorState = newState;
-            LOGGER.info("Context Service Client state changed: " + newState);
+            LOGGER.info("Connector state changed: " + newState);
             if (newState == ConnectorState.STOPPED) {
                 // Perform optional cleanup tasks, etc ...
-                LOGGER.info("Context Service Client stopped.");
+                LOGGER.info("Connector stopped.");
             }else if (newState == ConnectorState.REGISTERED) {
                 // Perform any actions needed once connector is registered, etc ...
-                LOGGER.info("Context Service Client started.");
+                LOGGER.info("Connector started.");
             } else if (newState == ConnectorState.UNREGISTERED) {
                 // Perform any actions needed once connector is unregistered, etc ...
-                LOGGER.info("Context Service Client unregistered.");
+                LOGGER.info("Connector unregistered.");
             }
         }
     };
@@ -65,7 +65,7 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Create and initialize the ContextServiceClient with customer configuration.
+     * Create and initialize the ContextServiceClient with custom configuration.
      * ConnectorFactory should already be initialized.
      * @param connectionData
      * @return an initialized ContextServiceClient
@@ -73,7 +73,7 @@ public class ConfigurationAndInitialization {
     public static ContextServiceClient createAndInitContextServiceClientWithCustomConfiguration(String connectionData) {
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
 
-        //Adding CS connector state listener. It needs to be done before calling init on a connector
+        // Add Context Service Client connector state listener. It needs to be done before calling init on the connector
         connectorStateListener = addStateListenerToContextConnector(contextServiceClient);
 
         String hostname = "doctest.example.com";
@@ -81,16 +81,18 @@ public class ConfigurationAndInitialization {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+            //TEST ONLY END - Do not use in production
         }};
         contextServiceClient.init(connectionData, connInfo, configuration);
 
-        //Wait 3 sec for connector to be initialised.
+        // Wait 3 sec for connector to be initialized.
         try {
             waitForConnectorState(connectorStateListener, ConnectorState.REGISTERED, 3);
             LOGGER.info(">>>> CS Connector initialized successfully");
         }catch(Exception e){
-            LOGGER.error(">>>> CS Connector FAILED to initialized successfully", e);
+            LOGGER.error(">>>> CS Connector FAILED to initialize successfully", e);
         }
 
         // Optionally, parse the JSON returned by getStatus for additional status information
@@ -100,7 +102,7 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Create and initialize the ManagementConnector.
+     * Create and initialize the ManagementConnector with custom configuration.
      * ConnectorFactory should already be initialized.
      * @param connectionData
      * @return an initialized ManagementConnector
@@ -109,27 +111,29 @@ public class ConfigurationAndInitialization {
         AtomicBoolean isRegistered = new AtomicBoolean(false);
 
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
-        //Adding management connector state listener. It needs to be done before calling init on a connector
+        // Add Management connector state listener. It needs to be done before calling init on the connector
         mgmtConnectorStateListener = addStateListenerToManagementConnector(managementConnector, isRegistered);
 
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
-            addProperty("LAB_MODE", true); // exclude this line for prod mode
+            addProperty("LAB_MODE", true); // exclude this line for production mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+            //TEST ONLY END - Do not use in production
         }};
         managementConnector.init(connectionData, connInfo, configuration);
 
         // Optionally, parse the JSON returned by getStatus for additional status information
         String status = managementConnector.getStatus();
-        //Connector could be already registered in Before Class, so check if it is already registered
+        // Connector could be already registered in Before Class, so check if it is already registered
         if(! status.contains("REGISTERED")) {
             try {
                 waitForConnectorToRegister(isRegistered, 3);
                 LOGGER.info(">>>> Management Connector initialized successfully");
             } catch (Exception e) {
-                LOGGER.error(">>>> Management Connector FAILED to initialized successfully", e);
+                LOGGER.error(">>>> Management Connector FAILED to initialize successfully", e);
             }
         }
 
@@ -155,7 +159,7 @@ public class ConfigurationAndInitialization {
                 String hostname = "doctest.example.com";
                 ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
                 ConnectorConfiguration configuration = new ConnectorConfiguration() {{
-                    addProperty("LAB_MODE", true); // exclude this line for prod mode
+                    addProperty("LAB_MODE", true); // exclude this line for production mode
                     addProperty("REQUEST_TIMEOUT", 10000);
                 }};
                 // Notify contextServiceClient that the connection data changed.
@@ -249,7 +253,10 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Example, when connector state application flag is updated in stateListener
+     * Wait for the connector state to be REGISTERED or throw an exception if timeoutSec value is reached.
+     *
+     * This example shows how to wait for the REGISTERED state by checking a connector state application flag
+     * which is updated in the stateListener.
      * @param isRegistered
      * @param timeoutSec
      * @throws Exception
@@ -271,8 +278,9 @@ public class ConfigurationAndInitialization {
 
     /**
      * Wait timeoutSec for connector to reach a specified state.
-     * Example shows a differnt technique with CustomStateListener on
-     * how to determine connector state changes
+     *
+     * This example shows a different technique using CustomConnectorStateListener.getConnectorState() method to determine
+     * connector state changes.
      * @param stateListener
      * @param expectedState
      * @param timeoutSec
