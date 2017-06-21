@@ -36,9 +36,9 @@ public class ContextServiceDemo {
         ConnectorFactory.initializeFactory(pathToConnectorProperty);
         LOGGER.info("Initialized Connector Factory");
 
-        // Initialize Management connector
+        // Create Management connector instance
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
-        // Initialize Context Service Client
+        // Create Context Service Client instance
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
 
         String hostname = "doctest.example.com";
@@ -55,6 +55,7 @@ public class ContextServiceDemo {
         CustomConnectorStateListener mgmtConnectorStateListener = addStateListenerToMgmtConnector(managementConnector);
         // Add CredentialsChangedListener to Management connector. It needs to be added before calling init on the connector
         CredentialsChangedListener credentialsChangedListener = addCustomCredentialsListenerToManagementConnector(managementConnector,contextServiceClient);
+        // Init Management connector
         managementConnector.init(connectionData, connInfo, configuration);
         // Now we can use the state listener to determine all the connector state changes
         try {
