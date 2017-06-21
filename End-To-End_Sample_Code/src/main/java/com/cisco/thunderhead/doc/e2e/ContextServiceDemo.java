@@ -82,7 +82,7 @@ public class ContextServiceDemo {
         Pod pod = new Pod(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
-                            put("Context_Notes", "Context Service Demo POD - " + System.currentTimeMillis());
+                            put("Context_Notes", "Context Service Demo POD");
                             put("Context_POD_Activity_Link", "http://myservice.example.com/service/ID/xxxx");
                         }}
                 )
