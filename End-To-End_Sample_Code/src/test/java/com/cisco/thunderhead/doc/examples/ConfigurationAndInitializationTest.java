@@ -50,59 +50,88 @@ public class ConfigurationAndInitializationTest {
 
     @Test
     public void createAndInitManagementConnectorWithCustomConfigurationTest() {
-        ManagementConnector managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
-        assertEquals("https://admin.ciscospark.com", managementConnector.getManagementURL());
-        assertTrue(managementConnector.getStatus().contains("REGISTERED"));
+        ManagementConnector managementConnector = null;
 
-        //cleanup
-        ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        try {
+            managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
+            Boolean mgmtUrlValid = false;
+            String mgmtUrl = managementConnector.getManagementURL();
+            if(mgmtUrl.equals("https://admin.ciscospark.com") || mgmtUrl.equals("https://int-admin.ciscospark.com"))
+                mgmtUrlValid = true;
+
+            assertTrue(mgmtUrlValid);
+            assertTrue(managementConnector.getStatus().contains("REGISTERED"));
+        } finally {
+            //cleanup
+            ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        }
     }
 
     @Test
     public void addCredentialsListenerToManagementConnectorTest() {
-        ContextServiceClient contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
-        ManagementConnector managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
-        CredentialsChangedListener credentialsChangedListener = ConfigurationAndInitialization.addCredentialsListenerToManagementConnector(managementConnector, contextServiceClient);
-        assertNotNull(credentialsChangedListener);
+        ContextServiceClient contextServiceClient = null;
+        ManagementConnector managementConnector = null;
+        CredentialsChangedListener credentialsChangedListener = null;
 
-        //cleanup
-        managementConnector.removeCredentialsChangedListener(credentialsChangedListener);
-        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
-        ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        try {
+            contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
+            managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
+            credentialsChangedListener = ConfigurationAndInitialization.addCredentialsListenerToManagementConnector(managementConnector, contextServiceClient);
+            assertNotNull(credentialsChangedListener);
+        } finally {
+            //cleanup
+            managementConnector.removeCredentialsChangedListener(credentialsChangedListener);
+            ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
+            ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        }
     }
 
     @Test
     public void addStateListenerToContextConnectorTest() {
-        ContextServiceClient contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
-        ConnectorStateListener connectorStateListener = ConfigurationAndInitialization.addStateListenerToContextConnector(contextServiceClient);
-        assertNotNull(connectorStateListener);
+        ContextServiceClient contextServiceClient = null;
+        ConnectorStateListener connectorStateListener = null;
 
-        //cleanup
-        contextServiceClient.removeStateListener(connectorStateListener);
-        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
+        try {
+            contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
+            connectorStateListener = ConfigurationAndInitialization.addStateListenerToContextConnector(contextServiceClient);
+            assertNotNull(connectorStateListener);
+        } finally {
+            //cleanup
+            contextServiceClient.removeStateListener(connectorStateListener);
+            ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
+        }
     }
 
     @Test
     public void addStateListenerToManagementConnectorTest() {
-        ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
-        ConnectorStateListener connectorStateListener = ConfigurationAndInitialization.addStateListenerToManagementConnectorWithFlag(managementConnector, null);
-        ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
-        assertNotNull(connectorStateListener);
+        ManagementConnector managementConnector = null;
+        ConnectorStateListener connectorStateListener = null;
 
-        //cleanup
-        managementConnector.removeStateListener(connectorStateListener);
-        ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        try {
+            managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+            connectorStateListener = ConfigurationAndInitialization.addStateListenerToManagementConnectorWithFlag(managementConnector, null);
+            ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
+            assertNotNull(connectorStateListener);
+        } finally {
+            //cleanup
+            managementConnector.removeStateListener(connectorStateListener);
+            ConfigurationAndInitialization.destroyMgmtConnector(managementConnector);
+        }
     }
 
     @Test
     public void updateAndReloadConnectorTest() {
-        ContextServiceClient contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
-        ConnectorInfoImpl connectorInfo = new ConnectorInfoImpl("doctest.example.com");
-        ReloadListenerWithWait reloadListener = ConfigurationAndInitialization.updateAndReloadConnector(contextServiceClient, connectionData, connectorInfo, configuration);
-        assertTrue("Reload listener should have completed", reloadListener.isDone());
+        ContextServiceClient contextServiceClient = null;
 
-        //cleanup
-        ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
+        try {
+            contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(connectionData);
+            ConnectorInfoImpl connectorInfo = new ConnectorInfoImpl("doctest.example.com");
+            ReloadListenerWithWait reloadListener = ConfigurationAndInitialization.updateAndReloadConnector(contextServiceClient, connectionData, connectorInfo, configuration);
+            assertTrue("Reload listener should have completed", reloadListener.isDone());
+        } finally {
+            //cleanup
+            ConfigurationAndInitialization.destroyCSConnector(contextServiceClient);
+        }
     }
 
     private void exerciseConnector(ContextServiceClient contextServiceClient) throws TimeoutException, InterruptedException {
