@@ -117,12 +117,13 @@ public class ContextServiceDemo {
 
         // Do anything else you want to try here!
         // e.g. create data, update data, search for data
-
-        // Destroy connectors now
+        //TEST ONLY BEGIN - Do not use in production
+        // This would only be done if you need to stop the connector - remove state listeners and destroy connectors
         contextServiceClient.removeStateListener(csConnectorStateListener);
         contextServiceClient.destroy();
         managementConnector.removeStateListener(mgmtConnectorStateListener);
         managementConnector.destroy();
+        //TEST ONLY END - Do not use in production
     }
 
     public static boolean getNoManagementConnector() {
@@ -157,7 +158,7 @@ public class ContextServiceDemo {
     }
 
     /**
-     *  Wait timeoutSeconds for connector to be initialized, based on state listener callback
+     * Wait timeoutSeconds for connector to be initialized, based on state listener callback
      * @param stateListener
      * @param timeoutSeconds
      */
