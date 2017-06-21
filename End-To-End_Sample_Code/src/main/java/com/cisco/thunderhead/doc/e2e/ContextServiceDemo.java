@@ -5,6 +5,7 @@ import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
+import com.cisco.thunderhead.connector.pwreset.CredentialsChangedListener;
 import com.cisco.thunderhead.connector.states.ConnectorState;
 import com.cisco.thunderhead.connector.states.ConnectorStateListener;
 import com.cisco.thunderhead.doc.examples.ConnectionData;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ContextServiceDemo {
     private final static Logger LOGGER = LoggerFactory.getLogger(ContextServiceDemo.class);
@@ -38,6 +38,9 @@ public class ContextServiceDemo {
 
         // Initialize Management connector
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        // Initialize Context Service Client
+        ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
@@ -50,6 +53,8 @@ public class ContextServiceDemo {
 
         // Add Management connector state listener. It needs to be done before calling init on the connector
         CustomConnectorStateListener mgmtConnectorStateListener = addStateListenerToMgmtConnector(managementConnector);
+        // Add CredentialsChangedListener to Management connector. It needs to be added before calling init on the connector
+        CredentialsChangedListener credentialsChangedListener = addCustomCredentialsListenerToManagementConnector(managementConnector,contextServiceClient);
         managementConnector.init(connectionData, connInfo, configuration);
         // Now we can use the state listener to determine all the connector state changes
         try {
@@ -59,12 +64,10 @@ public class ContextServiceDemo {
             LOGGER.error("Failed or timed out to initialize Management connector", e);
         }
 
-        // Initialize Context Service Client
-        ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
         // Add Context Service Client connector state listener. It needs to be done before calling init on a connector
         CustomConnectorStateListener csConnectorStateListener = addStateListenerToContextConnector(contextServiceClient);
 
-        // Reuse configuration we used for Management connector
+        // Init Context Service Client, reuse configuration we used for Management connector
         contextServiceClient.init(connectionData, connInfo, configuration);
         // Now we can use the state listener to determine all connector state changes
         try{
@@ -176,5 +179,39 @@ public class ContextServiceDemo {
         if(!ConnectorState.REGISTERED.equals(stateListener.getConnectorState())){
             throw new Exception("Timeout waiting for connector to register.");
         }
+    }
+
+    /**
+     * Create and add a CredentialsChangedListener to the ManagementConnector.
+     * It's recommended that you do this before initializing the connector.
+     * @param managementConnector
+     * @param contextServiceClient
+     * @return the created CredentialsChangedListener
+     */
+    public static CredentialsChangedListener addCustomCredentialsListenerToManagementConnector(ManagementConnector managementConnector, final ContextServiceClient contextServiceClient){
+        CredentialsChangedListener credentialsChangedListener = new CredentialsChangedListener() {
+            String connectionData;
+
+            @Override
+            public void credentialsChanged(String newConnectionData) {
+                LOGGER.info("ConnectionData changed: " + newConnectionData);
+                connectionData = newConnectionData;
+                // Connection data is not usually logged due to security considerations.
+
+                String hostname = "doctest.example.com";
+                ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
+                ConnectorConfiguration configuration = new ConnectorConfiguration() {{
+                    addProperty("LAB_MODE", true); // exclude this line for production mode
+                    addProperty("REQUEST_TIMEOUT", 10000);
+                    //TEST ONLY BEGIN - Do not use in production
+                    addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+                    //TEST ONLY END - Do not use in production
+                }};
+                // Notify contextServiceClient that the connection data changed.
+                contextServiceClient.updateAndReloadConfigAsync(connectionData, connInfo, configuration, null);
+            }
+        };
+        managementConnector.addCredentialsChangedListener(credentialsChangedListener);
+        return credentialsChangedListener;
     }
 }
