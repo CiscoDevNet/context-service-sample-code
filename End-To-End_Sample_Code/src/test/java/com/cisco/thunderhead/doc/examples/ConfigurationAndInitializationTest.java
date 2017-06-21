@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class ConfigurationAndInitializationTest {
     private String connectionData = ConnectionData.getConnectionData();
@@ -50,8 +51,7 @@ public class ConfigurationAndInitializationTest {
     @Test
     public void createAndInitManagementConnectorWithCustomConfigurationTest() {
         ManagementConnector managementConnector = ConfigurationAndInitialization.createAndInitManagementConnectorWithCustomConfiguration(connectionData);
-        //TODO: re-enable assert below. this commented out -- for testing locally only
-        //assertEquals("https://admin.ciscospark.com", managementConnector.getManagementURL());
+        assertEquals("https://admin.ciscospark.com", managementConnector.getManagementURL());
         assertTrue(managementConnector.getStatus().contains("REGISTERED"));
 
         //cleanup
