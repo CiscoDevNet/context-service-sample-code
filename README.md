@@ -9,7 +9,6 @@ Cisco provides the following sample code:
 *  [Sample Swing UI](https://github.com/CiscoDevNet/context-service-sample-code/tree/master/Sample_Swing_UI) 
 *  [Sample Webapp](https://github.com/CiscoDevNet/context-service-sample-code/tree/master/Webapp_Sample_Project) 
 
-
 All other sample code is provided by users.
 ## Disclaimer
 This sample code is only a sample and is NOT guaranteed to be bug free and production quality. This is NOT intended to be used in production environment. You must adapt the code to work with your custom application.
