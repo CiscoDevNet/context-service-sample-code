@@ -13,9 +13,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ContextServiceDemoTest {
     private ContextServiceClient contextServiceClient;
@@ -23,18 +21,18 @@ public class ContextServiceDemoTest {
     @After
     public void flushAll() throws TimeoutException, InterruptedException {
         FlushEntities.flushAllEntities(contextServiceClient);
+        ConfigurationAndInitialization.beforeDestroyCSConnector(contextServiceClient);
         contextServiceClient.destroy();
     }
 
     @Test
     public void testContextServiceDemo() {
+        //Set up connectors to create a test pod and cleanup after
         ContextServiceDemo.main();
+
+        //Create CS connector and search for earlier created pod
         contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(ConnectionData.getConnectionData());
-        try {
-            sleep(2000);    // wait 2 seconds to allow data to propagate
-        } catch (InterruptedException e) {
-            fail("sleep interrupted");
-        }
+
         List<Pod> pods = contextServiceClient.search(Pod.class, new SearchParameters(){{ add("Context_Notes", "Context Service Demo POD"); }}, Operation.AND);
         assertEquals("Pod was created", 1, pods.size());
     }

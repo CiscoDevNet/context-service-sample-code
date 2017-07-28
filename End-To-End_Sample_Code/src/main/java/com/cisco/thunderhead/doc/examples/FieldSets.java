@@ -33,7 +33,7 @@ public class FieldSets {
     /**
      * Create a field with translations.
      *
-     * @param an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return a field with translations
      */
     public static Field createFieldWithTranslations(ContextServiceClient contextServiceClient){
@@ -58,7 +58,7 @@ public class FieldSets {
     /**
      * Create two new fields and add them to a fieldset.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient initialized Context Service Client
      * @return a fieldset
      */
     public static FieldSet createFieldSet(ContextServiceClient contextServiceClient){
@@ -79,8 +79,8 @@ public class FieldSets {
     /**
      * Add a new field to the specified fieldset.
      *
-     * @param initialized Context Service Client
-     * @param fieldset a fieldset to be updated
+     * @param contextServiceClient initialized Context Service Client
+     * @param fieldSet a fieldset to be updated
      * @return a fieldset
      */
     public static FieldSet updateFieldSet(ContextServiceClient contextServiceClient, FieldSet fieldSet){
@@ -98,8 +98,8 @@ public class FieldSets {
     /**
      * Delete the specified fieldset.
      *
-     * @param initialized Context Service Client
-     * @param fieldset a fieldset
+     * @param contextServiceClient Context Service Client
+     * @param fieldSet a fieldset
      */
     public static void deleteFieldSet(ContextServiceClient contextServiceClient, FieldSet fieldSet){
         contextServiceClient.delete(fieldSet);
@@ -109,7 +109,7 @@ public class FieldSets {
     /**
      * Search fieldsets using a search query.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List<FieldSet> a list of fieldsets that match the search query
      */
     public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient){
@@ -129,7 +129,7 @@ public class FieldSets {
     /**
      * Search fields using a search query.
      *
-     * @param initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List<Field> a list of fields that match the search query
      */
     public static List<Field> searchField(ContextServiceClient contextServiceClient){
@@ -151,7 +151,7 @@ public class FieldSets {
     /**
      * This method describes usage of Cisco Fieldsets to create a Pod in ContextService.
      * Similarly, Customer and Request objects can be created in ContextService.
-     * @param initialized Context Service Client
+     * @param contextServiceClient initialized Context Service Client
      * @return a pod uses Cisco base fieldset
      */
     public static Pod ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
@@ -175,7 +175,7 @@ public class FieldSets {
     /**
      * This method describe usage of Cisco Fieldsets and Custom Fieldsets to create a Pod
      * in ContextService. Similarly, Customer and Request objects can be created.
-     * @param initialized Context Service Client
+     * @param contextServiceClient initialized Context Service Client
      * @return a pod uses Custom Fieldset
      */
     public static Pod customFieldSetUsage(ContextServiceClient contextServiceClient){
@@ -211,7 +211,7 @@ public class FieldSets {
     /**
      * This method describes usage of Cisco Base fieldset and Custom fieldset to create a Pod
      * in ContextService. Similarly, Customer and Request can be created.
-     * @param initialized Context Service Client
+     * @param contextServiceClient initialized Context Service Client
      * @return a pod which uses Cisco Base Fieldset and Custom Fieldset
      */
     public static Pod customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){

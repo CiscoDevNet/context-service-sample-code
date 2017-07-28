@@ -29,7 +29,9 @@ public class Proxy {
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+            //TEST ONLY END - Do not use in production
         }};
         contextServiceClient.init(connectionData, connInfo, configuration);
         return contextServiceClient;

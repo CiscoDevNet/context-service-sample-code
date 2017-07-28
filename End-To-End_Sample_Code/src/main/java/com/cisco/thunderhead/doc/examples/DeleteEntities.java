@@ -10,7 +10,7 @@ public class DeleteEntities {
 
     /**
      * Delete a POD.
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param pod a pod object to delete
      */
     public static void deletePod(ContextServiceClient contextServiceClient, Pod pod){
@@ -19,7 +19,7 @@ public class DeleteEntities {
 
     /**
      * Delete a Customer.
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param customer a customer object to delete
      */
     public static void deleteCustomer(ContextServiceClient contextServiceClient, Customer customer){
@@ -28,7 +28,7 @@ public class DeleteEntities {
 
     /**
      * Delete a Request
-     * @param an initialized ContextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param request a request object to delete
      */
     public static void deleteRequest(ContextServiceClient contextServiceClient, Request request){

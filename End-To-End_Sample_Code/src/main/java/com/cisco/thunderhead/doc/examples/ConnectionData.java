@@ -14,7 +14,7 @@ public class ConnectionData {
     public static final String connectionDataFileName = "connectiondata.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionData.class);
-    private static String connectionData = "";
+    private static String connectionData;
 
     private ConnectionData() {
         // private hides public constructor

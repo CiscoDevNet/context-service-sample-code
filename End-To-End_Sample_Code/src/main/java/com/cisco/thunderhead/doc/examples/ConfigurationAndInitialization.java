@@ -18,12 +18,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.cisco.thunderhead.doc.e2e.ContextServiceDemo.getNoManagementConnector;
 
 public class ConfigurationAndInitialization {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAndInitialization.class);
+
+    // state listeners for Context Service Client and Management connectors
+    private static CustomCSConnectorStateListener connectorStateListener;
+    private static ConnectorStateListener mgmtConnectorStateListener;
+
+    /**
+     * Create a Custom Connector State Listener to override the stateChanged behavior
+     */
+    public static class CustomCSConnectorStateListener implements ConnectorStateListener {
+        protected ConnectorState connectorState;
+
+        public ConnectorState getConnectorState(){
+            return connectorState;
+        }
+
+        @Override
+        public void stateChanged(ConnectorState previousState, ConnectorState newState)
+        {
+            connectorState = newState;
+            LOGGER.info("Context Service Client connector state changed: " + newState);
+            if (newState == ConnectorState.STOPPED) {
+                // Perform optional cleanup tasks, etc ...
+                LOGGER.info("Context Service Client connector stopped.");
+            }else if (newState == ConnectorState.REGISTERED) {
+                // Perform any actions needed once connector is registered, etc ...
+                LOGGER.info("Context Service Client connector started.");
+            } else if (newState == ConnectorState.UNREGISTERED) {
+                // Perform any actions needed once connector is unregistered, etc ...
+                LOGGER.info("Context Service Client connector unregistered.");
+            }
+        }
+    };
+
     /**
      * Before you initialize the connectors, initialize ConnectorFactory.
      */
@@ -34,21 +68,35 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Create and initialize the ContextServiceClient with customer configuration.
+     * Create and initialize the ContextServiceClient with custom configuration.
      * ConnectorFactory should already be initialized.
      * @param connectionData
      * @return an initialized ContextServiceClient
      */
     public static ContextServiceClient createAndInitContextServiceClientWithCustomConfiguration(String connectionData) {
         ContextServiceClient contextServiceClient = ConnectorFactory.getConnector(ContextServiceClient.class);
+
+        // Add Context Service Client connector state listener. It needs to be done before calling init on the connector
+        connectorStateListener = addStateListenerToContextConnector(contextServiceClient);
+
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
             addProperty("LAB_MODE", true); // exclude this line for prod mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+            //TEST ONLY END - Do not use in production
         }};
         contextServiceClient.init(connectionData, connInfo, configuration);
+
+        // Wait 3 sec for connector to be initialized.
+        try {
+            waitForConnectorState(connectorStateListener, ConnectorState.REGISTERED, 3);
+            LOGGER.info(">>>> CS Connector initialized successfully");
+        }catch(Exception e){
+            LOGGER.error(">>>> CS Connector FAILED to initialize successfully", e);
+        }
 
         // Optionally, parse the JSON returned by getStatus for additional status information
         String status = contextServiceClient.getStatus();
@@ -57,24 +105,40 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Create and initialize the ManagementConnector.
+     * Create and initialize the ManagementConnector with custom configuration.
      * ConnectorFactory should already be initialized.
      * @param connectionData
      * @return an initialized ManagementConnector
      */
     public static ManagementConnector createAndInitManagementConnectorWithCustomConfiguration(String connectionData){
+        AtomicBoolean isRegistered = new AtomicBoolean(false);
+
         ManagementConnector managementConnector = ConnectorFactory.getConnector(ManagementConnector.class);
+        // Add Management connector state listener. It needs to be done before calling init on the connector
+        mgmtConnectorStateListener = addStateListenerToManagementConnectorWithFlag(managementConnector, isRegistered);
+
         String hostname = "doctest.example.com";
         ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
         ConnectorConfiguration configuration = new ConnectorConfiguration(){{
-            addProperty("LAB_MODE", true); // exclude this line for prod mode
+            addProperty("LAB_MODE", true); // exclude this line for production mode
             addProperty("REQUEST_TIMEOUT", 10000);
+            //TEST ONLY BEGIN - Do not use in production
             addProperty(ContextServiceClientConstants.NO_MANAGEMENT_CONNECTOR, getNoManagementConnector());
+            //TEST ONLY END - Do not use in production
         }};
         managementConnector.init(connectionData, connInfo, configuration);
 
         // Optionally, parse the JSON returned by getStatus for additional status information
         String status = managementConnector.getStatus();
+        // Connector could be already registered in Before Class, so check if it is already registered
+        if(! status.contains("REGISTERED")) {
+            try {
+                waitForConnectorToRegister(isRegistered, 3);
+                LOGGER.info(">>>> Management Connector initialized successfully");
+            } catch (Exception e) {
+                LOGGER.error(">>>> Management Connector FAILED to initialize successfully", e);
+            }
+        }
 
         return managementConnector;
     }
@@ -98,7 +162,7 @@ public class ConfigurationAndInitialization {
                 String hostname = "doctest.example.com";
                 ConnectorInfoImpl connInfo = new ConnectorInfoImpl(hostname);
                 ConnectorConfiguration configuration = new ConnectorConfiguration() {{
-                    addProperty("LAB_MODE", true); // exclude this line for prod mode
+                    addProperty("LAB_MODE", true); // exclude this line for production mode
                     addProperty("REQUEST_TIMEOUT", 10000);
                 }};
                 // Notify contextServiceClient that the connection data changed.
@@ -112,9 +176,10 @@ public class ConfigurationAndInitialization {
     /**
      * Before initializing the connector, create and add a ConnectorStateListener to the ManagementConnector.
      * @param managementConnector
+     * @param isRegistered
      * @return the created ConnectorStateListener
      */
-    public static ConnectorStateListener addStateListenerToManagementConnector(ManagementConnector managementConnector){
+    public static ConnectorStateListener addStateListenerToManagementConnectorWithFlag(ManagementConnector managementConnector, final AtomicBoolean isRegistered){
         ConnectorStateListener stateListener = new ConnectorStateListener() {
             public ConnectorState connectorState;
 
@@ -124,9 +189,17 @@ public class ConfigurationAndInitialization {
                 connectorState = newState;
                 LOGGER.info("Management Connector state changed: " + newState);
                 if (newState == ConnectorState.STOPPED) {
-                    // Perform optional cleanup tasks
-                    LOGGER.info("Management Connector stopped.");
+                    // Perform optional cleanup tasks; update state related application flags
+                    if(null!= isRegistered)
+                        isRegistered.set(false);
 
+                    LOGGER.info("Management Connector stopped.");
+                }else if (newState == ConnectorState.REGISTERED) {
+                    // Perform any actions needed once connector is registered; update state related application flags
+                    if(null!= isRegistered)
+                        isRegistered.set(true);
+
+                    LOGGER.info("Management Connector registered.");
                 }
             }
         };
@@ -135,27 +208,24 @@ public class ConfigurationAndInitialization {
     }
 
     /**
-     * Before initializing the connector, create and add a ConnectorStateListener to the ContextServiceClient.
+     * Before initializing the connector, create and add a ConnectorStateListener for the ContextServiceClient.
      * @param contextServiceClient
      * @return the created ConnectorStateListener
      */
-    public static ConnectorStateListener addStateListenerToContextConnector(ContextServiceClient contextServiceClient){
-        ConnectorStateListener stateListener = new ConnectorStateListener() {
-            public ConnectorState connectorState;
-
-            @Override
-            public void stateChanged(ConnectorState previousState, ConnectorState newState)
-            {
-                connectorState = newState;
-                LOGGER.info("Context Service Client state changed: " + newState);
-                if (newState == ConnectorState.STOPPED) {
-                    // Perform optional cleanup tasks
-                    LOGGER.info("Context Service Client stopped.");
-
-                }
-            }
-        };
+    public static CustomCSConnectorStateListener addStateListenerToContextConnector(ContextServiceClient contextServiceClient){
+        CustomCSConnectorStateListener stateListener = new CustomCSConnectorStateListener();
         contextServiceClient.addStateListener(stateListener);
+        return stateListener;
+    }
+
+    /**
+     * Before initializing the connector, create and add a ConnectorStateListener for the Management Connector.
+     * @param mgmtConnector
+     * @return the created ConnectorStateListener
+     */
+    public static CustomCSConnectorStateListener addStateListenerToManagementConnector(ManagementConnector mgmtConnector){
+        CustomCSConnectorStateListener stateListener = new CustomCSConnectorStateListener();
+        mgmtConnector.addStateListener(stateListener);
         return stateListener;
     }
 
@@ -184,4 +254,93 @@ public class ConfigurationAndInitialization {
 
         return reloadListener;
     }
+
+    /**
+     * Wait for the connector state to be REGISTERED or throw an exception if timeoutSec value is reached.
+     *
+     * This example shows how to wait for the REGISTERED state by checking a connector state application flag
+     * which is updated in the stateListener.
+     * @param isRegistered
+     * @param timeoutSec
+     * @throws Exception
+     */
+    public static void waitForConnectorToRegister(AtomicBoolean isRegistered, int timeoutSec) throws Exception{
+        long startTime = System.currentTimeMillis();
+        while((System.currentTimeMillis() - startTime) <= timeoutSec*1000 &&
+                !isRegistered.get()){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!isRegistered.get()){
+            throw new Exception("Timed out waiting for connector to register.");
+        }
+    }
+
+    /**
+     * Wait timeoutSec for connector to reach a specified state.
+     *
+     * This example shows a different technique using CustomConnectorStateListener.getConnectorState() method to determine
+     * connector state changes.
+     * @param stateListener
+     * @param expectedState
+     * @param timeoutSec
+     * @throws Exception
+     */
+    public static void waitForConnectorState(CustomCSConnectorStateListener stateListener, ConnectorState expectedState, int timeoutSec) throws Exception{
+        long startTime = System.currentTimeMillis();
+        while((System.currentTimeMillis() - startTime) <= timeoutSec*1000 &&
+                expectedState.equals(stateListener.getConnectorState())){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!expectedState.equals(stateListener.getConnectorState())){
+            throw new Exception("Timed out waiting for connector to reach "+ expectedState.name()+"; Current state is :" + stateListener.getConnectorState());
+        }
+    }
+
+    /**
+     * Remove state listener, if any were set, from ContextService connector
+     * @param contextServiceClient
+     */
+    public static void beforeDestroyCSConnector(ContextServiceClient contextServiceClient){
+        if(contextServiceClient != null && connectorStateListener !=null)
+            contextServiceClient.removeStateListener(connectorStateListener);
+    }
+
+    /**
+     * Remove state listener, if any were set, from Management connector
+     * @param managementConnector
+     */
+    public static void beforeDestroyMgmtConnector(ManagementConnector managementConnector){
+        if(managementConnector != null && mgmtConnectorStateListener != null)
+            managementConnector.removeStateListener(mgmtConnectorStateListener);
+    }
+
+    /**
+     * Destroy ContextService connector
+     * @param contextServiceClient
+     */
+    public static void destroyCSConnector(ContextServiceClient contextServiceClient){
+        beforeDestroyCSConnector(contextServiceClient);
+        if(contextServiceClient!=null)
+            contextServiceClient.destroy();
+    }
+
+    /**
+     * Destroy Management connector
+     * @param managementConnector
+     */
+    public static void destroyMgmtConnector(ManagementConnector managementConnector){
+        beforeDestroyMgmtConnector(managementConnector);
+        if(managementConnector!=null)
+            managementConnector.destroy();
+    }
+
+
 }
