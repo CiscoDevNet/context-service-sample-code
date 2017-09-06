@@ -6,6 +6,7 @@ import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.datatypes.PodState;
 import com.cisco.thunderhead.pod.Pod;
+import com.cisco.thunderhead.util.RFC3339Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,6 @@ public class SearchEntities {
 
     // Logger
     private final static Logger LOGGER = LoggerFactory.getLogger(SearchEntities.class);
-    private final static String DATE_STRING_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /**
      * Search for customer by ID.
@@ -232,10 +232,8 @@ public class SearchEntities {
      */
     public static List<Pod> searchForPodsByCreateDateRange (ContextServiceClient contextServiceClient, long startTime, long endTime) {
         // Convert times (msec) to Date/Time strings...
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_STRING_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String startDate = sdf.format(new Date(startTime));
-        String endDate = sdf.format(new Date(endTime));
+        String startDate = new RFC3339Date(startTime).toString();
+        String endDate = new RFC3339Date(endTime).toString();
 
         SearchParameters params = new SearchParameters();
         params.add("startCreatedDate", startDate);
@@ -258,10 +256,8 @@ public class SearchEntities {
      */
     public static List<Pod> searchForPodsByLastUpdatedDateRange (ContextServiceClient contextServiceClient, long startTime, long endTime) {
         // Convert times (msec) to Date/Time strings...
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_STRING_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String startDate = sdf.format(new Date(startTime));
-        String endDate = sdf.format(new Date(endTime));
+        String startDate = new RFC3339Date(startTime).toString();
+        String endDate = new RFC3339Date(endTime).toString();
 
         SearchParameters params = new SearchParameters();
         params.add("startDate", startDate);
@@ -284,10 +280,8 @@ public class SearchEntities {
      */
     public static List<Pod> searchForPodsByCustomFieldAndDateRangeAndTag(ContextServiceClient contextServiceClient, String customField, long startTime, long endTime) {
         // Convert times (msec) to Date/Time strings...
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_STRING_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String startDate = sdf.format(new Date(startTime));
-        String endDate = sdf.format(new Date(endTime));
+        String startDate = new RFC3339Date(startTime).toString();
+        String endDate = new RFC3339Date(endTime).toString();
 
         SearchParameters params = new SearchParameters();
         params.add("startCreatedDate", startDate);
