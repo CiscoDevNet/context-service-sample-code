@@ -23,9 +23,8 @@ public class UpdateEntities {
      */
     public static Pod updatePod(ContextServiceClient contextServiceClient, UUID podId) {
         Pod pod = contextServiceClient.get(Pod.class, podId.toString());
-        // Add a media type and change the state
+        // Add a media type
         pod.setMediaType(PodMediaType.SOCIAL);
-        pod.setState(PodState.CLOSED);
         // update DataElements
         Map<String, Object> updateData =  DataElementUtils.convertDataSetToMap(pod.getDataElements());
         updateData.put("Context_Notes", "pod was modified");
