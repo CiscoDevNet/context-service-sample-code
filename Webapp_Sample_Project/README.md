@@ -23,6 +23,8 @@ This project requires:
 * Tomcat 8.x
 
 ## Getting Started
+This procedure is for Mac OS and Linux. Windows users should use Bash or Cygwin to follow this procedure.
+
 To set up sample code components:
 
 1. Create a project directory.
@@ -38,8 +40,8 @@ To set up sample code components:
   `./prepareSDK.sh <path-to-context-service-sdk-X.X.X.tar.gz>`
 
   For example:
-  
-  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.1`
+
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3.tar.gz`
 
   This installs the Context Service SDK in your project and configures your connector.properties file.
 
@@ -60,6 +62,7 @@ To set up sample code components:
    `./prepareTomcat.sh <path-to-tomcat.tgz> <path-to-connectiondata.properties>`
 
    This sets the path to the connectiondata.properties file used to store connection data.
+
    >You can set the path to the connectiondata.properties file before creating it.
 
    For example:
@@ -245,4 +248,3 @@ This sample code is only a sample and is NOT guaranteed to be bug free and produ
 DevNet provides sample support on a “best effort” basis. Like any custom deployment, it is the responsibility of the partner and/or customer to ensure that the customization works correctly.
 
 [https://developer.cisco.com/site/context-service](https://developer.cisco.com/site/context-service)
-
