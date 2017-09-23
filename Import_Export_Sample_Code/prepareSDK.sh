@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo Parameters: [targz-filename]
-    echo i.e. context-service-sdk-2.0.1.tar.gz
+    echo i.e. context-service-sdk-2.0.3.tar.gz
     exit
 fi
 
@@ -54,23 +54,17 @@ mkdir $TMPPATH
 cd $TMPPATH
 tar xvf $TAR_GZ
 
-if [ ! -d context-service-sdk-$SDK_VERSION ] ; then
-    echo Check SDK version.  Directory context-service-sdk-$SDK_VERSION does not exist
-    exit
-fi
-
 JAR=context-service-sdk-$SDK_VERSION.jar
 POM=context-service-sdk-$SDK_VERSION-pom.xml
 
 for f in $JAR $POM ; do
-    if [ ! -e context-service-sdk-$SDK_VERSION/$f ] ; then
+    if [ ! -e $f ] ; then
         echo Check SDK version.  $f does not exist
         exit
     fi
 done
 
 # Install the SDK into the local Maven repository
-cd context-service-sdk-$SDK_VERSION
 mvn -U install:install-file -Dfile=$JAR -DgroupId=com.cisco.thunderhead -DartifactId=context-service-sdk -Dversion=$SDK_VERSION -Dpackaging=jar -DpomFile=$POM
 
 EXT_JAR=context-service-sdk-extension-$SDK_VERSION.jar
@@ -78,7 +72,7 @@ EXT_JAR=context-service-sdk-extension-$SDK_VERSION.jar
 # Create the connector.property file
 cd $PROJECT_DIR
 mkdir -p $PROJECT_DIR/plugin
-cp $TMPPATH/context-service-sdk-$SDK_VERSION/$EXT_JAR plugin
+cp $TMPPATH/$EXT_JAR plugin
 rm -rf $TMPPATH
 
 echo path=plugin > $PROP_FILE

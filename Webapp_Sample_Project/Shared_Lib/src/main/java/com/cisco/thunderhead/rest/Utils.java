@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -86,7 +85,7 @@ public class Utils {
      */
     public static File initializeConnectorPropertyFile(ServletContext servletContext) {
         // assumes running in Tomcat
-        String contextServiceSdkExtensionName = "context-service-sdk-extension-2.0.1.jar";
+        String contextServiceSdkExtensionName = "context-service-sdk-extension-2.0.3.jar";
         URL extensionUrl = null;
         try {
             // Find the location of the extension JAR bundled into the WAR.

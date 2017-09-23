@@ -29,7 +29,7 @@ To set up sample code components:
 
 2. Download the sample code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) and extract context-service-sample-code to your project directory.
 
-3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).
+3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/5ae3dc3a-c5b4-4a67-b760-094a8753f1a8).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 
@@ -39,7 +39,7 @@ To set up sample code components:
 
   For example:
   
-  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.1`
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3`
 
   This installs the Context Service SDK in your project and configures your connector.properties file.
 
@@ -96,6 +96,12 @@ To set up sample code components:
 The Management Connector webapp is crucial to ensuring your application runs without downtime. This webapp is responsible for listening to the credentials changed event and updating the connection data as needed. If the connection data string is not kept up-to-date, the Context Service SDK may fail to initialize.  
 
 The sample Management Connector webapp writes the connection data file to a plain text file as specified by the environment variable `connection.info.file` on the local filesystem. A more secure solution is outside the scope of this sample.
+
+If you already have a connection data string, you can put it into the file in this format:
+
+```
+connection.data=YOUR_CONNECTION_DATA_STRING_HERE
+```
 
 ## REST API Examples
 

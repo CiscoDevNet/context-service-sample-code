@@ -14,7 +14,7 @@ After compiling with `mvn clean install` you can run `export.sh` to export or `i
 ## Getting Started
 To set up sample code components:
 
-1. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).
+1. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/5ae3dc3a-c5b4-4a67-b760-094a8753f1a8).
     
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
     
