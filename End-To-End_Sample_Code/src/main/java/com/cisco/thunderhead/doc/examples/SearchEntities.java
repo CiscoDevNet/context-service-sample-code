@@ -55,7 +55,7 @@ public class SearchEntities {
     /**
      * Search for customer matching any of the specified fields.
      *
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List of customers matching the criteria
      */
     public static List<Customer> searchForCustomerByFirstOrLastName (ContextServiceClient contextServiceClient) {
@@ -74,7 +74,7 @@ public class SearchEntities {
      * Search for customer that matches any of multiple values of the custom field "sdkExample_fieldOne"
      * whose field value is either "gold" or "silver".
      *
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List of customers matching the criteria
      */
     public static List<Customer> searchForCustomerByGoldOrSilver (ContextServiceClient contextServiceClient) {
@@ -92,7 +92,7 @@ public class SearchEntities {
     /**
      * Search for Pod by podID.
      *
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param id the Pod ID
      * @return List (of at most one, since ID is unique) of Pod matching ID
      */
@@ -111,7 +111,7 @@ public class SearchEntities {
     /**
      * Search for Pod by CustomerID.
      * 
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param id the Customer ID
      * @return List of Pods associated with the Customer ID
      */
@@ -130,7 +130,7 @@ public class SearchEntities {
     /**
      * Search for Pod by RequestID.
      *
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param id the Request ID
      * @return List of Pods associated with the Request ID
      */
@@ -145,11 +145,28 @@ public class SearchEntities {
         }
         return result;
     }
+    
+    /**
+     * Search for Pods that do not have a requestId value.
+     *
+     * @param contextServiceClient an initialized Context Service Client
+     * @return a list of Pods matching the query
+     */
+    public static List<Pod> searchForPodsByNullRequestIdValue (ContextServiceClient contextServiceClient) {
+        SearchParameters params = new SearchParameters();
+        params.add("notExists", "requestId");
+        List<Pod> result = contextServiceClient.search(Pod.class, params, Operation.AND);
+
+        for (Pod pod : result) {
+            LOGGER.info("Found pod: " + pod.toString());
+        }
+        return result;
+    }  
 
     /**
      * Search for Pod by List of Pod IDs.
      * 
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param idList the list of Pod IDs
      * @return List of Pods matching any of the IDs in the list
      */
@@ -169,7 +186,7 @@ public class SearchEntities {
     /**
      * Returns list of PODs that any of the specified tags.  
      *
-     * @param contextServiceClient  an initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return List of Pods that match at least one of the tags
      */
     public static List<Pod> searchForPodsTaggedAsSalesOrMarketing (ContextServiceClient contextServiceClient) {

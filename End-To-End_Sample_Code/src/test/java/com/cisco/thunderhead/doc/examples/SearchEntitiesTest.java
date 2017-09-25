@@ -231,6 +231,15 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     }
 
     @Test
+    public void testSearchForPodsByNullRequestIdValue () {
+        List<Pod> podsFound = SearchEntities.searchForPodsByNullRequestIdValue(contextServiceClient);
+        assertEquals("Error: Should find 3 pods.", 3, podsFound.size());
+        assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId2));
+        assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId4));
+        assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId5));
+    }
+
+    @Test
     public void testSearchForPodByDateRanges () {
         // Create two pods (A and B)
         ClientResponse response = createPod("Pod A", "poda@example.com", "", "apple", null, null, null);
