@@ -28,11 +28,11 @@ To set up sample code components:
 
     This installs the Context Service SDK in your project and configures your connector.properties file.
 5. Run `mvn clean install`.
-7. [Register with Context Service](https://developer.cisco.com/site/context-service/docs/#register-your-application) to receive the connection data string.
+6. [Register with Context Service](https://developer.cisco.com/site/context-service/docs/#register-your-application) to receive the connection data string.
 
 >The connection data string is required to connect to Context Service.
 
-8. Save your connection data string to connectiondata.txt in your project directory.
+7. Save your connection data string to connectiondata.txt in your project directory.
 
 ## Compiling and Testing the End-To-End Sample Code
 
