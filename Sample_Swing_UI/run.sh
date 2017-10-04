@@ -7,5 +7,4 @@ for i in $DIR/target/dependency/*.jar; do
     export CLASSPATH=$CLASSPATH\:$i
 done
 
-export CLASSPATH
 java com.cisco.thunderhead.example.ui.ContextServiceSdkUI
