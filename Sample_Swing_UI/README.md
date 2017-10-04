@@ -24,7 +24,7 @@ To set up sample code components:
 
 1. Create a project directory.
 2. Download the Swing UI example code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) to your project directory.
-3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/dcf47513-a2cb-407c-b8a5-cc0d8f620405).
+3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/5ae3dc3a-c5b4-4a67-b760-094a8753f1a8).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 4.  Change to the Sample_Swing_UI directory, then run:
@@ -38,7 +38,7 @@ To set up sample code components:
   This installs the Context Service SDK in your project and configures your connector.properties file.
 
 5. Run `mvn clean install`.
-7. [Register with Context Service](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/index.gsp#register-your-application-with-context-service) to receive the connection data string.
+7. [Register with Context Service](https://developer.cisco.com/site/context-service/docs/#register-your-application) to receive the connection data string.
 
     The connection data string is required to connect to Context Service.
 8. Save your connection data string to connectiondata.txt in your project directory.
