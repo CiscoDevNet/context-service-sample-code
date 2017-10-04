@@ -1,7 +1,7 @@
 # cs-java-sdk-swing-ui
 Java Swing UI that uses the Context Service Java SDK
 
-## Introduction 
+## Introduction
 This sample demonstrates:
 
 * Getting status
@@ -18,47 +18,60 @@ This project requires:
 * Maven
 
 ## Getting Started
+This procedure is for Mac OS and Linux. Windows users should use Bash or Cygwin to follow this procedure.
+
 To set up sample code components:
 
 1. Create a project directory.
 2. Download the Swing UI example code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) to your project directory.
 3. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/5ae3dc3a-c5b4-4a67-b760-094a8753f1a8).
-    
+
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
-4. Run `prepareSDK.sh` with parameters \[targz-filename\].
-    
-    This sets up your connector.properties file.
+4.  Change to the Sample_Swing_UI directory, then run:
+
+  `./prepareSDK.sh <path-to-context-service-sdk-X.X.X.tar.gz>`
+
+  For example:
+
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3.tar.gz`
+
+  This installs the Context Service SDK in your project and configures your connector.properties file.
+
 5. Run `mvn clean install`.
-7. [Register with Context Service](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/index.gsp#register-your-application-with-context-service) to receive the connectionData string. 
+7. [Register with Context Service](https://developer.cisco.com/site/context-service/docs/#register-your-application) to receive the connection data string.
 
-    The connectionData string is required to connect to Context Service.
-8. Save your connectionData string to connectiondata.txt in your project directory.
+    The connection data string is required to connect to Context Service.
+8. Save your connection data string to connectiondata.txt in your project directory.
 
-9. Run the script `run.sh` to start the application.
+9. Start the application:
+`./run.sh`
 
-## Registering Application
-To register with the Context Service and obtain a connection data string:
+## Register Your Application
+To register with Context Service and obtain a connection data string:
 
 1. Run the script `register.sh` to begin registration.
-2. It will launch a web browser.  Login using your organization admin account.
+
+  The registration web page opens in a browser.
+2. Login using your organization admin account.
 3. Click **Allow** to allow the application to access the Context Service.
-4. A few seconds later, the browser will redirect and print the connection data string.  The connection data string will also be saved to a file with the name `connectiondata.txt` if it does not already exist.
+
+  After a few seconds, the browser redirects and displays the connection data string in the URL. The connection data string is also saved to a file with the name `connectiondata.txt` if it does not already exist.
 
 ## Usage notes
 
-* To search, specify **key:value pairs** where: 
-    * each key/value pair is colon delimited 
+* To search, specify **key:value pairs** where:
+    * each key/value pair is colon delimited
     * each pair is space-delimited.
-   
+
    For example: Context_City:Boxborough
 * (Optional) When creating Customers, Requests, and Pods you can specify which fieldset to use when making your chosen type.
-  
-## Adjusting the UI
+
+### Adjusting the UI
 To adjust the UI, change the following setting in IntelliJ:
 
 * Settings > Editor > GUI Designer > Generate GUI into: Java source code
 
-## Creating your own application
+### Create Your Own Application
 Use the `Utils.runIt()` method to create a simple application. The `Utils.runIt()` method takes a function which can use a local version of the Context Service SDK.
 
 For example, this will call the `getStatus()` API:
