@@ -53,7 +53,16 @@ public class FieldSetsTest extends BaseExamplesTest {
         assertEquals("First Name",field.getTranslations().get(LanguageType.EN_US));
         assertEquals(Arrays.asList("en_US", "en_GB", "zh_CN"),field.getLocales());
     }
-
+    
+    @Test
+    public void testDeleteField(){
+        Field field = FieldSets.createFieldWithTranslations(contextServiceClient);
+        assertEquals(FIELD_ONE, field.getId());
+        FieldSets.deleteField(contextServiceClient, field);
+        List<Field> list = FieldSets.searchField(contextServiceClient);
+        assertEquals(0, list.size());
+    }
+    
     @Test
     public void testCreateFieldSet(){
         FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
@@ -63,7 +72,7 @@ public class FieldSetsTest extends BaseExamplesTest {
         assertEquals(expectedSet, fieldSet.getFields());
         assertEquals(FIELDSET, fieldSet.getId());
     }
-
+    
     @Test
     public void testUpdateFieldSet(){
         FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
@@ -79,7 +88,10 @@ public class FieldSetsTest extends BaseExamplesTest {
     @Test
     public void testDeleteFieldSet(){
         FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
+        assertEquals(FIELDSET, fieldSet.getId());
         FieldSets.deleteFieldSet(contextServiceClient, fieldSet);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        assertEquals(0, list.size());
     }
 
     @Test
@@ -122,6 +134,10 @@ public class FieldSetsTest extends BaseExamplesTest {
 
         String dataElemValue = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get(FIELD_ONE);
         assertEquals("receipt of purchase", dataElemValue);
+
+        // release usage of field set
+        contextServiceClient.delete(pod);
+        Thread.sleep(2000);
     }
 
     @Test
@@ -136,6 +152,9 @@ public class FieldSetsTest extends BaseExamplesTest {
 
         String dataElemValue = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get(FIELD_ONE);
         assertEquals("Receipt of purchase", dataElemValue);
+
+        // release usage of field set
+        contextServiceClient.delete(pod);
     }
 
     private void deleteExistingFieldAndFieldSet() {

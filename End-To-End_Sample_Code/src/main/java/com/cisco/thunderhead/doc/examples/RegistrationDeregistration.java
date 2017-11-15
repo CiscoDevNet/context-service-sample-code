@@ -42,7 +42,7 @@ public class RegistrationDeregistration {
 
 
     /**
-     * Follow the deregistration workflow on https://devnet-stage.developerprogram.org/site/context-service/documents/context-service-sdk-guide/#deregister-your-application
+     * Follow the deregistration workflow on https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/index.gsp#deregister
      *
      * Prerequisite
      * 1. A Callback Url: webpage hosted in your application server or local jetty server to receive response of deregistration request.

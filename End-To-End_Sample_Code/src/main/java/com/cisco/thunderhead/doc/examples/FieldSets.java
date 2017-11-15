@@ -54,11 +54,22 @@ public class FieldSets {
 
         return field;
     }
+    
+    /**
+     * Delete the specified field.
+     *
+     * @param contextServiceClient an initialized Context Service Client
+     * @param field a field
+     */
+    public static void deleteField(ContextServiceClient contextServiceClient, Field field){
+        contextServiceClient.delete(field);
+        LOGGER.info("Deleted field: "+field.getId());
+    }
 
     /**
      * Create two new fields and add them to a fieldset.
      *
-     * @param contextServiceClient initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return a fieldset
      */
     public static FieldSet createFieldSet(ContextServiceClient contextServiceClient){
@@ -79,7 +90,7 @@ public class FieldSets {
     /**
      * Add a new field to the specified fieldset.
      *
-     * @param contextServiceClient initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param fieldSet a fieldset to be updated
      * @return a fieldset
      */
@@ -98,7 +109,7 @@ public class FieldSets {
     /**
      * Delete the specified fieldset.
      *
-     * @param contextServiceClient Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @param fieldSet a fieldset
      */
     public static void deleteFieldSet(ContextServiceClient contextServiceClient, FieldSet fieldSet){
@@ -151,7 +162,7 @@ public class FieldSets {
     /**
      * This method describes usage of Cisco Fieldsets to create a Pod in ContextService.
      * Similarly, Customer and Request objects can be created in ContextService.
-     * @param contextServiceClient initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Cisco base fieldset
      */
     public static Pod ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
@@ -175,7 +186,7 @@ public class FieldSets {
     /**
      * This method describe usage of Cisco Fieldsets and Custom Fieldsets to create a Pod
      * in ContextService. Similarly, Customer and Request objects can be created.
-     * @param contextServiceClient initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Custom Fieldset
      */
     public static Pod customFieldSetUsage(ContextServiceClient contextServiceClient){
@@ -211,7 +222,7 @@ public class FieldSets {
     /**
      * This method describes usage of Cisco Base fieldset and Custom fieldset to create a Pod
      * in ContextService. Similarly, Customer and Request can be created.
-     * @param contextServiceClient initialized Context Service Client
+     * @param contextServiceClient an initialized Context Service Client
      * @return a pod which uses Cisco Base Fieldset and Custom Fieldset
      */
     public static Pod customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
