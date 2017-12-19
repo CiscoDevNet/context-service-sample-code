@@ -9,14 +9,18 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.filter.LoggingFilter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -43,8 +47,8 @@ public class ContextServiceApiTest {
      */
     @BeforeClass
     public static void setUp() {
-        client = Client.create();
-        client.addFilter(new LoggingFilter(System.out)); // so we can see HTTP traffic
+        client = ClientBuilder.newClient();
+        client.register(new LoggingFilter()); // so we can see HTTP traffic
         FIELD_DATA = UUID.randomUUID().toString();
 
         CONTEXT_OBJECT_ID = createContextObject(FIELD_DATA);
@@ -69,15 +73,15 @@ public class ContextServiceApiTest {
         String requestBody = getGson().toJson(request);
 
         // do the create
-        ClientResponse response = client
-                .resource(BASE_URL).type(MediaType.APPLICATION_JSON_TYPE)
-                .post(ClientResponse.class, requestBody);
+        Response response = client
+                .target(BASE_URL).request().accept(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(requestBody));
 
         assertEquals("should have succeeded", 201, response.getStatus());
         String id = SDKUtils.getIdFromUri(response.getLocation());
 
         // now delete it
-        response = client.resource(BASE_URL + "/pod/" + id).delete(ClientResponse.class);
+        response = client.target(BASE_URL + "/pod/" + id).request().delete();
         assertEquals("should have succeeded", 202, response.getStatus());
     }
 
@@ -86,16 +90,16 @@ public class ContextServiceApiTest {
      */
     @Test
     public void testGet() {
-        ClientResponse response;
+        Response response;
 
         // failure case
-        response = client.resource(BASE_URL + "/pod/" + CONTEXT_OBJECT_ID + "blah").get(ClientResponse.class);
+        response = client.target(BASE_URL + "/pod/" + CONTEXT_OBJECT_ID + "blah").request().get();
         assertEquals("should succeed", 500, response.getStatus());
 
         // success case
-        response = client.resource(BASE_URL + "/pod/" + CONTEXT_OBJECT_ID).get(ClientResponse.class);
+        response = client.target(BASE_URL + "/pod/" + CONTEXT_OBJECT_ID).request().get();
         assertEquals("should succeed", 200, response.getStatus());
-        String entity = response.getEntity(String.class);
+        String entity = response.readEntity(String.class);
 
         ContextObject contextObject = getGson().fromJson(entity, ContextObject.class);
         assertEquals("unexpected contents", 1, contextObject.getDataElements().size());
@@ -113,12 +117,12 @@ public class ContextServiceApiTest {
         query.put("Context_Notes", Arrays.asList(FIELD_DATA));
         SearchParams searchParams = new SearchParams("or", query);
         String requestBody = getGson().toJson(searchParams);
-        ClientResponse response = client
-                .resource(BASE_URL + "/search/pod").type(MediaType.APPLICATION_JSON_TYPE)
-                .post(ClientResponse.class, requestBody);
+        Response response = client
+                .target(BASE_URL + "/search/pod").request().accept(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(requestBody));
 
         assertEquals("should succeed", 200, response.getStatus());
-        String entity = response.getEntity(String.class);
+        String entity = response.readEntity(String.class);
 
         JsonElement jsonResponse = getGson().fromJson(entity, JsonElement.class);
         JsonArray objects = jsonResponse.getAsJsonArray();
@@ -171,12 +175,12 @@ public class ContextServiceApiTest {
         query.put("Context_Notes", Arrays.asList(fieldData));
         SearchParams searchParams = new SearchParams("or", query);
         String requestBody = getGson().toJson(searchParams);
-        ClientResponse response = client
-                .resource(BASE_URL + "/search/" + type).type(MediaType.APPLICATION_JSON_TYPE)
-                .post(ClientResponse.class, requestBody);
+        Response response = client
+                .target(BASE_URL + "/search/" + type).request().accept(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(requestBody));
 
         assertEquals("should succeed", 200, response.getStatus());
-        String entity = response.getEntity(String.class);
+        String entity = response.readEntity(String.class);
 
         JsonElement jsonResponse = getGson().fromJson(entity, JsonElement.class);
         JsonArray objects = jsonResponse.getAsJsonArray();
@@ -192,8 +196,8 @@ public class ContextServiceApiTest {
 
         String requestBody = getGson().toJson(request);
 
-        ClientResponse response = client
-                .resource(BASE_URL).type(MediaType.APPLICATION_JSON_TYPE).post(ClientResponse.class, requestBody);
+        Response response = client
+                .target(BASE_URL).request().accept(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(requestBody));
 
         assertEquals("should have succeeded", 201, response.getStatus());
 
@@ -204,7 +208,7 @@ public class ContextServiceApiTest {
      * Helper method to delete a context object.
      */
     private static void deleteContextObject(String id) {
-        ClientResponse response = client.resource(BASE_URL + "/pod/" + id).delete(ClientResponse.class);
+        Response response = client.target(BASE_URL + "/pod/" + id).request().delete(Response.class);
         assertEquals("should have succeeded", 202, response.getStatus());
     }
 
@@ -237,5 +241,15 @@ public class ContextServiceApiTest {
     private static void addDataElementsToRequest(ContextObject request, String key, String value, String type) {
         List<ContextObject.ContextDataElement> dataElements = request.getDataElements();
         dataElements.add(new ContextObject.ContextDataElement(key, value, type));
+    }
+
+    private static class LoggingFilter implements ClientRequestFilter {
+
+        @Override
+        public void filter(ClientRequestContext requestContext) throws IOException {
+            if (requestContext.getEntity()!=null) {
+                System.out.println(requestContext.getEntity().toString());
+            }
+        }
     }
 }
