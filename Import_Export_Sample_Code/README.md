@@ -16,7 +16,7 @@ This procedure is for Mac OS and Linux. Windows users should use Bash or Cygwin 
 
 To set up sample code components:
 
-1. Download the Context Service SDK from [Context Service Downloads](https://developer.cisco.com/fileMedia/download/5ae3dc3a-c5b4-4a67-b760-094a8753f1a8).
+1. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.3.tar.gz).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 
