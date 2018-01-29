@@ -1,13 +1,10 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.Contributor;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.datatypes.ContributorType;
 import com.cisco.thunderhead.datatypes.PodMediaType;
-import com.cisco.thunderhead.datatypes.PodState;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.util.DataElementUtils;
 
 import java.util.Map;
@@ -21,8 +18,8 @@ public class UpdateEntities {
      * @param podId
      * @return the updated POD
      */
-    public static Pod updatePod(ContextServiceClient contextServiceClient, UUID podId) {
-        Pod pod = contextServiceClient.get(Pod.class, podId.toString());
+    public static ContextObject updatePod(ContextServiceClient contextServiceClient, UUID podId) {
+        ContextObject pod = contextServiceClient.get(ContextObject.class, podId.toString());
         // Add a media type
         pod.setMediaType(PodMediaType.SOCIAL);
         // update DataElements
@@ -40,8 +37,8 @@ public class UpdateEntities {
      * @param podId
      * @return the updated POD with the new contributor
      */
-    public static Pod addContributorToPod(ContextServiceClient contextServiceClient, UUID podId) {
-        Pod pod = contextServiceClient.get(Pod.class, podId.toString());
+    public static ContextObject addContributorToPod(ContextServiceClient contextServiceClient, UUID podId) {
+        ContextObject pod = contextServiceClient.get(ContextObject.class, podId.toString());
         Contributor contributor = new Contributor(ContributorType.USER, "AgentId");
         pod.setNewContributor(contributor);
         contextServiceClient.update(pod);
@@ -54,8 +51,8 @@ public class UpdateEntities {
      * @param customerId
      * @return the updated Customer
      */
-    public static Customer updateCustomer(ContextServiceClient contextServiceClient, UUID customerId) {
-        Customer customer = contextServiceClient.get(Customer.class, customerId.toString());
+    public static ContextObject updateCustomer(ContextServiceClient contextServiceClient, UUID customerId) {
+        ContextObject customer = contextServiceClient.get(ContextObject.class, customerId.toString());
         Map<String, Object> updateData = DataElementUtils.convertDataSetToMap(customer.getDataElements());
         updateData.put("Context_Street_Address_1", "333 Sesame Street");
         customer.setDataElements(DataElementUtils.convertDataMapToSet(updateData));
@@ -69,8 +66,8 @@ public class UpdateEntities {
      * @param requestId
      * @return the updated Request
      */
-    public static Request updateRequest(ContextServiceClient contextServiceClient, UUID requestId) {
-        Request request = contextServiceClient.get(Request.class, requestId.toString());
+    public static ContextObject updateRequest(ContextServiceClient contextServiceClient, UUID requestId) {
+        ContextObject request = contextServiceClient.get(ContextObject.class, requestId.toString());
         Map<String, Object> updateData = DataElementUtils.convertDataSetToMap(request.getDataElements());
         updateData.put("Context_Title", "Updated Context Title");
         request.setDataElements(DataElementUtils.convertDataMapToSet(updateData));

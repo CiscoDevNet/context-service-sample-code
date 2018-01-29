@@ -1,28 +1,26 @@
 package com.cisco.thunderhead.doc.examples;
 
 
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
+import com.cisco.thunderhead.ContextObject;
 import org.junit.Test;
 
 public class DeleteEntitiesTest extends BaseExamplesTest{
 
     @Test
     public void deletePodTest(){
-        Pod pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         DeleteEntities.deletePod(contextServiceClient,pod);
     }
 
     @Test
     public void deleteCustomerTest(){
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         DeleteEntities.deleteCustomer(contextServiceClient,customer);
     }
 
     @Test
     public void deleteRequestTest(){
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
         DeleteEntities.deleteRequest(contextServiceClient,request);
     }
 }

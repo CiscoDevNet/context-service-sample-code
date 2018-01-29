@@ -1,8 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.util.RFC3339Date;
 import com.cisco.thunderhead.util.SDKUtils;
 
@@ -14,7 +14,7 @@ public class Helpers {
      * @param pod a Pod object that hasn't been created in Context Service yet
      * @return the id of the newly created Pod
      */
-    public static String getIdFromCreatePodResponse(ContextServiceClient contextServiceClient, Pod pod) {
+    public static String getIdFromCreatePodResponse(ContextServiceClient contextServiceClient, ContextObject pod) {
         ClientResponse response = contextServiceClient.create(pod);
         return SDKUtils.getIdFromResponse(response);
     }
@@ -26,7 +26,7 @@ public class Helpers {
      * @param pod a Pod object that hasn't been created in Context Service yet
      * @return the id of the newly created Pod
      */
-    public static String getIdFromCreatePod(ContextServiceClient contextServiceClient, Pod pod) {
+    public static String getIdFromCreatePod(ContextServiceClient contextServiceClient, ContextObject pod) {
         contextServiceClient.create(pod);
         return pod.getId().toString();
     }
@@ -38,7 +38,7 @@ public class Helpers {
      * @param pod a Pod object that hasn't been created in Context Service yet
      * @return the lastUpdated time of the new Pod
      */
-    public static RFC3339Date getLastUpdatedFromCreatePodResponse(ContextServiceClient contextServiceClient, Pod pod) {
+    public static RFC3339Date getLastUpdatedFromCreatePodResponse(ContextServiceClient contextServiceClient, ContextObject pod) {
         ClientResponse response = contextServiceClient.create(pod);
         return SDKUtils.getLastUpdatedFromResponse(response);
     }
@@ -50,7 +50,7 @@ public class Helpers {
      * @param pod a Pod object that hasn't been created in Context Service yet
      * @return the lastUpdated time of the new Pod
      */
-    public static RFC3339Date getLastUpdatedFromCreatePod(ContextServiceClient contextServiceClient, Pod pod) {
+    public static RFC3339Date getLastUpdatedFromCreatePod(ContextServiceClient contextServiceClient, ContextObject pod) {
         contextServiceClient.create(pod);
         return pod.getLastUpdated();
     }

@@ -1,9 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
-import com.cisco.thunderhead.customer.Customer;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.errors.ApiErrorType;
 import com.cisco.thunderhead.errors.ApiException;
-import com.cisco.thunderhead.pod.Pod;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -111,22 +110,22 @@ public class CSJmxStatsTest extends BaseExamplesTest {
      */
     private static void populateData() {
         // create multiple pods - 5 pods
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        List<Pod> pods = CreateEntities.createMultiplePodsWithSameCustomer(contextServiceClient, customer);
-        for (Pod pod: pods) {
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        List<ContextObject> pods = CreateEntities.createMultiplePodsWithSameCustomer(contextServiceClient, customer);
+        for (ContextObject pod: pods) {
             assertNotNull(pod.getId());
             assertEquals(customer.getId(), pod.getCustomerId());
         }
 
         //delete the pods
-        for (Pod pod: pods) {
+        for (ContextObject pod: pods) {
             DeleteEntities.deletePod(contextServiceClient, pod);
         }
 
         //Get not existing pods that will throw notFound exception and increment Pod.Get.error.notFound count
-        for (Pod pod : pods) {
+        for (ContextObject pod : pods) {
             try{
-                GetEntities.getPod(contextServiceClient, pod.getPodId());
+                GetEntities.getPod(contextServiceClient, pod.getId());
                 fail("testEncryptDecryptSearchFailures - getAndDecrypt failed to throw exception");
             }catch (ApiException e){
                 assertEquals(ApiErrorType.NOT_FOUND, e.getError().getErrorType() );

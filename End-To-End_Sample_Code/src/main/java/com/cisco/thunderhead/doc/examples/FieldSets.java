@@ -1,6 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
 
+import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.datatypes.ElementClassification;
@@ -165,9 +167,9 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Cisco base fieldset
      */
-    public static Pod ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setDataElements(DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{
                     put("Context_Notes", "Notes about this context.");
@@ -189,7 +191,7 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Custom Fieldset
      */
-    public static Pod customFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject customFieldSetUsage(ContextServiceClient contextServiceClient){
 
         LOGGER.info("Creating custom fieldSet ...");
 
@@ -204,7 +206,7 @@ public class FieldSets {
 
         LOGGER.info("Created custom fieldSet " + fieldset.getId() + " containing fields: " + field1.getId() + " " + field2.getId());
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setFieldsets(Arrays.asList(fieldset.getId()));
         pod.setDataElements( DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{
@@ -225,7 +227,7 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod which uses Cisco Base Fieldset and Custom Fieldset
      */
-    public static Pod customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
 
         LOGGER.info("Creating custom fieldSet ...");
 
@@ -240,7 +242,7 @@ public class FieldSets {
 
         LOGGER.info("Created custom fieldSet "+fieldset.getId()+" containing field: "+field1.getId());
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setFieldsets(Arrays.asList(fieldset.getId(), "cisco.base.pod"));
         pod.setDataElements(DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{

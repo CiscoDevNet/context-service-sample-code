@@ -1,12 +1,12 @@
 package com.cisco.thunderhead.doc.e2e;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.doc.examples.ConfigurationAndInitialization;
 import com.cisco.thunderhead.doc.examples.ConnectionData;
 import com.cisco.thunderhead.doc.examples.FlushEntities;
-import com.cisco.thunderhead.pod.Pod;
 import org.junit.After;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class ContextServiceDemoTest {
         //Create CS connector and search for earlier created pod
         contextServiceClient = ConfigurationAndInitialization.createAndInitContextServiceClientWithCustomConfiguration(ConnectionData.getConnectionData());
 
-        List<Pod> pods = contextServiceClient.search(Pod.class, new SearchParameters(){{ add("Context_Notes", "Context Service Demo POD"); }}, Operation.AND);
+        List<ContextObject> pods = contextServiceClient.search(ContextObject.class, new SearchParameters(){{ add("Context_Notes", "Context Service Demo POD"); }}, Operation.AND);
         assertEquals("Pod was created", 1, pods.size());
     }
 }

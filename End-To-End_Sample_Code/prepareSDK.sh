@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo Parameters: [targz-filename]
-    echo i.e. context-service-sdk-2.0.3.tar.gz
+    echo i.e. context-service-sdk-2.0.5.tar.gz
     exit
 fi
 

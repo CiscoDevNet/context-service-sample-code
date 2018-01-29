@@ -1,19 +1,17 @@
 package com.cisco.thunderhead.doc.examples;
 
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.datatypes.LanguageType;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.util.DataElementUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -120,7 +118,7 @@ public class FieldSetsTest extends BaseExamplesTest {
 
     @Test
     public void testCiscoBaseFieldSetUsage(){
-        Pod pod = FieldSets.ciscoBaseFieldSetUsage(contextServiceClient);
+        ContextObject pod = FieldSets.ciscoBaseFieldSetUsage(contextServiceClient);
         assertEquals(pod.getFieldsets(), Arrays.asList("cisco.base.pod"));
         String contextNotes = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get("Context_Notes");
         assertEquals("Notes about this context.", contextNotes);
@@ -129,7 +127,7 @@ public class FieldSetsTest extends BaseExamplesTest {
     @Test
     public void testCustomFieldSetUsage() throws InterruptedException {
         Thread.sleep(2000);
-        Pod pod = FieldSets.customFieldSetUsage(contextServiceClient);
+        ContextObject pod = FieldSets.customFieldSetUsage(contextServiceClient);
         assertEquals(pod.getFieldsets(), Arrays.asList(FIELDSET));
 
         String dataElemValue = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get(FIELD_ONE);
@@ -144,7 +142,7 @@ public class FieldSetsTest extends BaseExamplesTest {
     public void testCiscoAndCustomFieldSetUsage(){
 
         //Create pod with custom and cisco base fieldset
-        Pod pod = FieldSets.customAndCiscoFieldSetUsage(contextServiceClient);
+        ContextObject pod = FieldSets.customAndCiscoFieldSetUsage(contextServiceClient);
         assertEquals(pod.getFieldsets(), Arrays.asList(FIELDSET, "cisco.base.pod"));
 
         String contextNotes = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get("Context_Notes");

@@ -1,10 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 
 public class DeleteEntities {
 
@@ -13,8 +11,8 @@ public class DeleteEntities {
      * @param contextServiceClient an initialized ContextServiceClient
      * @param pod a pod object to delete
      */
-    public static void deletePod(ContextServiceClient contextServiceClient, Pod pod){
-        contextServiceClient.delete(Pod.class, pod.getId().toString());
+    public static void deletePod(ContextServiceClient contextServiceClient, ContextObject pod){
+        contextServiceClient.delete(pod);
     }
 
     /**
@@ -22,8 +20,8 @@ public class DeleteEntities {
      * @param contextServiceClient an initialized ContextServiceClient
      * @param customer a customer object to delete
      */
-    public static void deleteCustomer(ContextServiceClient contextServiceClient, Customer customer){
-        contextServiceClient.delete(Customer.class, customer.getId().toString());
+    public static void deleteCustomer(ContextServiceClient contextServiceClient, ContextObject customer){
+        contextServiceClient.delete(customer);
     }
 
     /**
@@ -31,8 +29,8 @@ public class DeleteEntities {
      * @param contextServiceClient an initialized ContextServiceClient
      * @param request a request object to delete
      */
-    public static void deleteRequest(ContextServiceClient contextServiceClient, Request request){
-        contextServiceClient.delete(Request.class, request.getId().toString());
+    public static void deleteRequest(ContextServiceClient contextServiceClient, ContextObject request){
+        contextServiceClient.delete(request);
     }
 
 }
