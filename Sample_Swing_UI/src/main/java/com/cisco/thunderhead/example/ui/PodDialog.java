@@ -1,14 +1,11 @@
 package com.cisco.thunderhead.example.ui;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.datatypes.PodMediaType;
-import com.cisco.thunderhead.datatypes.PodState;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.tag.Tag;
 import com.cisco.thunderhead.util.RFC3339Date;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -21,14 +18,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This allows a user to edit a Pod's properties.
  */
 public class PodDialog extends JDialog {
-    private Pod pod = null; // null on create, non-null on update
+    private ContextObject pod = null; // null on create, non-null on update
 
     private JPanel contentPane;
     private JButton buttonSave;
@@ -49,8 +50,8 @@ public class PodDialog extends JDialog {
     private JTextField textFieldId;
     private List<FieldSet> fieldSets;
     private Map<String, ContextBeanUIHelper.Pair<JTextField, Field>> fieldToTextField = new HashMap<>();
-    private Customer customer;
-    private Request request;
+    private ContextObject customer;
+    private ContextObject request;
     private static final String SELECT = "select";
 
     public PodDialog() {
@@ -91,7 +92,7 @@ public class PodDialog extends JDialog {
         });
 
         comboMediaType.setModel(new DefaultComboBoxModel<>(getPrivateStaticFinalStrings(PodMediaType.class)));
-        comboState.setModel(new DefaultComboBoxModel<>(getPrivateStaticFinalStrings(PodState.class)));
+        comboState.setModel(new DefaultComboBoxModel<>(getPrivateStaticFinalStrings(ContextObject.States.class)));
         addTagButton.addActionListener(e -> handleAddTag());
         deleteTagButton.addActionListener(e -> handleRemoveTag());
     }
@@ -128,14 +129,15 @@ public class PodDialog extends JDialog {
     }
 
     private void onSave() {
-        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, pod, Pod.class, ((dataElements) -> {
-            Pod pod = new Pod(dataElements);
+        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, pod, ((dataElements) -> {
+            ContextObject pod = new ContextObject(ContextObject.Types.POD);
+            pod.setDataElements(dataElements);
 
             if (customer != null) {
                 pod.setCustomerId(customer.getCustomerId());
             }
             if (request != null) {
-                pod.setRequestId(request.getRequestId());
+                pod.setParentId(request.getId());
             }
             if (!comboState.getSelectedItem().equals(SELECT)) {
                 pod.setState((String) comboState.getSelectedItem());
@@ -183,7 +185,7 @@ public class PodDialog extends JDialog {
         }
     }
 
-    public void setPod(Pod pod) {
+    public void setPod(ContextObject pod) {
         this.pod = pod;
         SearchParameters sp = new SearchParameters();
         pod.getFieldsets().forEach((fieldSetName) -> {
@@ -201,11 +203,11 @@ public class PodDialog extends JDialog {
         this.fieldSets = fieldSets;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(ContextObject customer) {
         this.customer = customer;
     }
 
-    public void setRequest(Request request) {
+    public void setRequest(ContextObject request) {
         this.request = request;
     }
 

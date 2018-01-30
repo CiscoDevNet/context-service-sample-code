@@ -1,8 +1,8 @@
 package com.cisco.thunderhead.example.ui;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -22,7 +22,7 @@ import java.util.Map;
  * This allows a user to create or edit a customer.
  */
 public class CustomerDialog extends JDialog {
-    private Customer customer = null; // null on create, non-null on update
+    private ContextObject customer = null; // null on create, non-null on update
 
     private JPanel contentPane;
     private JButton buttonSave;
@@ -70,7 +70,11 @@ public class CustomerDialog extends JDialog {
     }
 
     private void onSave() {
-        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, customer, Customer.class, (Customer::new));
+        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, customer, dataElements -> {
+            ContextObject bean = new ContextObject(ContextObject.Types.CUSTOMER);
+            bean.setDataElements(dataElements);
+            return bean;
+        });
         if (success) {
             dispose();
         }
@@ -92,12 +96,13 @@ public class CustomerDialog extends JDialog {
                 textCreatedDate, textLastUpdated, customer, listContributors, listWorkgroups, textFieldId);
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(ContextObject customer) {
         this.customer = customer;
         SearchParameters sp = new SearchParameters();
         customer.getFieldsets().forEach((fieldSetName) -> {
             sp.add("id", fieldSetName);
         });
+
         this.fieldSets = ConnectionData.getContextServiceClient().search(FieldSet.class, sp, Operation.OR);
     }
 
