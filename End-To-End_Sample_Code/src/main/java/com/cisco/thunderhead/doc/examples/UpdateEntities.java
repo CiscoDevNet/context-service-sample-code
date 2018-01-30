@@ -19,7 +19,7 @@ public class UpdateEntities {
      * @return the updated POD
      */
     public static ContextObject updatePod(ContextServiceClient contextServiceClient, UUID podId) {
-        ContextObject pod = contextServiceClient.get(ContextObject.class, podId.toString());
+        ContextObject pod = contextServiceClient.getContextObject(ContextObject.Types.POD, podId.toString());
         // Add a media type
         pod.setMediaType(PodMediaType.SOCIAL);
         // update DataElements
@@ -38,7 +38,7 @@ public class UpdateEntities {
      * @return the updated POD with the new contributor
      */
     public static ContextObject addContributorToPod(ContextServiceClient contextServiceClient, UUID podId) {
-        ContextObject pod = contextServiceClient.get(ContextObject.class, podId.toString());
+        ContextObject pod = contextServiceClient.getContextObject(ContextObject.Types.POD, podId.toString());
         Contributor contributor = new Contributor(ContributorType.USER, "AgentId");
         pod.setNewContributor(contributor);
         contextServiceClient.update(pod);
@@ -52,7 +52,7 @@ public class UpdateEntities {
      * @return the updated Customer
      */
     public static ContextObject updateCustomer(ContextServiceClient contextServiceClient, UUID customerId) {
-        ContextObject customer = contextServiceClient.get(ContextObject.class, customerId.toString());
+        ContextObject customer = contextServiceClient.getContextObject(ContextObject.Types.CUSTOMER, customerId.toString());
         Map<String, Object> updateData = DataElementUtils.convertDataSetToMap(customer.getDataElements());
         updateData.put("Context_Street_Address_1", "333 Sesame Street");
         customer.setDataElements(DataElementUtils.convertDataMapToSet(updateData));
@@ -67,7 +67,7 @@ public class UpdateEntities {
      * @return the updated Request
      */
     public static ContextObject updateRequest(ContextServiceClient contextServiceClient, UUID requestId) {
-        ContextObject request = contextServiceClient.get(ContextObject.class, requestId.toString());
+        ContextObject request = contextServiceClient.getContextObject(ContextObject.Types.REQUEST, requestId.toString());
         Map<String, Object> updateData = DataElementUtils.convertDataSetToMap(request.getDataElements());
         updateData.put("Context_Title", "Updated Context Title");
         request.setDataElements(DataElementUtils.convertDataMapToSet(updateData));

@@ -59,7 +59,7 @@ public class CSJmxStatsTest extends BaseExamplesTest {
     @Test
     public void testInvokeStatsSummary() throws MBeanException, InstanceNotFoundException, ReflectionException {
         //statsSummary to validate
-        String  statsSummary = "\"Pod.Create.Count\"" + ":" + "\"5\"" ;
+        String  statsSummary = "\"pod.Create.Count\"" + ":" + "\"5\"" ;
         String requestDate = "statsRequestDateTime";
         //check if the summaryStats operation is available outside and validate the value
         String result = CSJmxStats.invokeStatsSummaryMethod();
@@ -85,7 +85,7 @@ public class CSJmxStatsTest extends BaseExamplesTest {
     @Test
     public void testInvokeAbsoluteStatsSummary() throws MBeanException, InstanceNotFoundException, ReflectionException {
         //absoluteStatsSummary to validate
-        String  statsSummary = "\"Pod.Create.Count\"";
+        String  statsSummary = "\"pod.Create.Count\"";
         String requestDate = "statsRequestDateTime";
         //check if the summaryStats operation is available outside and validate the value
         String result = CSJmxStats.invokeAbsoluteStatsSummaryMethod();
