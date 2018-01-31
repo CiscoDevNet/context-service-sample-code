@@ -1,11 +1,8 @@
 package com.cisco.thunderhead.rest;
 
-import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.DataElement;
 import com.cisco.thunderhead.ExposeMember;
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.RFC3339Date;
 
@@ -19,7 +16,7 @@ import java.util.UUID;
 /**
  * Represents a context service object.
  */
-public class ContextObject {
+public class RESTContextObject {
     @ExposeMember private UUID id;
     @ExposeMember private String type;
     @ExposeMember private List<String> fieldsets = new LinkedList<String>();
@@ -27,13 +24,15 @@ public class ContextObject {
     @ExposeMember private RFC3339Date created;
     @ExposeMember private RFC3339Date lastUpdated;
 
-    public ContextObject() {
+    public RESTContextObject() {
     }
 
     /**
-     * Converts from a CS SDK ContextBean to the REST version.
+     * Converts from a CS SDK ContextObject to the REST version.
+     * @param bean
      */
-    public ContextObject(ContextBean bean) {
+    public RESTContextObject(ContextObject bean) {
+        type = bean.getType();
         for (DataElement dataElement : bean.getDataElements()) {
             ContextDataElement contextDataElement = new ContextDataElement(
                     dataElement.getDataKey(),
@@ -45,7 +44,6 @@ public class ContextObject {
         created = bean.getCreated();
         lastUpdated = bean.getLastUpdated();
         id = bean.getId();
-        type = determineType(bean);
     }
 
     public UUID getId() {
@@ -57,7 +55,7 @@ public class ContextObject {
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = type != null ? type.toLowerCase() : null;
     }
 
     public List<String> getFieldsets() { return fieldsets; }
@@ -102,39 +100,11 @@ public class ContextObject {
         }
     }
 
-    public static String determineType(ContextBean contextBean) {
-        String type;
-        if (contextBean instanceof Customer) {
-            type = "customer";
-        } else if (contextBean instanceof Pod) {
-            type = "pod";
-        } else if (contextBean instanceof Request) {
-            type = "request";
-        } else {
-            type = "unknown";
+    public static void copyToContextBean(ContextObject dest, RESTContextObject src) {
+        if (!dest.getType().equals(src.getType())) {
+            throw new ContextException("Object types do not match");
         }
-        return type;
-    }
 
-    public static Class<? extends ContextBean> determineTypeClass(String type) {
-        Class<? extends ContextBean> clazz;
-        switch (type.toLowerCase()) {
-            case "customer":
-                clazz = Customer.class;
-                break;
-            case "pod":
-                clazz = Pod.class;
-                break;
-            case "request":
-                clazz = Request.class;
-                break;
-            default:
-                clazz = null;
-        }
-        return clazz;
-    }
-
-    public static void copyToContextBean(ContextBean dest, ContextObject src) {
         dest.setCreated(src.getCreated());
         dest.setLastUpdated(src.getLastUpdated());
         dest.setFieldsets(src.getFieldsets());

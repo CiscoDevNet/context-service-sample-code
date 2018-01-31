@@ -63,11 +63,11 @@ public class ContextServiceApiTest {
     }
 
     /**
-     * This creates the request.  It re-uses the server-side ContextObject to make creating the request easier.
+     * This creates the request.  It re-uses the server-side RESTContextObject to make creating the request easier.
      */
     @Test
     public void testCreate() {
-        ContextObject request = createRequest("pod", "cisco.base.pod");
+        RESTContextObject request = createRequest("pod", "cisco.base.pod");
         addDataElementsToRequest(request, "Context_Notes", "testing at 3:16", "string");
 
         String requestBody = getGson().toJson(request);
@@ -101,10 +101,10 @@ public class ContextServiceApiTest {
         assertEquals("should succeed", 200, response.getStatus());
         String entity = response.readEntity(String.class);
 
-        ContextObject contextObject = getGson().fromJson(entity, ContextObject.class);
-        assertEquals("unexpected contents", 1, contextObject.getDataElements().size());
-        assertEquals("unexpected contents", "Context_Notes", contextObject.getDataElements().get(0).getKey());
-        assertEquals("unexpected contents", FIELD_DATA, contextObject.getDataElements().get(0).getValue());
+        RESTContextObject RESTContextObject = getGson().fromJson(entity, RESTContextObject.class);
+        assertEquals("unexpected contents", 1, RESTContextObject.getDataElements().size());
+        assertEquals("unexpected contents", "Context_Notes", RESTContextObject.getDataElements().get(0).getKey());
+        assertEquals("unexpected contents", FIELD_DATA, RESTContextObject.getDataElements().get(0).getValue());
     }
 
     /**
@@ -191,11 +191,10 @@ public class ContextServiceApiTest {
      * Helper method to create a context object
      */
     private static String createContextObject(String fieldData) {
-        ContextObject request = createRequest("pod", "cisco.base.pod");
+        RESTContextObject request = createRequest("pod", "cisco.base.pod");
         addDataElementsToRequest(request, "Context_Notes", fieldData, "string");
 
         String requestBody = getGson().toJson(request);
-
         Response response = client
                 .target(BASE_URL).request().accept(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(requestBody));
 
@@ -212,8 +211,8 @@ public class ContextServiceApiTest {
         assertEquals("should have succeeded", 202, response.getStatus());
     }
 
-    private static ContextObject createRequest(String type, String fieldset) {
-        ContextObject request = new ContextObject();
+    private static RESTContextObject createRequest(String type, String fieldset) {
+        RESTContextObject request = new RESTContextObject();
         request.setType(type);
         request.setFieldsets(Arrays.asList(fieldset));
         return request;
@@ -238,9 +237,9 @@ public class ContextServiceApiTest {
     /**
      * Helper method to add a data element to a request.
      */
-    private static void addDataElementsToRequest(ContextObject request, String key, String value, String type) {
-        List<ContextObject.ContextDataElement> dataElements = request.getDataElements();
-        dataElements.add(new ContextObject.ContextDataElement(key, value, type));
+    private static void addDataElementsToRequest(RESTContextObject request, String key, String value, String type) {
+        List<RESTContextObject.ContextDataElement> dataElements = request.getDataElements();
+        dataElements.add(new RESTContextObject.ContextDataElement(key, value, type));
     }
 
     private static class LoggingFilter implements ClientRequestFilter {
