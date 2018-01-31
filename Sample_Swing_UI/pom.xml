@@ -13,6 +13,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.cisco.thunderhead</groupId>
+            <artifactId>context-service-sdk</artifactId>
+            <version>2.0.5-SNAPSHOT</version>
+        </dependency>
+        <!-- TEMPORARY! to pull extension jar from local maven repo -->
+        <dependency>
+            <groupId>com.cisco.thunderhead</groupId>
+            <artifactId>context-service-sdk-extension</artifactId>
+            <version>2.0.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
