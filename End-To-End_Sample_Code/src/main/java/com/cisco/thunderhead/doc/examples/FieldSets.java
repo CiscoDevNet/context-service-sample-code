@@ -1,7 +1,6 @@
 package com.cisco.thunderhead.doc.examples;
 
 
-import com.cisco.thunderhead.ContextBean;
 import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.SearchParameters;
@@ -10,7 +9,6 @@ import com.cisco.thunderhead.datatypes.ElementDataType;
 import com.cisco.thunderhead.datatypes.LanguageType;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.util.DataElementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

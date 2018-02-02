@@ -61,7 +61,6 @@ public class Import {
     private static Gson gson = CSGsonFactory.getCSJson();
 
     // Map of bean type to file writer
-    //private static HashMap<Class<? extends ContextBean>,JsonArrayWriter> writerMap = new HashMap<>();
     private static HashMap<String, JsonArrayWriter> writerMap = new HashMap<>();
     // Mapping between the original (exported) object IDs and their new IDs after import.
     private static Map<UUID, UUID> idMap = new HashMap<>();

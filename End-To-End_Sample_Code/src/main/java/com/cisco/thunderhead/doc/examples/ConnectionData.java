@@ -30,7 +30,6 @@ public class ConnectionData {
         try {
             BufferedReader connectDataFile = new BufferedReader(new FileReader(connectDataFilePath));
             connectionData = connectDataFile.readLine();
-            System.out.println("========ConnectionData: " + connectionData);
             LOGGER.info("Connection Data: " + connectionData);
         } catch (IOException e) {
             LOGGER.error("Error reading " + connectionDataFileName + ": " + e);
