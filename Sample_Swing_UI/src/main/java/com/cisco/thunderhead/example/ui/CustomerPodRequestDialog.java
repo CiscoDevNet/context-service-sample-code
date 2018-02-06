@@ -232,8 +232,6 @@ public class CustomerPodRequestDialog extends JDialog {
 
 
     private void handleCreateRequest() {
-//        Customer customer = customersList.getSelectedValue();
-
         List<FieldSet> fieldSets = getFieldSetsForDialog(CISCO_BASE_REQUEST);
         RequestDialog dialog = new RequestDialog();
         dialog.setFieldSets(fieldSets);
@@ -386,7 +384,7 @@ public class CustomerPodRequestDialog extends JDialog {
             return;
         }
         customersList.clearSelection();
-        ;
+
         ContextObject request = requestsList.getSelectedValue();
         SearchParameters params = new SearchParameters();
         params.add("parentId", request.getId().toString());

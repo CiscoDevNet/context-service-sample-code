@@ -134,7 +134,7 @@ public class PodDialog extends JDialog {
             pod.setDataElements(dataElements);
 
             if (customer != null) {
-                pod.setCustomerId(customer.getCustomerId());
+                pod.setCustomerId(customer.getId());
             }
             if (request != null) {
                 pod.setParentId(request.getId());

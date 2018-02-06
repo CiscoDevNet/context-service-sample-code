@@ -81,6 +81,10 @@ public class Utils {
         System.out.println("\n\n*** Finished ***\n\n");
     }
 
+    /**
+     * Wait for an object to become searchable (after created). Used for Field or Fieldset (or any other
+     * non-<code>ContextObject</code> object types.
+     */
     static <T extends BaseDbBean> void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<T> clazz) {
         java.util.List result;
         do {
@@ -89,6 +93,9 @@ public class Utils {
         } while (result.size()!=fields.size());
     }
 
+    /**
+     * Wait for an object to become searchable (after created). Used for <code>ContextObject</code> object types.
+     */
     static void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, String type) {
         java.util.List result;
         do {
@@ -98,7 +105,10 @@ public class Utils {
     }
 
     /**
-     * This returns all the beans represented by the ids.  Search has a max limit on the result set so this
+     * This returns all the beans represented by the ids.  This is used when searching for Context beans that <em>are not</em>
+     * <code>ContextObject</code>s, such as Field and Fieldset objects.
+     *
+     * Search has a max limit on the result set so this
      * does multiple search requests to return all the beans requested.
      */
     static <T extends BaseDbBean> List<T> search(ContextServiceClient contextServiceClient, Collection<String> ids, Class<T> clazz) {
@@ -121,7 +131,11 @@ public class Utils {
     }
 
     /**
-     * This returns all the beans represented by the ids.  Search has a max limit on the result set so this
+     * This returns all the beans represented by the ids.  This is used when searching for <code>ContextObject</code>
+     * objects. For those searches a "type" parameter is required in the "searchParameters" argument of the actual
+     * search API call, and this method automatically provides that.
+     *
+     * Search has a max limit on the result set so this
      * does multiple search requests to return all the beans requested.
      */
     static List<ContextObject> search(ContextServiceClient contextServiceClient, Collection<String> ids, String type) {
@@ -144,6 +158,10 @@ public class Utils {
         return beans;
     }
 
+    /**
+     * Wait for an object to not be searchable (deleted). Used for Field or Fieldset (or any other non-<code>ContextObject</code>
+     * object types.
+     */
     static void waitForNotSearchable(ContextServiceClient contextServiceClient, BaseDbBean contextBean, Class<? extends BaseDbBean> clazz) {
         java.util.List result;
         do {
@@ -152,6 +170,9 @@ public class Utils {
         } while (result.size()!=0);
     }
 
+    /**
+     * Wait for an object to not be searchable (deleted). Used for <code>ContextObject</code> object types.
+     */
     static void waitForNotSearchable(ContextServiceClient contextServiceClient, ContextObject contextBean) {
         java.util.List result;
         do {
