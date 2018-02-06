@@ -107,16 +107,17 @@ public class Main {
 
     private void search(CommandSearch search) {
         ContextServiceClient client = getContextServiceClient(search.requestTimeout);
-        Class<? extends ContextBean> clazz;
+        Class<? extends ContextBean> clazz = ContextObject.class;
+        String searchType;
         switch (search.type) {
             case "pod":
-                clazz = ContextObject.class;
+                searchType = ContextObject.Types.POD;
                 break;
             case "customer":
-                clazz = ContextObject.class;
+                searchType = ContextObject.Types.CUSTOMER;
                 break;
             case "request":
-                clazz = ContextObject.class;
+                searchType = ContextObject.Types.REQUEST;
                 break;
             default:
                 throw new RuntimeException("unknown type " + search.type);
@@ -132,6 +133,7 @@ public class Main {
             String value = term.substring(colonPos+1);
             sp.add(key, value);
         }
+        sp.add("type", searchType);
         List<? extends ContextBean> response = client.search(clazz, sp, Operation.OR);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String responseJson = gson.toJson(response);

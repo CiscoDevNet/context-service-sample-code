@@ -119,7 +119,7 @@ public class CSJmxStatsTest extends BaseExamplesTest {
 
         //delete the pods
         for (ContextObject pod: pods) {
-            DeleteEntities.deletePod(contextServiceClient, pod);
+            DeleteEntities.deleteContextObject(contextServiceClient, pod);
         }
 
         //Get not existing pods that will throw notFound exception and increment Pod.Get.error.notFound count

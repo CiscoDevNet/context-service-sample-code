@@ -9,18 +9,18 @@ public class DeleteEntitiesTest extends BaseExamplesTest{
     @Test
     public void deletePodTest(){
         ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
-        DeleteEntities.deletePod(contextServiceClient,pod);
+        DeleteEntities.deleteContextObject(contextServiceClient,pod);
     }
 
     @Test
     public void deleteCustomerTest(){
         ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        DeleteEntities.deleteCustomer(contextServiceClient,customer);
+        DeleteEntities.deleteContextObject(contextServiceClient,customer);
     }
 
     @Test
     public void deleteRequestTest(){
         ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
-        DeleteEntities.deleteRequest(contextServiceClient,request);
+        DeleteEntities.deleteContextObject(contextServiceClient,request);
     }
 }
