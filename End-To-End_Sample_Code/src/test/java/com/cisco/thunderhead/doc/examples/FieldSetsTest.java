@@ -57,13 +57,13 @@ public class FieldSetsTest extends BaseExamplesTest {
         Field field = FieldSets.createFieldWithTranslations(contextServiceClient);
         assertEquals(FIELD_ONE, field.getId());
         FieldSets.deleteField(contextServiceClient, field);
-        List<Field> list = FieldSets.searchField(contextServiceClient);
+        List<Field> list = FieldSets.searchField(contextServiceClient, "");
         assertEquals(0, list.size());
     }
     
     @Test
     public void testCreateFieldSet(){
-        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
+        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient, "");
         Set<String> expectedSet = new HashSet<>();
         expectedSet.add(FIELD_ONE);
         expectedSet.add(FIELD_TWO);
@@ -73,7 +73,7 @@ public class FieldSetsTest extends BaseExamplesTest {
     
     @Test
     public void testUpdateFieldSet(){
-        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
+        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient, "");
         fieldSet = FieldSets.updateFieldSet(contextServiceClient,fieldSet);
         Set<String> expectedSet = new HashSet<>();
         expectedSet.add(FIELD_ONE);
@@ -85,19 +85,19 @@ public class FieldSetsTest extends BaseExamplesTest {
 
     @Test
     public void testDeleteFieldSet(){
-        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
+        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient, "");
         assertEquals(FIELDSET, fieldSet.getId());
         FieldSets.deleteFieldSet(contextServiceClient, fieldSet);
-        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient, "");
         assertEquals(0, list.size());
     }
 
     @Test
     public void testSearchFieldSet(){
         //First Create FieldSet
-        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient);
+        FieldSet fieldSet = FieldSets.createFieldSet(contextServiceClient, "");
 
-        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient, "");
 
         assertEquals( 1, list.size() );
         assertEquals( FIELDSET, list.get(0).getId());
@@ -110,7 +110,7 @@ public class FieldSetsTest extends BaseExamplesTest {
         // creating field to search
         Field field = FieldSets.createFieldWithTranslations(contextServiceClient);
 
-        List<Field> list = FieldSets.searchField(contextServiceClient);
+        List<Field> list = FieldSets.searchField(contextServiceClient, "");
 
         assertEquals(1, list.size());
         assertEquals( FIELD_ONE, list.get(0).getId());
@@ -157,7 +157,7 @@ public class FieldSetsTest extends BaseExamplesTest {
 
     private void deleteExistingFieldAndFieldSet() {
 
-        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient, "");
         for(FieldSet fieldSet : list){
             if(fieldSet.getId().equals(FIELDSET)){
                LOGGER.info("Deleting fieldset: "+fieldSet.getId());
@@ -165,7 +165,7 @@ public class FieldSetsTest extends BaseExamplesTest {
             }
         }
 
-        List<Field> fieldlist = FieldSets.searchField(contextServiceClient);
+        List<Field> fieldlist = FieldSets.searchField(contextServiceClient, "");
         for(Field field : fieldlist){
             if(field.getId().equals(FIELD_ONE) || field.getId().equals(FIELD_TWO) || field.getId().equals(FIELD_THREE)){
                 LOGGER.info("Deleting field: "+field.getId());

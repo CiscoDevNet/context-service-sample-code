@@ -70,17 +70,18 @@ public class FieldSets {
      * Create two new fields and add them to a fieldset.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return a fieldset
      */
-    public static FieldSet createFieldSet(ContextServiceClient contextServiceClient){
+    public static FieldSet createFieldSet(ContextServiceClient contextServiceClient, String uniqueName){
 
-        Field field1 = new Field("sdkExample_fieldOne", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
+        Field field1 = new Field("sdkExample_" + uniqueName + "fieldOne", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
         contextServiceClient.create(field1);
 
-        Field field2 = new Field("sdkExample_fieldTwo", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
+        Field field2 = new Field("sdkExample_" + uniqueName + "fieldTwo", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
         contextServiceClient.create(field2);
 
-        FieldSet fieldset = new FieldSet("sdkExample_fieldSet", new HashSet<>(Arrays.asList(field1.getIdentifier(), field2.getIdentifier())), false);
+        FieldSet fieldset = new FieldSet("sdkExample_" + uniqueName + "fieldSet", new HashSet<>(Arrays.asList(field1.getIdentifier(), field2.getIdentifier())), false);
         contextServiceClient.create(fieldset);
 
         LOGGER.info("Created fieldset: "+fieldset.getId()+" with fields: "+fieldset.getFields().toString());
@@ -121,13 +122,14 @@ public class FieldSets {
      * Search fieldsets using a search query.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return List<FieldSet> a list of fieldsets that match the search query
      */
-    public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient){
+    public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient, String uniqueName){
 
         LOGGER.info("Constructing search query ...");
         SearchParameters params =  new SearchParameters();
-        params.add("id","sdkExample_fieldSet");
+        params.add("id","sdkExample_" + uniqueName + "fieldSet");
 
         LOGGER.info("Searching for fieldSet in ContextService based on query: " + params.toString());
         List<FieldSet> fieldsets = contextServiceClient.search(FieldSet.class, params, OR);
@@ -141,15 +143,16 @@ public class FieldSets {
      * Search fields using a search query.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return List<Field> a list of fields that match the search query
      */
-    public static List<Field> searchField(ContextServiceClient contextServiceClient){
+    public static List<Field> searchField(ContextServiceClient contextServiceClient, String uniqueName){
 
         LOGGER.info("Constructing search query ...");
         SearchParameters params =  new SearchParameters();
-        params.add("id", "sdkExample_fieldOne");
-        params.add("id", "sdkExample_fieldTwo");
-        params.add("id", "sdkExample_fieldThree");
+        params.add("id", "sdkExample_" + uniqueName + "fieldOne");
+        params.add("id", "sdkExample_" + uniqueName + "fieldTwo");
+        params.add("id", "sdkExample_" + uniqueName + "fieldThree");
 
         LOGGER.info("Searching for fields in ContextService based on query: " + params.toString());
         List<Field> fields = contextServiceClient.search(Field.class, params, OR);

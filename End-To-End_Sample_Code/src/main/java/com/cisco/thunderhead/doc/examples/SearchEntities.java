@@ -15,6 +15,12 @@ public class SearchEntities {
     // Logger
     private final static Logger LOGGER = LoggerFactory.getLogger(SearchEntities.class);
 
+    public static String SEARCH_UNDERSCORE = "search_";
+    public static final String FIELDSET = "sdkExample_" + SEARCH_UNDERSCORE + "fieldSet";
+    public static final String FIELD_ONE = "sdkExample_" + SEARCH_UNDERSCORE + "fieldOne";
+    public static final String FIELD_TWO = "sdkExample_" + SEARCH_UNDERSCORE + "fieldTwo";
+    public static final String FIELD_THREE = "sdkExample_" + SEARCH_UNDERSCORE + "fieldThree";
+
     /**
      * Search for customer by ID.
      *
@@ -25,6 +31,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForCustomerById (ContextServiceClient contextServiceClient, String id) {
         SearchParameters params = new SearchParameters();
         params.add("id", id);
+        params.add("type", ContextObject.Types.CUSTOMER);
         // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
         return contextServiceClient.search(ContextObject.class, params, Operation.OR);
     }
@@ -39,6 +46,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("Context_First_Name", "Jane");
         params.add("Context_Last_Name", "Doe");
+        params.add("type", ContextObject.Types.CUSTOMER);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject customer : result) {
@@ -57,6 +65,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("Context_First_Name", "Jane");
         params.add("Context_Last_Name", "Doe");
+        params.add("type", ContextObject.Types.CUSTOMER);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject customer : result) {
@@ -74,8 +83,9 @@ public class SearchEntities {
      */
     public static List<ContextObject> searchForCustomerByGoldOrSilver (ContextServiceClient contextServiceClient) {
         SearchParameters params = new SearchParameters();
-        params.add("sdkExample_fieldOne", "gold");
-        params.add("sdkExample_fieldOne", "silver");
+        params.add(FIELD_ONE, "gold");
+        params.add(FIELD_ONE, "silver");
+        params.add("type", ContextObject.Types.CUSTOMER);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject customer : result) {
@@ -94,6 +104,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForPodById (ContextServiceClient contextServiceClient, String id) {
         SearchParameters params = new SearchParameters();
         params.add("id", id);
+        params.add("type", ContextObject.Types.POD);
         // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
@@ -113,6 +124,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForPodByCustomerId (ContextServiceClient contextServiceClient, String id) {
         SearchParameters params = new SearchParameters();
         params.add("customerId", id);
+        params.add("type", ContextObject.Types.POD);
         // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
@@ -132,6 +144,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForPodByRequestId (ContextServiceClient contextServiceClient, String id) {
         SearchParameters params = new SearchParameters();
         params.add("requestId", id);
+        params.add("type", ContextObject.Types.POD);
         // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
@@ -147,9 +160,10 @@ public class SearchEntities {
      * @param contextServiceClient an initialized Context Service Client
      * @return a list of Pods matching the query
      */
-    public static List<ContextObject> searchForPodsByNullRequestIdValue (ContextServiceClient contextServiceClient) {
+    public static List<ContextObject> searchForPodsByNullParentIdValue(ContextServiceClient contextServiceClient) {
         SearchParameters params = new SearchParameters();
-        params.add("notExists", "requestId");
+        params.add("notExists", "parentId");
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -168,6 +182,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForPodByListOfIds (ContextServiceClient contextServiceClient, List<String> idList) {
         SearchParameters params = new SearchParameters();
         params.addAll("id", idList);
+        params.add("type", ContextObject.Types.POD);
 
         // For a list, make sure to use OR; since no Pod can match ALL of different IDs.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
@@ -188,6 +203,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("tags", "sales");
         params.add("tags", "marketing");
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -207,6 +223,7 @@ public class SearchEntities {
         params.add("tags", "issue");
         params.add("tags", "major");
         params.add("tags", "preferred-customer");
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -226,6 +243,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("Context_POD_Source_Phone", "111-111-1111");
         params.add("Context_POD_Source_Email", "John.Doe@example.com");
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -250,6 +268,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("startCreatedDate", startDate);
         params.add("endCreatedDate", endDate);
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -274,6 +293,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("startDate", startDate);
         params.add("endDate", endDate);
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -298,8 +318,9 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("startCreatedDate", startDate);
         params.add("endCreatedDate", endDate);
-        params.add("sdkExample_fieldOne", customField);
+        params.add(FIELD_ONE, customField);
         params.add("tags", "cancellation");
+        params.add("type", ContextObject.Types.POD);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -317,48 +338,11 @@ public class SearchEntities {
     public static List<ContextObject> searchForActivePods(ContextServiceClient contextServiceClient) {
         SearchParameters params = new SearchParameters(){{
             add("state", ContextObject.States.ACTIVE);
+            add("type", ContextObject.Types.POD);
         }};
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
-            LOGGER.info("Found pod: " + pod.toString());
-        }
-        return result;
-    }
-
-    /**
-     * Search for PODs based on the last contributor, or the last person  to create or modify the POD.
-     * 
-     * @param contextServiceClient  an initialized ContextServiceClient
-     * @param contributorUsername the username of a contributor
-     * @return a list of PODs last modified by the given contributor
-     */
-    public static List<ContextObject> searchForPodsByLastContributor(ContextServiceClient contextServiceClient, final String contributorUsername) {
-        SearchParameters params = new SearchParameters(){{
-            add("newContributor.username", contributorUsername);
-        }};
-        List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
-
-        for (ContextObject pod: result) {
-            LOGGER.info("Found pod: " + pod.toString());
-        }
-        return result;
-    }
-
-    /**
-     * Search for all PODs modified by the specified contributor.
-     * 
-     * @param contextServiceClient  an initialized ContextServiceClient
-     * @param contributorUsername the username of a contributor
-     * @return a list of PODs modified by the given contributor
-     */
-    public static List<ContextObject> searchForPodsByContributor(ContextServiceClient contextServiceClient, final String contributorUsername) {
-        SearchParameters params = new SearchParameters(){{
-            add("contributors.username", contributorUsername);
-        }};
-        List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
-
-        for (ContextObject pod: result) {
             LOGGER.info("Found pod: " + pod.toString());
         }
         return result;
@@ -373,6 +357,7 @@ public class SearchEntities {
     public static List<ContextObject> searchForPodsByQueryString(ContextServiceClient contextServiceClient){
         SearchParameters params = new SearchParameters();
         params.add("query_string", "Ivanna.Buy@prospect.com 222-222-2222 banana \"Ivanna Buy\"");
+        params.add("type", ContextObject.Types.POD);
 
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 

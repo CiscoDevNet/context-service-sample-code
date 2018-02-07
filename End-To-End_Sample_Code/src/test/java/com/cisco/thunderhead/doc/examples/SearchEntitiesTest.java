@@ -1,9 +1,7 @@
 package com.cisco.thunderhead.doc.examples;
 
 import com.cisco.thunderhead.ContextObject;
-import com.cisco.thunderhead.Contributor;
 import com.cisco.thunderhead.client.ClientResponse;
-import com.cisco.thunderhead.datatypes.ContributorType;
 import com.cisco.thunderhead.datatypes.PodMediaType;
 import com.cisco.thunderhead.datatypes.PodState;
 import com.cisco.thunderhead.dictionary.Field;
@@ -14,7 +12,6 @@ import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.SDKUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
@@ -33,7 +31,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore
 public class SearchEntitiesTest extends BaseExamplesTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchEntitiesTest.class);
@@ -53,16 +50,12 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     private static Set<Tag> tagSet3;
     private static Set<Tag> tagSet4;
     private static FieldSet customFieldSet;
-    private static final String FIELDSET = "sdkExample_fieldSet";
-    private static final String FIELD_ONE = "sdkExample_fieldOne";
-    private static final String FIELD_TWO = "sdkExample_fieldTwo";
-    private static final String FIELD_THREE = "sdkExample_fieldThree";
 
     @BeforeClass
     public static void createDataToSearch() {
         // Create a custom fieldSet
         deleteExistingFieldAndFieldSet();
-        customFieldSet = FieldSets.createFieldSet(contextServiceClient);
+        customFieldSet = FieldSets.createFieldSet(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
 
         // Create some tags to add to the POD
         tagSet1 = new HashSet<Tag>((Arrays.asList(new Tag("issue"), new Tag("major"), new Tag("preferred-customer"))));
@@ -100,6 +93,13 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @AfterClass
     public static void deleteDataThatIsNotFlushed() {
+        try {
+            FlushEntities.flushAllEntities(contextServiceClient);
+        }catch(InterruptedException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }catch(TimeoutException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }
         deleteExistingFieldAndFieldSet();
     }
 
@@ -229,8 +229,8 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testSearchForPodsByNullRequestIdValue () {
-        List<ContextObject> podsFound = SearchEntities.searchForPodsByNullRequestIdValue(contextServiceClient);
-        assertEquals("Error: Should find 3 pods.", 3, podsFound.size());
+        List<ContextObject> podsFound = SearchEntities.searchForPodsByNullParentIdValue(contextServiceClient);
+        //make sure the returned list contains the original created pod without parentId
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId2));
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId4));
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId5));
@@ -322,7 +322,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
                             put("Context_State", "MI");
                             put("Context_Country", "US");
                             put("Context_ZIP", "90210");
-                            put("sdkExample_fieldOne", customField);
+                            put(SearchEntities.FIELD_ONE, customField);
                         }}
                 )
         );
@@ -355,7 +355,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
                             put("Context_POD_Source_Email", sourceEmail);
                             put("Context_POD_Source_Phone", sourcePhone);
                             put("Context_POD_Activity_Link", "http://myservice.example.com/service/ID/xxxx");
-                            put("sdkExample_fieldOne", customField);
+                            put(SearchEntities.FIELD_ONE, customField);
                         }}
                 )
         );
@@ -397,20 +397,6 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         return contextServiceClient.create(pod);
     }
 
-    private static ClientResponse createPodWithContributor(final String username) {
-        ContextObject pod = new ContextObject(ContextObject.Types.POD);
-        pod.setDataElements(
-                DataElementUtils.convertDataMapToSet(
-                        new HashMap<String, Object>() {{
-                            put("Context_Notes", "Notes about this context.");
-                        }}
-                )
-        );
-        pod.setFieldsets(Arrays.asList("cisco.base.pod"));
-        pod.setNewContributor(new Contributor(ContributorType.USER, username){{ setUsername(username); }});
-        return contextServiceClient.create(pod);
-    }
-
     private static ClientResponse updatePod(String podId, String mediaType) {
         UUID uuid = UUID.fromString(podId);
         ContextObject pod = GetEntities.getPod(contextServiceClient, uuid);
@@ -429,16 +415,16 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     private static void deleteExistingFieldAndFieldSet() {
 
-        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
         for(FieldSet fieldSet : list){
-            if(fieldSet.getId().equals(FIELDSET)){
+            if(fieldSet.getId().equals(SearchEntities.FIELDSET)){
                 contextServiceClient.delete(fieldSet);
             }
         }
 
-        List<Field> fieldlist = FieldSets.searchField(contextServiceClient);
+        List<Field> fieldlist = FieldSets.searchField(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
         for(Field field : fieldlist){
-            if(field.getId().equals(FIELD_ONE) || field.getId().equals(FIELD_TWO) || field.getId().equals(FIELD_THREE)){
+            if(field.getId().equals(SearchEntities.FIELD_ONE) || field.getId().equals(SearchEntities.FIELD_TWO) || field.getId().equals(SearchEntities.FIELD_THREE)){
                 contextServiceClient.delete(field);
             }
         }
