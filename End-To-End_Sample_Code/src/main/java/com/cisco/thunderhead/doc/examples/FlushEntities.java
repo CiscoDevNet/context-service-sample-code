@@ -63,19 +63,7 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushCustomers(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing customer data...");
-        contextServiceClient.flush(ContextObject.Types.CUSTOMER);
-
-        FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.CUSTOMER, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of customers complete. Flushed " + status.getNumberFlushed() + " customers.");
-        } else {
-            LOGGER.info("Flush of customers not complete. Flushed " + status.getNumberFlushed() + " customers. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        LOGGER.info("Flushed customer data.");
+        flushContextObject(contextServiceClient, ContextObject.Types.CUSTOMER);
     }
 
     /**
@@ -86,19 +74,7 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushPods(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing pod data...");
-        contextServiceClient.flush(ContextObject.Types.POD);
-
-        FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.POD, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of pods complete. Flushed " + status.getNumberFlushed() + " pods.");
-        } else {
-            LOGGER.info("Flush of pods not complete. Flushed " + status.getNumberFlushed() + " pods. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        LOGGER.info("Flushed pod data.");
+        flushContextObject(contextServiceClient, ContextObject.Types.POD);
     }
 
     /**
@@ -109,18 +85,28 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushRequests(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing request data...");
-        contextServiceClient.flush(ContextObject.Types.REQUEST);
+        flushContextObject(contextServiceClient, ContextObject.Types.REQUEST);
+    }
+
+    /**
+     * flush context object
+     * @param contextServiceClient
+     * @param contextObjectType
+     * @throws TimeoutException
+     */
+    private static void flushContextObject(ContextServiceClient contextServiceClient, String contextObjectType) throws TimeoutException {
+        LOGGER.info("Flushing " + contextObjectType + " data...");
+        contextServiceClient.flush(contextObjectType);
 
         FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.REQUEST, MAX_FLUSH_WAIT_IN_SECONDS);
+        status = contextServiceClient.waitForFlushComplete(contextObjectType, MAX_FLUSH_WAIT_IN_SECONDS);
         if (status.isCompleted()) {
-            LOGGER.info("Flush of requests complete. Flushed " + status.getNumberFlushed() + " requests.");
+            LOGGER.info("Flush of "  + contextObjectType + " requests complete. Flushed " + status.getNumberFlushed() + contextObjectType + ".");
         } else {
-            LOGGER.info("Flush of requests not complete. Flushed " + status.getNumberFlushed() + " requests. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
+            LOGGER.info("Flush of requests not complete. Flushed " + status.getNumberFlushed() + contextObjectType + "."  + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
             throw new TimeoutException();
         }
 
-        LOGGER.info("Flushed request data.");
+        LOGGER.info("Flushed " + contextObjectType + " data.");
     }
 }
