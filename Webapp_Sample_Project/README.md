@@ -211,7 +211,7 @@ DELETE http://localhost:8080/rest/<type>/<your-id>
 ### Search
 The "operation" field can be "or" or "and".
 
-For information on how search works and the special search keys used to search for object metadata, see the [Context Service SDK guide](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/#search-for-objects-lookup-4434).
+For information on how search works and the special search keys used to search for object metadata, see the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#search-objects).
 
 URL syntax:
 ```
@@ -242,7 +242,7 @@ POST http://localhost:8080/rest/search/pod
 ```
 
 ### Get Status
-Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/#check_state) for more details.
+Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#context-service-objects/object-state) for more details.
 ```
 GET http://localhost:8080/rest/status
 ```
