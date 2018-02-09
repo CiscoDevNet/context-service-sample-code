@@ -242,7 +242,7 @@ POST http://localhost:8080/rest/search/pod
 ```
 
 ### Get Status
-Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#context-service-objects/object-state) for more details.
+Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#connect-to-context-service/check-connection-state) for more details.
 ```
 GET http://localhost:8080/rest/status
 ```
