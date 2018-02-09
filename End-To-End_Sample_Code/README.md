@@ -41,7 +41,7 @@ To set up sample code components:
 * To compile the code and run all necessary tests, run:
     `mvn -U clean install`
 
-For more information, see [Getting Started with the Context Service SDK](https://developer.cisco.com/site/context-service/docs/#getting-started).
+For more information, see [Getting Started with the Context Service SDK](https://developer.cisco.com/docs/context-service/#getting-started-with-context-service).
 
 ## Running the Example
 After you have installed the SDK components, open the project in an IDE to explore the examples and tests.
