@@ -73,27 +73,22 @@ public class BaseExamplesTest {
         contextServiceClient.flush(ContextObject.Types.REQUEST);
         contextServiceClient.flush(ContextObject.Types.CUSTOMER);
 
-        FlushStatusBean status = null;
+        waitForFlushComplete(ContextObject.Types.POD);
+        waitForFlushComplete(ContextObject.Types.REQUEST);
+        waitForFlushComplete(ContextObject.Types.CUSTOMER);
+    }
 
-        // Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.POD, MAX_FLUSH_WAIT_IN_SECONDS);
+    /**
+     * Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
+     * @param objectType
+     * @throws TimeoutException
+     */
+    private static void waitForFlushComplete(String objectType) throws TimeoutException {
+        FlushStatusBean status;
+        status = contextServiceClient.waitForFlushComplete(objectType, MAX_FLUSH_WAIT_IN_SECONDS);
         if (!status.isCompleted()) {
             LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " pods.");
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.REQUEST, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (!status.isCompleted()) {
-            LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " requests.");
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.CUSTOMER, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (!status.isCompleted()) {
-            LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " customers.");
+            LOGGER.error("Flushed " + status.getNumberFlushed() + objectType + ".");
             throw new TimeoutException();
         }
     }

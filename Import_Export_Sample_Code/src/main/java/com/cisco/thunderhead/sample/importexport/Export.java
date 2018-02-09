@@ -78,9 +78,9 @@ public class Export {
             // In summary mode, search returns up to 100000 entities (vs. 200 wth normal search API)
             // So we fetch all of the IDs in summary mode, and based on those IDs list, fetch each entity
             // Limit the search to the entities changed within the given time window
-            Set<String> podIds = fetchEntityIds(ContextObject.class, ContextObject.Types.POD, startDate, endDate, maxSummaryIds);
-            Set<String> customerIds = fetchEntityIds(ContextObject.class, ContextObject.Types.CUSTOMER, startDate, endDate, maxSummaryIds);
-            Set<String> requestIds = fetchEntityIds(ContextObject.class, ContextObject.Types.REQUEST, startDate, endDate, maxSummaryIds);
+            Set<String> podIds = fetchEntityIds(ContextObject.Types.POD, startDate, endDate, maxSummaryIds);
+            Set<String> customerIds = fetchEntityIds(ContextObject.Types.CUSTOMER, startDate, endDate, maxSummaryIds);
+            Set<String> requestIds = fetchEntityIds(ContextObject.Types.REQUEST, startDate, endDate, maxSummaryIds);
 
             // Java 8 lambda expression to run on each pod that is retrieved
             // The customer and request associated with each pod might not have been updated within the given window
@@ -102,9 +102,9 @@ public class Export {
             // Now that we have a list of ids for each entity type,
             // fetch the full entities from Context Service in chunks.
             // Write them to the file as we go so that we don't have to store them in memory.
-            fetchVisitAndWriteEntities(ContextObject.class, ContextObject.Types.POD, podIds, podWriter, windowSize, extractCustomerIdAndRequestId);
-            fetchAndWriteEntities(ContextObject.class, ContextObject.Types.CUSTOMER, customerIds, custWriter, windowSize);
-            fetchAndWriteEntities(ContextObject.class, ContextObject.Types.REQUEST, requestIds, reqWriter, windowSize);
+            fetchVisitAndWriteEntities(ContextObject.Types.POD, podIds, podWriter, windowSize, extractCustomerIdAndRequestId);
+            fetchAndWriteEntities(ContextObject.Types.CUSTOMER, customerIds, custWriter, windowSize);
+            fetchAndWriteEntities(ContextObject.Types.REQUEST, requestIds, reqWriter, windowSize);
         } finally {
             // Finish writing the files
             LOGGER.info("Closing writers...");
@@ -127,13 +127,13 @@ public class Export {
      * Uses the ContextService search API with (summary=true) to get a lot of IDs at once.
      * If there are more IDs in the database than allowed by one call (maximum allowed by ContextService is 100,000),
      * then make recursive calls with smaller windows, and combine the results.
-     * @param clazz type of Context Service entity to get IDs for
      * @param entityType
-     *@param startDate start of window
+     * @param startDate start of window
      * @param endDate end of the window   @return a set of Entity Ids that were last updated within the given time window
-     */
-    private static <T extends ContextBean> Set<String> fetchEntityIds(Class<T> clazz, String entityType, RFC3339Date startDate, RFC3339Date endDate, int maxSummaryIds) {
-        LOGGER.info("Fetching " + clazz.getSimpleName() + " type " + entityType + " ids...");
+     * */
+    private static Set<String> fetchEntityIds(String entityType, RFC3339Date startDate, RFC3339Date endDate, int maxSummaryIds) {
+
+        LOGGER.info("Fetching ContextObject of type " + entityType + " ids...");
 
         // perform a summary search or a given time window using Context Service SDK
         SearchParameters searchParameters = new SearchParameters();
@@ -142,7 +142,7 @@ public class Export {
         searchParameters.add("endDate", endDate.toString());
         searchParameters.add("maxEntries", Integer.toString(maxSummaryIds)); // explicitly set bound in case the default changes
         searchParameters.add("type", entityType);
-        List<T> entityIdBeans  = contextServiceClient.search(clazz, searchParameters, Operation.OR);
+        List<ContextObject> entityIdBeans  = contextServiceClient.search(ContextObject.class, searchParameters, Operation.OR);
 
         // extract the id from every entity
         Set<String> entityIds = new HashSet<String>();
@@ -162,7 +162,7 @@ public class Export {
             // make a recursive call, with that end date of the oldest pod so far as the new end date
             RFC3339Date newEndDate = entity.getLastUpdated();
             if (newEndDate != endDate) { // make sure our conditions changed
-                Set<String> olderIds = fetchEntityIds(clazz, entityType, startDate, newEndDate, maxSummaryIds);
+                Set<String> olderIds = fetchEntityIds(entityType, startDate, newEndDate, maxSummaryIds);
                 entityIds.addAll(olderIds); // add these IDs to our results set
             } else { // our conditions are the same, can't recurse, so print warning and continue
                 LOGGER.warn("May be missing entity IDs, but cannot shrink window size. " + // should never happen
@@ -181,16 +181,15 @@ public class Export {
     /**
      * Fetch entities in chunks, and write each chunk to a file
      * Context Service will only return up to 200 full entities at a time, so we need to loop through the ids
-     * @param clazz type of the Context Service entity
      * @param entityType
-     *@param ids a collection of entity ids
+     * @param ids a collection of entity ids
      * @param writer JsonArrayWriter, to write entities to file as we go
      * @param visitor a callback to run on each individual entity before we write it.    @throws Exception
-     */
-    private static <T extends ContextBean> void fetchVisitAndWriteEntities(
-            Class<T> clazz, String entityType, Collection<String> ids, JsonArrayWriter writer, int windowSize, Consumer<T> visitor) throws Exception{
+     * */
+    private static void fetchVisitAndWriteEntities(
+            String entityType, Collection<String> ids, JsonArrayWriter writer, int windowSize, Consumer<ContextObject> visitor) throws Exception{
 
-        LOGGER.info("Fetching " + clazz.getSimpleName() + " type " + entityType + " entities...");
+        LOGGER.info("Fetching ContextObject of type " + entityType + " entities...");
 
         // convert to list make chunking easier
         List<String> idList = new ArrayList<String>(ids);
@@ -203,7 +202,7 @@ public class Export {
             SearchParameters searchParameters = new SearchParameters();
             searchParameters.addAll("id", idListChunk);
             searchParameters.add("type", entityType);
-            List<T> someEntities = contextServiceClient.search(clazz, searchParameters, Operation.OR);
+            List<ContextObject> someEntities = contextServiceClient.search(ContextObject.class, searchParameters, Operation.OR);
 
             // Perform callback on every entity (Java 8 stream API)
             if (visitor != null) {
@@ -218,8 +217,8 @@ public class Export {
     }
 
     // no callback
-    private static <T extends ContextBean> void fetchAndWriteEntities(Class<T> clazz, String entityType, Collection<String> ids, JsonArrayWriter writer, int windowSize) throws Exception{
-        fetchVisitAndWriteEntities(clazz, entityType, ids, writer, windowSize, null);
+    private static void fetchAndWriteEntities(String entityType, Collection<String> ids, JsonArrayWriter writer, int windowSize) throws Exception{
+        fetchVisitAndWriteEntities(entityType, ids, writer, windowSize, null);
     }
 
     /**
