@@ -41,7 +41,7 @@ To set up sample code components:
 
   For example:
 
-  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3.tar.gz`
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.5.tar.gz`
 
 
   This installs the Context Service SDK in your project and configures your connector.properties file.
