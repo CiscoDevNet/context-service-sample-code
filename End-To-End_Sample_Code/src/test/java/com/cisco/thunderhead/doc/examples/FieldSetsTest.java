@@ -8,7 +8,6 @@ import com.cisco.thunderhead.dictionary.FieldSet;
 import com.cisco.thunderhead.util.DataElementUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 
-@Ignore
 public class FieldSetsTest extends BaseExamplesTest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FieldSetsTest.class);
@@ -39,6 +39,14 @@ public class FieldSetsTest extends BaseExamplesTest {
 
     @After
     public void AfterTest() throws InterruptedException {
+        try {
+            FlushEntities.flushAllEntities(contextServiceClient);
+        }catch(InterruptedException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }catch(TimeoutException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }
+
         LOGGER.info("Deleting fieldsets and field after the test");
         deleteExistingFieldAndFieldSet();
     }
