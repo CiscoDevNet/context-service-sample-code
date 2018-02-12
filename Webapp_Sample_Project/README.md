@@ -148,7 +148,7 @@ URL Syntax:
 GET http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The <type> in the URL must be one of `pod`, `customer`, or `request`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 Example response:
 ```
