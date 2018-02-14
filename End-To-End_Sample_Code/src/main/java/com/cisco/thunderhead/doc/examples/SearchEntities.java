@@ -32,7 +32,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("id", id);
         params.add("type", ContextObject.Types.CUSTOMER);
-        // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
+        // Note that for a single parameter (type is "special"), it doesn't matter whether we use the AND or OR Operation.
         return contextServiceClient.search(ContextObject.class, params, Operation.OR);
     }
 
@@ -65,6 +65,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("Context_First_Name", "Jane");
         params.add("Context_Last_Name", "Doe");
+        // NOTE: type is "special", so it won't just return all ContextObjects of this type when using OR
         params.add("type", ContextObject.Types.CUSTOMER);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
@@ -85,6 +86,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add(FIELD_ONE, "gold");
         params.add(FIELD_ONE, "silver");
+        // NOTE: type is "special", so it won't just return all ContextObjects of this type when using OR
         params.add("type", ContextObject.Types.CUSTOMER);
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
@@ -95,7 +97,7 @@ public class SearchEntities {
     }
 
     /**
-     * Search for Pod by podID.
+     * Search for Pod by ID.
      *
      * @param contextServiceClient an initialized Context Service Client
      * @param id the Pod ID
@@ -105,7 +107,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("id", id);
         params.add("type", ContextObject.Types.POD);
-        // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
+        // Note that for a single parameter (type is "special"), it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -125,7 +127,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("customerId", id);
         params.add("type", ContextObject.Types.POD);
-        // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
+        // Note that for a single parameter (type is "special"), it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -135,7 +137,7 @@ public class SearchEntities {
     }
 
     /**
-     * Search for Pod by RequestID.
+     * Search for Pod by Request ID.
      *
      * @param contextServiceClient an initialized Context Service Client
      * @param id the Request ID
@@ -143,9 +145,9 @@ public class SearchEntities {
      */
     public static List<ContextObject> searchForPodByRequestId (ContextServiceClient contextServiceClient, String id) {
         SearchParameters params = new SearchParameters();
-        params.add("requestId", id);
+        params.add("parentId", id);
         params.add("type", ContextObject.Types.POD);
-        // Note that for a single parameter, it doesn't matter whether we use the AND or OR Operation.
+        // Note that for a single parameter (type is "special"), it doesn't matter whether we use the AND or OR Operation.
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -155,7 +157,7 @@ public class SearchEntities {
     }
     
     /**
-     * Search for Pods that do not have a requestId value.
+     * Search for Pods that do not have a Request Id value.
      *
      * @param contextServiceClient an initialized Context Service Client
      * @return a list of Pods matching the query
@@ -185,6 +187,7 @@ public class SearchEntities {
         params.add("type", ContextObject.Types.POD);
 
         // For a list, make sure to use OR; since no Pod can match ALL of different IDs.
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -204,6 +207,7 @@ public class SearchEntities {
         params.add("tags", "sales");
         params.add("tags", "marketing");
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -224,6 +228,7 @@ public class SearchEntities {
         params.add("tags", "major");
         params.add("tags", "preferred-customer");
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -244,6 +249,7 @@ public class SearchEntities {
         params.add("Context_POD_Source_Phone", "111-111-1111");
         params.add("Context_POD_Source_Email", "John.Doe@example.com");
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.OR);
 
         for (ContextObject pod : result) {
@@ -269,6 +275,7 @@ public class SearchEntities {
         params.add("startCreatedDate", startDate);
         params.add("endCreatedDate", endDate);
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -294,6 +301,7 @@ public class SearchEntities {
         params.add("startDate", startDate);
         params.add("endDate", endDate);
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -321,6 +329,7 @@ public class SearchEntities {
         params.add(FIELD_ONE, customField);
         params.add("tags", "cancellation");
         params.add("type", ContextObject.Types.POD);
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -340,6 +349,7 @@ public class SearchEntities {
             add("state", ContextObject.States.ACTIVE);
             add("type", ContextObject.Types.POD);
         }};
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod : result) {
@@ -358,7 +368,7 @@ public class SearchEntities {
         SearchParameters params = new SearchParameters();
         params.add("query_string", "Ivanna.Buy@prospect.com 222-222-2222 banana \"Ivanna Buy\"");
         params.add("type", ContextObject.Types.POD);
-
+        // type is "special" and will be used to only match objects of that type, regardless of AND or OR
         List<ContextObject> result = contextServiceClient.search(ContextObject.class, params, Operation.AND);
 
         for (ContextObject pod: result){
