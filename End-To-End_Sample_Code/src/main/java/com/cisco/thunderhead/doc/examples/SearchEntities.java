@@ -157,7 +157,7 @@ public class SearchEntities {
     }
     
     /**
-     * Search for Pods that do not have a Request Id value.
+     * Search for Pods that do not have a parent Id value.
      *
      * @param contextServiceClient an initialized Context Service Client
      * @return a list of Pods matching the query
