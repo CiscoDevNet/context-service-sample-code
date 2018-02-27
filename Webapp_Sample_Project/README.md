@@ -31,7 +31,7 @@ To set up sample code components:
 
 2. Download the sample code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) and extract context-service-sample-code to your project directory.
 
-3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.3.tar.gz).
+3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.5.tar.gz).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 
