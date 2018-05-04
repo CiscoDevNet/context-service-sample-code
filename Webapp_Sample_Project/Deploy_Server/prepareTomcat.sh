@@ -35,6 +35,7 @@ tar xvf $TOMCAT_TAR_GZ
 # See "Multiple Tomcat Instances" section in https://tomcat.apache.org/tomcat-8.0-doc/RUNNING.txt
 rm -rf management-tomcat
 rm -rf rest-tomcat
+rm -rf shared-tomcat
 mkdir -p management-tomcat/bin
 mkdir -p rest-tomcat/bin
 mkdir shared-tomcat

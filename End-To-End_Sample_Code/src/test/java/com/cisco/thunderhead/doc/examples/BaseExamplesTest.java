@@ -1,5 +1,6 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.ContextServiceClientConstants;
@@ -7,10 +8,7 @@ import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
 import com.cisco.thunderhead.connector.states.ConnectorState;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.rest.FlushStatusBean;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
@@ -71,31 +69,26 @@ public class BaseExamplesTest {
     }
 
     private static void flushAllData() throws Exception {
-        contextServiceClient.flush(Pod.class);
-        contextServiceClient.flush(Request.class);
-        contextServiceClient.flush(Customer.class);
+        contextServiceClient.flush(ContextObject.Types.POD);
+        contextServiceClient.flush(ContextObject.Types.REQUEST);
+        contextServiceClient.flush(ContextObject.Types.CUSTOMER);
 
-        FlushStatusBean status = null;
+        waitForFlushComplete(ContextObject.Types.POD);
+        waitForFlushComplete(ContextObject.Types.REQUEST);
+        waitForFlushComplete(ContextObject.Types.CUSTOMER);
+    }
 
-        // Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
-        status = contextServiceClient.waitForFlushComplete(Pod.class, MAX_FLUSH_WAIT_IN_SECONDS);
+    /**
+     * Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
+     * @param objectType
+     * @throws TimeoutException
+     */
+    private static void waitForFlushComplete(String objectType) throws TimeoutException {
+        FlushStatusBean status;
+        status = contextServiceClient.waitForFlushComplete(objectType, MAX_FLUSH_WAIT_IN_SECONDS);
         if (!status.isCompleted()) {
             LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " pods.");
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(Request.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (!status.isCompleted()) {
-            LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " requests.");
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(Customer.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (!status.isCompleted()) {
-            LOGGER.error("Flush did not complete within " + MAX_FLUSH_WAIT_IN_SECONDS + " seconds.");
-            LOGGER.error("Flushed " + status.getNumberFlushed() + " customers.");
+            LOGGER.error("Flushed " + status.getNumberFlushed() + objectType + ".");
             throw new TimeoutException();
         }
     }

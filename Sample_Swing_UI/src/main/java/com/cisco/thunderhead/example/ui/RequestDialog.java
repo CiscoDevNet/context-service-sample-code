@@ -1,10 +1,10 @@
 package com.cisco.thunderhead.example.ui;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.request.Request;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -36,7 +36,7 @@ public class RequestDialog extends JDialog {
     private JTextField textLastUpdated;
     private JTextField textFieldId;
 
-    private Request request;
+    private ContextObject request;
     private List<FieldSet> fieldSets;
     private Map<String, ContextBeanUIHelper.Pair<JTextField, Field>> fieldToTextField = new HashMap<>();
 
@@ -72,8 +72,9 @@ public class RequestDialog extends JDialog {
     }
 
     private void onSave() {
-        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, request, Request.class, ((dataElements) -> {
-            Request request = new Request(dataElements);
+        boolean success = ContextBeanUIHelper.saveContextBean(fieldToTextField, comboContributorType, fieldSets, textUsername, this, request, ((dataElements) -> {
+            ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
+            request.setDataElements(dataElements);
             return request;
         }));
         if (success) {
@@ -91,7 +92,7 @@ public class RequestDialog extends JDialog {
                 textCreatedDate, textLastUpdated, request, listContributors, listWorkgroups, textFieldId);
     }
 
-    public void setRequest(Request request) {
+    public void setRequest(ContextObject request) {
         this.request = request;
         SearchParameters sp = new SearchParameters();
         request.getFieldsets().forEach((fieldSetName) -> {

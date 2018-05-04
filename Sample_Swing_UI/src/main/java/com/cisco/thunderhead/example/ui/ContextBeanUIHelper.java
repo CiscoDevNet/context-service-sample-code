@@ -2,6 +2,7 @@ package com.cisco.thunderhead.example.ui;
 
 import com.cisco.thunderhead.BaseDbBean;
 import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.Contributor;
 import com.cisco.thunderhead.DataElement;
 import com.cisco.thunderhead.client.Operation;
@@ -13,8 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -91,9 +97,9 @@ public class ContextBeanUIHelper {
     }
 
     public static boolean saveContextBean(Map<String, Pair<JTextField, Field>> fieldToTextField,
-                                       JComboBox<String> comboContributorType, List<FieldSet> fieldSets,
-                                       JTextField textUsername, Component parent,
-                                       ContextBean contextBean, Class<? extends ContextBean> clazz, Function<Set<DataElement>, ContextBean> createContextBean) {
+                                          JComboBox<String> comboContributorType, List<FieldSet> fieldSets,
+                                          JTextField textUsername, Component parent,
+                                          ContextObject contextBean, Function<Set<DataElement>, ContextObject> createContextBean) {
         Set<DataElement> dataElements = new HashSet<>();
         for (Map.Entry<String, ContextBeanUIHelper.Pair<JTextField,Field>> e : fieldToTextField.entrySet()) {
             String value = e.getValue().a.getText();
@@ -102,7 +108,7 @@ public class ContextBeanUIHelper {
                 dataElements.add(dataElement);
             }
         }
-        ContextBean ctxBean;  // operate on 'ctxBean'
+        ContextObject ctxBean;  // operate on 'ctxBean'
         if (contextBean==null) {
             ctxBean = createContextBean.apply(dataElements);
         } else {
@@ -123,7 +129,7 @@ public class ContextBeanUIHelper {
         try {
             if (contextBean==null) {
                 ConnectionData.getContextServiceClient().create(ctxBean);
-                Utils.waitForSearchable(ConnectionData.getContextServiceClient(), Collections.singletonList(ctxBean.getId().toString()), clazz);
+                Utils.waitForSearchable(ConnectionData.getContextServiceClient(), Collections.singletonList(ctxBean.getId().toString()), ctxBean.getType());
             } else {
                 ConnectionData.getContextServiceClient().update(ctxBean);
             }

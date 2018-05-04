@@ -14,7 +14,7 @@ To set up sample code components:
 
 1. Create a project directory.
 2. Download the End-To-End example code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) to your project directory.
-3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.3.tar.gz).
+3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.5.tar.gz).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 4. Change to the End-To-End_Sample_Code directory, then run:
@@ -23,7 +23,7 @@ To set up sample code components:
 
   For example:
 
-  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3.tar.gz`
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.5.tar.gz`
 
 
     This installs the Context Service SDK in your project and configures your connector.properties file.
@@ -41,7 +41,7 @@ To set up sample code components:
 * To compile the code and run all necessary tests, run:
     `mvn -U clean install`
 
-For more information, see [Getting Started with the Context Service SDK](https://developer.cisco.com/site/context-service/docs/#getting-started).
+For more information, see [Getting Started with the Context Service SDK](https://developer.cisco.com/docs/context-service/#getting-started-with-context-service).
 
 ## Running the Example
 After you have installed the SDK components, open the project in an IDE to explore the examples and tests.

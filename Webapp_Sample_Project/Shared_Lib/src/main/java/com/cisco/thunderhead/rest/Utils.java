@@ -85,7 +85,7 @@ public class Utils {
      */
     public static File initializeConnectorPropertyFile(ServletContext servletContext) {
         // assumes running in Tomcat
-        String contextServiceSdkExtensionName = "context-service-sdk-extension-2.0.3.jar";
+        String contextServiceSdkExtensionName = "context-service-sdk-extension-2.0.4.jar";
         URL extensionUrl = null;
         try {
             // Find the location of the extension JAR bundled into the WAR.

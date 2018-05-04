@@ -1,4 +1,13 @@
 [{
+  "type": "customer",
+  "workgroups": {
+    "lab": [
+      {
+        "keyId": "kms://ciscospark.com/keys/f49ef1fc-728e-4229-86c6-3a36c88dd06e",
+        "encryptedSCR": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0..O8Z7UBOtHwHFdkTi.gvC1nkQ1WkARBm3j6B_4XICDvW_AlvCViwVoshfjBAlcbLCDgMgZBml_oHCIl2-8wW_0DhqT6QqU7PnNA9hh3s4ELM-yzniTe9VG6zQQxm1ZJfZSb0RQOPF-w9e461X3jiFpyWJImw.STDGpGVDFTvPCNzWxPZ0Sw"
+      }
+    ]
+  },
   "fieldsets": [
     "cisco.base.customer"
   ],

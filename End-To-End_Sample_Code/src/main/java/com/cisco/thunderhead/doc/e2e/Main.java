@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
@@ -13,11 +14,8 @@ import com.cisco.thunderhead.connector.ConnectorConfiguration;
 import com.cisco.thunderhead.connector.ManagementConnector;
 import com.cisco.thunderhead.connector.RegisteringApplication;
 import com.cisco.thunderhead.connector.info.ConnectorInfoImpl;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.doc.examples.ConnectionData;
 import com.cisco.thunderhead.plugin.ConnectorFactory;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -109,16 +107,17 @@ public class Main {
 
     private void search(CommandSearch search) {
         ContextServiceClient client = getContextServiceClient(search.requestTimeout);
-        Class<? extends ContextBean> clazz;
+        Class<? extends ContextBean> clazz = ContextObject.class;
+        String searchType;
         switch (search.type) {
             case "pod":
-                clazz = Pod.class;
+                searchType = ContextObject.Types.POD;
                 break;
             case "customer":
-                clazz = Customer.class;
+                searchType = ContextObject.Types.CUSTOMER;
                 break;
             case "request":
-                clazz = Request.class;
+                searchType = ContextObject.Types.REQUEST;
                 break;
             default:
                 throw new RuntimeException("unknown type " + search.type);
@@ -134,6 +133,7 @@ public class Main {
             String value = term.substring(colonPos+1);
             sp.add(key, value);
         }
+        sp.add("type", searchType);
         List<? extends ContextBean> response = client.search(clazz, sp, Operation.OR);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String responseJson = gson.toJson(response);

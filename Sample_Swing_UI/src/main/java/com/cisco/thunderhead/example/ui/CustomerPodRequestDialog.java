@@ -2,14 +2,12 @@ package com.cisco.thunderhead.example.ui;
 
 import com.cisco.thunderhead.BaseDbBean;
 import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
 import com.cisco.thunderhead.errors.ApiException;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -19,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 /**
@@ -33,8 +33,8 @@ public class CustomerPodRequestDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JList<FieldSet> fieldsetsList;
-    private JList<Customer> customersList;
-    private JList<Pod> podsList;
+    private JList<ContextObject> customersList;
+    private JList<ContextObject> podsList;
     private JButton createCustomerButton;
     private JButton createPodButton;
     private JButton buttonRefreshLists;
@@ -42,7 +42,7 @@ public class CustomerPodRequestDialog extends JDialog {
     private JButton deletePodButton;
     private JButton editCustomerButton;
     private JButton editPodButton;
-    private JList<Request> requestsList;
+    private JList<ContextObject> requestsList;
     private JButton createRequestButton;
     private JButton editRequestButton;
     private JButton deleteRequestButton;
@@ -104,7 +104,7 @@ public class CustomerPodRequestDialog extends JDialog {
         customersList.setCellRenderer(new MyCellRenderer() {
             @Override
             void handleSetText(Object value, JLabel label) {
-                ((Customer) value).getDataElements().stream()
+                ((ContextObject) value).getDataElements().stream()
                         .filter((it) -> it.getDataKey().equals(CUSTOMER_DISPLAY_FIELD_NAME)).findFirst()
                         .ifPresent((it) -> label.setText(it.getDataValue().toString()));
             }
@@ -122,7 +122,7 @@ public class CustomerPodRequestDialog extends JDialog {
         podsList.setCellRenderer(new MyCellRenderer() {
             @Override
             void handleSetText(Object value, JLabel label) {
-                ((Pod) value).getDataElements().stream()
+                ((ContextObject) value).getDataElements().stream()
                         .filter((it) -> it.getDataKey().equals(POD_DISPLAY_FIELD_NAME)).findFirst()
                         .ifPresent((it) -> label.setText(it.getDataValue().toString()));
             }
@@ -132,7 +132,7 @@ public class CustomerPodRequestDialog extends JDialog {
         requestsList.setCellRenderer(new MyCellRenderer() {
             @Override
             void handleSetText(Object value, JLabel label) {
-                ((Request) value).getDataElements().stream()
+                ((ContextObject) value).getDataElements().stream()
                         .filter((it) -> it.getDataKey().equals(REQUEST_DISPLAY_FIELD_NAME)).findFirst()
                         .ifPresent((it) -> label.setText(it.getDataValue().toString()));
             }
@@ -187,18 +187,18 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleSearchRequests(boolean initLists) {
-        handleSearch(textRequestQuery, requestsList, Request.class, initLists);
+        handleSearch(textRequestQuery, requestsList, ContextObject.Types.REQUEST, initLists);
     }
 
     private void handleSearchCustomers(boolean initLists) {
-        handleSearch(textCustomerQuery, customersList, Customer.class, initLists);
+        handleSearch(textCustomerQuery, customersList, ContextObject.Types.CUSTOMER, initLists);
     }
 
     private void handleSearchPods(boolean initLists) {
-        handleSearch(textPodQuery, podsList, Pod.class, initLists);
+        handleSearch(textPodQuery, podsList, ContextObject.Types.POD, initLists);
     }
 
-    private void handleSearch(JTextField textQueryField, JList<? extends ContextBean> list, Class<? extends BaseDbBean> clazz, boolean initLists) {
+    private void handleSearch(JTextField textQueryField, JList<? extends ContextBean> list, String type, boolean initLists) {
         String query = textQueryField.getText();
         if (initLists && query.length() == 0) {
             return;
@@ -215,8 +215,9 @@ public class CustomerPodRequestDialog extends JDialog {
             String value = term.substring(colonPos + 1);
             sp.add(key, value);
         }
+        sp.add("type", type);
         try {
-            List<? extends BaseDbBean> items = ConnectionData.getContextServiceClient().search(clazz, sp, Operation.OR);
+            List<? extends BaseDbBean> items = ConnectionData.getContextServiceClient().search(ContextObject.class, sp, Operation.OR);
             DefaultListModel model = new DefaultListModel();
             items.forEach(model::addElement);
             list.setModel(model);
@@ -231,8 +232,6 @@ public class CustomerPodRequestDialog extends JDialog {
 
 
     private void handleCreateRequest() {
-//        Customer customer = customersList.getSelectedValue();
-
         List<FieldSet> fieldSets = getFieldSetsForDialog(CISCO_BASE_REQUEST);
         RequestDialog dialog = new RequestDialog();
         dialog.setFieldSets(fieldSets);
@@ -244,7 +243,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleEditRequest() {
-        Request request = requestsList.getSelectedValue();
+        ContextObject request = requestsList.getSelectedValue();
         if (request == null) {
             return;
         }
@@ -256,7 +255,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleDeleteRequest() {
-        handleDelete("request", requestsList, Request.class);
+        handleDeleteContextObject(requestsList);
     }
 
     private void handleCreatePod() {
@@ -280,7 +279,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleEditPod() {
-        Pod pod = podsList.getSelectedValue();
+        ContextObject pod = podsList.getSelectedValue();
         if (pod == null) {
             return;
         }
@@ -292,7 +291,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleDeletePod() {
-        handleDelete("pod", podsList, Pod.class);
+        handleDeleteContextObject(podsList);
     }
 
     private void handleCreateCustomer() {
@@ -310,7 +309,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleEditCustomer() {
-        Customer customer = customersList.getSelectedValue();
+        ContextObject customer = customersList.getSelectedValue();
         if (customer == null) {
             return;
         }
@@ -322,7 +321,7 @@ public class CustomerPodRequestDialog extends JDialog {
     }
 
     private void handleDeleteCustomer() {
-        handleDelete("customer", customersList, Customer.class);
+        handleDeleteContextObject(customersList);
     }
 
     private void handleDelete(String type, JList list, Class<? extends BaseDbBean> clazz) {
@@ -337,7 +336,25 @@ public class CustomerPodRequestDialog extends JDialog {
                 Utils.waitForNotSearchable(ConnectionData.getContextServiceClient(), contextBean, clazz);
                 initLists();
             } catch (ApiException e) {
-                showError("couldn't delete customer: " + e.getMessage());
+                showError("couldn't delete " + type + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private void handleDeleteContextObject(JList list) {
+        ContextObject contextBean = (ContextObject) list.getSelectedValue();
+        if (contextBean == null) {
+            return;
+        }
+        final String type = contextBean.getType();
+        int response = JOptionPane.showConfirmDialog(this, "Really delete " + type + "?");
+        if (response == JOptionPane.OK_OPTION) {
+            try {
+                ConnectionData.getContextServiceClient().delete(contextBean);
+                Utils.waitForNotSearchable(ConnectionData.getContextServiceClient(), contextBean);
+                initLists();
+            } catch (ApiException e) {
+                showError("couldn't delete " + type + ": " + e.getMessage());
             }
         }
     }
@@ -367,14 +384,15 @@ public class CustomerPodRequestDialog extends JDialog {
             return;
         }
         customersList.clearSelection();
-        ;
-        Request request = requestsList.getSelectedValue();
+
+        ContextObject request = requestsList.getSelectedValue();
         SearchParameters params = new SearchParameters();
-        params.add("requestId", request.getRequestId().toString());
+        params.add("parentId", request.getId().toString());
+        params.add("type", ContextObject.Types.POD);
 
-        List<Pod> items = ConnectionData.getContextServiceClient().search(Pod.class, params, Operation.OR);
+        List<ContextObject> items = ConnectionData.getContextServiceClient().search(ContextObject.class, params, Operation.OR);
 
-        DefaultListModel<Pod> model = new DefaultListModel<>();
+        DefaultListModel<ContextObject> model = new DefaultListModel<>();
         items.forEach(model::addElement);
         podsList.setModel(model);
     }
@@ -384,13 +402,14 @@ public class CustomerPodRequestDialog extends JDialog {
             return;
         }
         requestsList.clearSelection();
-        Customer customer = customersList.getSelectedValue();
+        ContextObject customer = customersList.getSelectedValue();
         SearchParameters params = new SearchParameters();
-        params.add("customerId", customer.getCustomerId().toString());
+        params.add("customerId", customer.getId().toString());
+        params.add("type", ContextObject.Types.POD);
 
-        List<Pod> items = ConnectionData.getContextServiceClient().search(Pod.class, params, Operation.OR);
+        List<ContextObject> items = ConnectionData.getContextServiceClient().search(ContextObject.class, params, Operation.OR);
 
-        DefaultListModel<Pod> model = new DefaultListModel<>();
+        DefaultListModel<ContextObject> model = new DefaultListModel<>();
         items.forEach(model::addElement);
         podsList.setModel(model);
     }

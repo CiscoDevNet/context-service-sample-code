@@ -5,8 +5,6 @@ import com.cisco.thunderhead.client.ContextServiceClient;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
 
 /**
  * Initializes the application.  Invoked during startup/shutdown.

@@ -1,26 +1,20 @@
 package com.cisco.thunderhead.doc.examples;
 
-import com.cisco.thunderhead.Contributor;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ClientResponse;
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.datatypes.ContributorType;
 import com.cisco.thunderhead.datatypes.PodMediaType;
 import com.cisco.thunderhead.datatypes.PodState;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.tag.Tag;
 import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.SDKUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
@@ -36,7 +31,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore
 public class SearchEntitiesTest extends BaseExamplesTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchEntitiesTest.class);
@@ -56,16 +50,12 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     private static Set<Tag> tagSet3;
     private static Set<Tag> tagSet4;
     private static FieldSet customFieldSet;
-    private static final String FIELDSET = "sdkExample_fieldSet";
-    private static final String FIELD_ONE = "sdkExample_fieldOne";
-    private static final String FIELD_TWO = "sdkExample_fieldTwo";
-    private static final String FIELD_THREE = "sdkExample_fieldThree";
 
     @BeforeClass
     public static void createDataToSearch() {
         // Create a custom fieldSet
         deleteExistingFieldAndFieldSet();
-        customFieldSet = FieldSets.createFieldSet(contextServiceClient);
+        customFieldSet = FieldSets.createFieldSet(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
 
         // Create some tags to add to the POD
         tagSet1 = new HashSet<Tag>((Arrays.asList(new Tag("issue"), new Tag("major"), new Tag("preferred-customer"))));
@@ -103,6 +93,13 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @AfterClass
     public static void deleteDataThatIsNotFlushed() {
+        try {
+            FlushEntities.flushAllEntities(contextServiceClient);
+        }catch(InterruptedException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }catch(TimeoutException e) {
+            fail("flush failed. Exception caught: " + e.toString());
+        }
         deleteExistingFieldAndFieldSet();
     }
 
@@ -110,7 +107,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     public void testSearchForCustomerById () {
 
         // Search for each by ID
-        List<Customer> customersFound = SearchEntities.searchForCustomerById(contextServiceClient, custId1);
+        List<ContextObject> customersFound = SearchEntities.searchForCustomerById(contextServiceClient, custId1);
         assertEquals("Error: Should find one and only one customer.", 1, customersFound.size());
         assertTrue("Error: Should have found customer custId1.", checkListForCustomer(customersFound, custId1));
 
@@ -122,7 +119,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     @Test
     public void testSearchForCustomerByFirstAndLastName () {
         // Search for customer Jane Doe.
-        List<Customer> customersFound = SearchEntities.searchForCustomerByFirstAndLastName(contextServiceClient);
+        List<ContextObject> customersFound = SearchEntities.searchForCustomerByFirstAndLastName(contextServiceClient);
         assertEquals("Error: Should find one and only one customer.", 1, customersFound.size());
         assertTrue("Error: Should have found customer custId2.", checkListForCustomer(customersFound, custId2));
     }
@@ -130,7 +127,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     @Test
     public void testSearchForCustomerByFirstOrLastName () {
         // Search for any customer with first name "Jane" or last name "Doe"
-        List<Customer> customersFound = SearchEntities.searchForCustomerByFirstOrLastName(contextServiceClient);
+        List<ContextObject> customersFound = SearchEntities.searchForCustomerByFirstOrLastName(contextServiceClient);
         assertEquals("Error: Should find exactly three customers.", 3, customersFound.size());
         assertTrue("Error: Should have found customer custId1.", checkListForCustomer(customersFound, custId1));
         assertTrue("Error: Should have found customer custId2.", checkListForCustomer(customersFound, custId2));
@@ -140,7 +137,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     @Test
     public void testSearchForCustomerByGoldOrSilver () {
         // Search for any customer with sdkExample_fieldOne value of "gold" or "silver"
-        List<Customer> customersFound = SearchEntities.searchForCustomerByGoldOrSilver(contextServiceClient);
+        List<ContextObject> customersFound = SearchEntities.searchForCustomerByGoldOrSilver(contextServiceClient);
         assertEquals("Error: Should find exactly two customers.", 2, customersFound.size());
         assertTrue("Error: Should have found customer custId1.", checkListForCustomer(customersFound, custId1));
         assertTrue("Error: Should have found customer custId2.", checkListForCustomer(customersFound, custId2));
@@ -148,7 +145,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testSearchForPodsByQueryString () {
-        List<Pod> podsFound = SearchEntities.searchForPodsByQueryString(contextServiceClient);
+        List<ContextObject> podsFound = SearchEntities.searchForPodsByQueryString(contextServiceClient);
         assertEquals("Should find one POD", 1, podsFound.size());
         assertTrue("Should have found POD 2", checkListForPod(podsFound, podId2));
     }
@@ -157,7 +154,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     public void testSearchForPodById () {
 
         // Search for each by ID
-        List<Pod> podsFound = SearchEntities.searchForPodById(contextServiceClient, podId1);
+        List<ContextObject> podsFound = SearchEntities.searchForPodById(contextServiceClient, podId1);
         assertEquals("Error: Should find one and only one pod.", 1, podsFound.size());
         assertTrue("Error: Should have found pod podId1.", checkListForPod(podsFound, podId1));
 
@@ -170,7 +167,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     public void testSearchForPodByCustomerId () {
 
         // Search for Pods by CustomerID
-        List<Pod> podsFound = SearchEntities.searchForPodByCustomerId(contextServiceClient, custId1);
+        List<ContextObject> podsFound = SearchEntities.searchForPodByCustomerId(contextServiceClient, custId1);
         assertEquals("Error: Should find exactly three pods.", 3, podsFound.size());
         assertTrue("Error: Should have found pod podId1.", checkListForPod(podsFound, podId1));
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId2));
@@ -186,7 +183,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     public void testSearchForPodByRequestId () {
 
         // Search for Pods by RequestID
-        List<Pod> podsFound = SearchEntities.searchForPodByRequestId(contextServiceClient, reqId1);
+        List<ContextObject> podsFound = SearchEntities.searchForPodByRequestId(contextServiceClient, reqId1);
         assertEquals("Error: Should find exactly two pods.", 2, podsFound.size());
         assertTrue("Error: Should have found pod podId1.", checkListForPod(podsFound, podId1));
         assertTrue("Error: Should have found pod podId3.", checkListForPod(podsFound, podId3));
@@ -201,7 +198,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         }};
 
         // Search for Pods by RequestID
-        List<Pod> podsFound = SearchEntities.searchForPodByListOfIds(contextServiceClient, idList);
+        List<ContextObject> podsFound = SearchEntities.searchForPodByListOfIds(contextServiceClient, idList);
         assertEquals("Error: Should find exactly three pods.", 3, podsFound.size());
         assertTrue("Error: Should have found pod podId1.", checkListForPod(podsFound, podId1));
         assertTrue("Error: Should have found pod podId3.", checkListForPod(podsFound, podId3));
@@ -210,14 +207,14 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testSearchForPodsTaggedAsMajorIssueForPreferredCustomer () {
-        List<Pod> podsFound = SearchEntities.searchForPodsTaggedAsMajorIssueForPreferredCustomer(contextServiceClient);
+        List<ContextObject> podsFound = SearchEntities.searchForPodsTaggedAsMajorIssueForPreferredCustomer(contextServiceClient);
         assertEquals("Error: Should find one and only one pod.", 1, podsFound.size());
-        assertEquals(podId1, podsFound.get(0).getPodId().toString());
+        assertEquals(podId1, podsFound.get(0).getId().toString());
     }
 
     @Test
     public void testSearchForPodsTaggedAsSalesOrMarketing () {
-        List<Pod> podsFound = SearchEntities.searchForPodsTaggedAsSalesOrMarketing(contextServiceClient);
+        List<ContextObject> podsFound = SearchEntities.searchForPodsTaggedAsSalesOrMarketing(contextServiceClient);
         assertEquals("Error: Should find exactly two pods.", 2, podsFound.size());
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId2));
         assertTrue("Error: Should have found pod podId3.", checkListForPod(podsFound, podId3));
@@ -225,15 +222,15 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testSearchForPodsBySourceEmailOrSourcePhone () {
-        List<Pod> podsFound = SearchEntities.searchForPodsBySourceEmailOrSourcePhone(contextServiceClient);
+        List<ContextObject> podsFound = SearchEntities.searchForPodsBySourceEmailOrSourcePhone(contextServiceClient);
         assertEquals("Error: Should find one and only one pod.", 1, podsFound.size());
         assertTrue("Error: Should have found pod podId1.", checkListForPod(podsFound, podId1));
     }
 
     @Test
     public void testSearchForPodsByNullRequestIdValue () {
-        List<Pod> podsFound = SearchEntities.searchForPodsByNullRequestIdValue(contextServiceClient);
-        assertEquals("Error: Should find 3 pods.", 3, podsFound.size());
+        List<ContextObject> podsFound = SearchEntities.searchForPodsByNullParentIdValue(contextServiceClient);
+        //make sure the returned list contains the original created pod without parentId
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId2));
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId4));
         assertTrue("Error: Should have found pod podId2.", checkListForPod(podsFound, podId5));
@@ -275,7 +272,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         }
 
         // Search for pods created in the first 10 second window.  Should return A and B.
-        List<Pod> podsFound = SearchEntities.searchForPodsByCreateDateRange(contextServiceClient, time1, time1 + 10000);
+        List<ContextObject> podsFound = SearchEntities.searchForPodsByCreateDateRange(contextServiceClient, time1, time1 + 10000);
         assertEquals("Error: Should find exactly two pods.", 2, podsFound.size());
         assertTrue("Error: Should have found pod podA.", checkListForPod(podsFound, podA));
         assertTrue("Error: Should have found pod podB.", checkListForPod(podsFound, podB));
@@ -283,7 +280,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         // Search for pods created in the second 10 second window.  Should return C only.
         podsFound = SearchEntities.searchForPodsByCreateDateRange(contextServiceClient, time1 + 10000, time1 + 20000);
         assertEquals("Error: Should find one and only one pod.", 1, podsFound.size());
-        assertEquals(podC, podsFound.get(0).getPodId().toString());
+        assertEquals(podC, podsFound.get(0).getId().toString());
         assertTrue("Error: Should have found pod podC.", checkListForPod(podsFound, podC));
 
         // Search for pods updated in the second 10 second window.  Should return A and C.
@@ -303,7 +300,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         ClientResponse response = createPodWithState(PodState.CLOSED);
         String closedPodId = validateClientResponseAndReturnId(response, 201);
 
-        List<Pod> results = SearchEntities.searchForActivePods(contextServiceClient);
+        List<ContextObject> results = SearchEntities.searchForActivePods(contextServiceClient);
         assertTrue(checkListForPod(results, podId1));
         assertTrue(checkListForPod(results, podId2));
         assertTrue(checkListForPod(results, podId3));
@@ -312,7 +309,8 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     // UTILITY METHODS
     private static ClientResponse createCustomer(final String firstName, final String lastName, final String phoneNumber, final String customField) {
-        Customer customer = new Customer(
+        ContextObject customer = new ContextObject(ContextObject.Types.CUSTOMER);
+        customer.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Work_Email", firstName + "." + lastName + "@example.com");
@@ -324,7 +322,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
                             put("Context_State", "MI");
                             put("Context_Country", "US");
                             put("Context_ZIP", "90210");
-                            put("sdkExample_fieldOne", customField);
+                            put(SearchEntities.FIELD_ONE, customField);
                         }}
                 )
         );
@@ -349,14 +347,15 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     private static ClientResponse createPod(final String notes, final String sourceEmail, final String sourcePhone,
                                             final String customField, Set<Tag> tags,
                                             final String customerId, final String requestId) {
-        Pod pod = new Pod(
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
+        pod.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Notes", notes);
                             put("Context_POD_Source_Email", sourceEmail);
                             put("Context_POD_Source_Phone", sourcePhone);
                             put("Context_POD_Activity_Link", "http://myservice.example.com/service/ID/xxxx");
-                            put("sdkExample_fieldOne", customField);
+                            put(SearchEntities.FIELD_ONE, customField);
                         }}
                 )
         );
@@ -375,7 +374,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         if (requestId != null) {
             try {
                 UUID reqId = UUID.fromString(requestId);
-                pod.setRequestId(reqId);
+                pod.setParentId(reqId);
             } catch (IllegalArgumentException e) {
                 // Do nothing if bad or nonexistent requestId
             }
@@ -385,7 +384,8 @@ public class SearchEntitiesTest extends BaseExamplesTest {
     }
 
     private static ClientResponse createPodWithState(String state) {
-        Pod pod = new Pod(
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
+        pod.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Notes", "Notes about this context.");
@@ -397,22 +397,9 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         return contextServiceClient.create(pod);
     }
 
-    private static ClientResponse createPodWithContributor(final String username) {
-        Pod pod = new Pod(
-                DataElementUtils.convertDataMapToSet(
-                        new HashMap<String, Object>() {{
-                            put("Context_Notes", "Notes about this context.");
-                        }}
-                )
-        );
-        pod.setFieldsets(Arrays.asList("cisco.base.pod"));
-        pod.setNewContributor(new Contributor(ContributorType.USER, username){{ setUsername(username); }});
-        return contextServiceClient.create(pod);
-    }
-
     private static ClientResponse updatePod(String podId, String mediaType) {
         UUID uuid = UUID.fromString(podId);
-        Pod pod = GetEntities.getPod(contextServiceClient, uuid);
+        ContextObject pod = GetEntities.getPod(contextServiceClient, uuid);
         pod.setMediaType(mediaType);
 
         return contextServiceClient.update(pod);
@@ -421,30 +408,30 @@ public class SearchEntitiesTest extends BaseExamplesTest {
 
     private static void dumpPod(String podId) {
         UUID uuid = UUID.fromString(podId);
-        Pod pod = GetEntities.getPod(contextServiceClient, uuid);
+        ContextObject pod = GetEntities.getPod(contextServiceClient, uuid);
 
         LOGGER.info("Pod: " + pod.toString());
     }
 
     private static void deleteExistingFieldAndFieldSet() {
 
-        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient);
+        List<FieldSet> list = FieldSets.searchFieldSet(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
         for(FieldSet fieldSet : list){
-            if(fieldSet.getId().equals(FIELDSET)){
+            if(fieldSet.getId().equals(SearchEntities.FIELDSET)){
                 contextServiceClient.delete(fieldSet);
             }
         }
 
-        List<Field> fieldlist = FieldSets.searchField(contextServiceClient);
+        List<Field> fieldlist = FieldSets.searchField(contextServiceClient, SearchEntities.SEARCH_UNDERSCORE);
         for(Field field : fieldlist){
-            if(field.getId().equals(FIELD_ONE) || field.getId().equals(FIELD_TWO) || field.getId().equals(FIELD_THREE)){
+            if(field.getId().equals(SearchEntities.FIELD_ONE) || field.getId().equals(SearchEntities.FIELD_TWO) || field.getId().equals(SearchEntities.FIELD_THREE)){
                 contextServiceClient.delete(field);
             }
         }
     }
 
-    private static boolean checkListForCustomer(List<Customer> customers, String id) {
-        for (Customer customer : customers) {
+    private static boolean checkListForCustomer(List<ContextObject> customers, String id) {
+        for (ContextObject customer : customers) {
             if (customer.getId().toString().equals(id)) {
                 return true;
             }
@@ -452,8 +439,8 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         return false;
     }
 
-    private static boolean checkListForPod(List<Pod> pods, String id) {
-        for (Pod pod : pods) {
+    private static boolean checkListForPod(List<ContextObject> pods, String id) {
+        for (ContextObject pod : pods) {
             if (pod.getId().toString().equals(id)) {
                 return true;
             }

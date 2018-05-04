@@ -31,7 +31,7 @@ To set up sample code components:
 
 2. Download the sample code from the [Context Service Sample Code GitHub](https://github.com/CiscoDevNet/context-service-sample-code) and extract context-service-sample-code to your project directory.
 
-3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.3.tar.gz).
+3. Download the Context Service SDK from [Context Service Downloads](https://pubhub.devnetcloud.com/media/context-service/docs/downloads/context-service-sdk-2.0.5.tar.gz).
 
     You receive context-service-sdk-X.X.X.tar.gz where "X.X.X" is the current version of the SDK.
 
@@ -41,7 +41,7 @@ To set up sample code components:
 
   For example:
 
-  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.3.tar.gz`
+  `./prepareSDK.sh ~/Downloads/context-service-sdk-2.0.5.tar.gz`
 
 
   This installs the Context Service SDK in your project and configures your connector.properties file.
@@ -148,7 +148,7 @@ URL Syntax:
 GET http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The <type> in the URL must be one of `pod`, `customer`, or `request`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 Example response:
 ```
@@ -211,7 +211,7 @@ DELETE http://localhost:8080/rest/<type>/<your-id>
 ### Search
 The "operation" field can be "or" or "and".
 
-For information on how search works and the special search keys used to search for object metadata, see the [Context Service SDK guide](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/#search-for-objects-lookup-4434).
+For information on how search works and the special search keys used to search for object metadata, see the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#search-objects).
 
 URL syntax:
 ```
@@ -242,7 +242,7 @@ POST http://localhost:8080/rest/search/pod
 ```
 
 ### Get Status
-Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/site/context-service/documents/context-service-sdk-guide/#check_state) for more details.
+Get Status returns the Context Service Client SDK status. See the [Context Service SDK guide](https://developer.cisco.com/docs/context-service/#connect-to-context-service/check-connection-state) for more details.
 ```
 GET http://localhost:8080/rest/status
 ```
