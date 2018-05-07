@@ -71,7 +71,7 @@ public class CreateEntitiesTest extends BaseExamplesTest {
         }
     }
 
-    @Test
+    @Test(timeout = 300000)
     public void testCreateMultiplePodsWithSameRequest() {
         ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
         List<ContextObject> pods = CreateEntities.createMultiplePodsWithSameRequest(contextServiceClient, request);

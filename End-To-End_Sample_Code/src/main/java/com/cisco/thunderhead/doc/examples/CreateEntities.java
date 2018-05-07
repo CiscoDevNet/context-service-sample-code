@@ -1,13 +1,16 @@
 package com.cisco.thunderhead.doc.examples;
 
 import com.cisco.thunderhead.ContextObject;
+import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.util.DataElementUtils;
+import com.cisco.thunderhead.util.SDKUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class CreateEntities {
     /**
@@ -53,7 +56,9 @@ public class CreateEntities {
                 )
         );
         customer.setFieldsets(Arrays.asList("cisco.base.customer"));
-        contextServiceClient.create(customer);
+        ClientResponse response = contextServiceClient.create(customer);
+        String id = SDKUtils.getIdFromResponse(response);
+        customer.setCustomerId(UUID.fromString(id));
         return customer;
     }
 
@@ -63,6 +68,7 @@ public class CreateEntities {
      * @return a newly-created request with the cisco.base.request fieldset
      */
     public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient) {
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
         request.setDataElements(
                 DataElementUtils.convertDataMapToSet(
@@ -73,7 +79,10 @@ public class CreateEntities {
                 )
         );
         request.setFieldsets(Arrays.asList("cisco.base.request"));
-        contextServiceClient.create(request);
+        request.setCustomerId(customer.getCustomerId());
+
+        ClientResponse response = contextServiceClient.create(request);
+        response.getLocation();
         return request;
     }
 
