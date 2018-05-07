@@ -3,6 +3,7 @@ package com.cisco.thunderhead.doc.examples;
 
 import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.datatypes.LanguageType;
+import com.cisco.thunderhead.dictionary.EnumValue;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
 import com.cisco.thunderhead.util.DataElementUtils;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class FieldSetsTest extends BaseExamplesTest {
 
@@ -58,6 +61,15 @@ public class FieldSetsTest extends BaseExamplesTest {
         assertEquals("Prenom", field.getTranslations().get(LanguageType.FR));
         assertEquals("First Name",field.getTranslations().get(LanguageType.EN_US));
         assertEquals(Arrays.asList("en_US", "en_GB", "zh_CN"),field.getLocales());
+    }
+
+    @Test
+    public void testFieldRestrictionUsage() {
+        LinkedHashMap<String, EnumValue> enumValues =  FieldSets.fieldRestrictionUsage(contextServiceClient);
+        EnumValue spanish = enumValues.get("es-ES");
+        assertNotNull(spanish);
+        assertEquals(true, spanish.isActive());
+        assertEquals("Spanish (Spain)", spanish.getTranslations().get("en_US"));
     }
     
     @Test

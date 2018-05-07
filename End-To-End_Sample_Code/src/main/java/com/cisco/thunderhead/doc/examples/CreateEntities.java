@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CreateEntities {
+
     /**
      * Create POD with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
@@ -173,5 +174,28 @@ public class CreateEntities {
             pods.add(createPodWithRequest(contextServiceClient, request));
         }
         return pods;
+    }
+
+    /**
+     * Create detail.comment with default field and fieldsets
+     * @param contextServiceClient
+     * @param pod
+     * @return a newly-created detail.comment with cisco.base.comment fieldset
+     */
+    public static ContextObject createDetailCommentWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        ContextObject detailComment = new ContextObject("detail.comment");
+        detailComment.setDataElements(
+                DataElementUtils.convertDataMapToSet(
+                        new HashMap<String, Object>() {{
+                            put("Context_Comment", "Detailed context comment.");
+                            put("Context_Visible", true);
+                            put("Context_DisplayName", "Display name");
+                        }}
+                )
+        );
+        detailComment.setFieldsets(Arrays.asList("cisco.base.comment"));
+        detailComment.setParentId(pod.getId());
+        contextServiceClient.create(detailComment);
+        return detailComment;
     }
 }

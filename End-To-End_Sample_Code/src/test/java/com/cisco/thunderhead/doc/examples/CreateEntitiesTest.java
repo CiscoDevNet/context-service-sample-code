@@ -12,6 +12,17 @@ import static org.junit.Assert.assertNotNull;
 public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
+    public void testCreateDetailCommentWithBaseFieldset() {
+
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
+        ContextObject detailComment = CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
+        assertNotNull(detailComment.getId());
+        String contextComment = (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("Context_Comment");
+        assertEquals("Detailed context comment.", contextComment);
+    }
+
+    @Test
     public void testCreatePodWithBaseFieldset() {
         ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         assertNotNull(pod.getId());
