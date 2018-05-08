@@ -1,5 +1,6 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +14,8 @@ public class FlushEntitiesTest extends BaseExamplesTest {
     public void createDataToFlush() {
         CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
     }
 
     @Test

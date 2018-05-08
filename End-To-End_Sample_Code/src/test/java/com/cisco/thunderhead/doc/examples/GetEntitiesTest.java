@@ -38,14 +38,16 @@ public class GetEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void getRequestTest() {
-        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         ContextObject gottenRequest = GetEntities.getRequest(contextServiceClient, originalRequest.getId());
         assertEquals(originalRequest.getId(), gottenRequest.getId());
     }
 
     @Test
     public void getRequestTitleTest() {
-        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         assertEquals("Request1 Title", GetEntities.getRequestTitle(request));
     }
 

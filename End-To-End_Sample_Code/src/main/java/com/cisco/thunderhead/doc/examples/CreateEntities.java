@@ -63,7 +63,7 @@ public class CreateEntities {
      * @param contextServiceClient an initialized ContextServiceClient
      * @return a newly-created request with the cisco.base.request fieldset
      */
-    public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient) {
+    public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject customer) {
         ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
         request.setDataElements(
                 DataElementUtils.convertDataMapToSet(
@@ -74,6 +74,7 @@ public class CreateEntities {
                 )
         );
         request.setFieldsets(Arrays.asList("cisco.base.request"));
+        request.setCustomerId(customer.getId());
         contextServiceClient.create(request);
         return request;
     }
@@ -188,6 +189,29 @@ public class CreateEntities {
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Comment", "Detailed context comment.");
+                            put("Context_Visible", true);
+                            put("Context_DisplayName", "Display name");
+                        }}
+                )
+        );
+        detailComment.setFieldsets(Arrays.asList("cisco.base.comment"));
+        detailComment.setParentId(pod.getId());
+        contextServiceClient.create(detailComment);
+        return detailComment;
+    }
+
+    /**
+     * Create detail.feedback with default field and fieldsets
+     * @param contextServiceClient
+     * @param pod
+     * @return a newly-created detail.feedback with cisco.base.comment fieldset
+     */
+    public static ContextObject createDetailFeedbackWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        ContextObject detailComment = new ContextObject("detail.feedback");
+        detailComment.setDataElements(
+                DataElementUtils.convertDataMapToSet(
+                        new HashMap<String, Object>() {{
+                            put("Context_Comment", "Detailed context feedback.");
                             put("Context_Visible", true);
                             put("Context_DisplayName", "Display name");
                         }}

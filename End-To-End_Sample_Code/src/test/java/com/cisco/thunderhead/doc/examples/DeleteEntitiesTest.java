@@ -20,7 +20,8 @@ public class DeleteEntitiesTest extends BaseExamplesTest{
 
     @Test
     public void deleteRequestTest(){
-        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         DeleteEntities.deleteContextObject(contextServiceClient,request);
     }
 }

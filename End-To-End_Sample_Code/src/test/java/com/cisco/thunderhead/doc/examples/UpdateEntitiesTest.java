@@ -57,7 +57,8 @@ public class UpdateEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void updateRequestTest() {
-        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         String originalTitle = (String) DataElementUtils.convertDataSetToMap(originalRequest.getDataElements()).get("Context_Title");
         ContextObject updatedRequest = UpdateEntities.updateRequest(contextServiceClient, originalRequest.getId());
         String updatedTitle = (String) DataElementUtils.convertDataSetToMap(updatedRequest.getDataElements()).get("Context_Title");
