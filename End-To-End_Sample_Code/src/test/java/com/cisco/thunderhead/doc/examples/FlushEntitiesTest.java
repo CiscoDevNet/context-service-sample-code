@@ -12,10 +12,34 @@ public class FlushEntitiesTest extends BaseExamplesTest {
 
     @Before
     public void createDataToFlush() {
-        CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
+        CreateEntities.createDetailFeedbackWithBaseFieldset(contextServiceClient, pod);
+    }
+
+    @Test
+    public void testFlushDetailComments() {
+        try {
+            FlushEntities.flushDetailComments(contextServiceClient);
+        } catch (InterruptedException e) {
+            fail("Caught InterruptedException.");
+        } catch (TimeoutException e) {
+            fail("Flush did not complete within timeout.");
+        }
+    }
+
+    @Test
+    public void testFlushDetailFeedback() {
+        try {
+            FlushEntities.flushDetailFeedbacks(contextServiceClient);
+        } catch (InterruptedException e) {
+            fail("Caught InterruptedException.");
+        } catch (TimeoutException e) {
+            fail("Flush did not complete within timeout.");
+        }
     }
 
     @Test
