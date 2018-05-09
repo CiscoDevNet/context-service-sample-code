@@ -135,11 +135,15 @@ public class FunctionalTest {
             // Do the export!!
             Export.doExport(contextServiceClient, dir.toFile().getAbsolutePath(), true, true, 50, startDate, endDate, 1000);
 
-            System.out.println("Output directory is: " + dir.toAbsolutePath());
+            //System.out.println("Output directory is: " + dir.toAbsolutePath());
+            LOGGER.info("Output directory is: " + dir.toAbsolutePath());
 
             // Validate size of customer JSON file
             File file = new File(dir.toFile(), "customer.json");
+            LOGGER.info("File to read is: " + file.toString());
             FileReader fr = new FileReader(file);
+
+            LOGGER.info("File Reader to read is: " + fr.toString());
             JsonArray customers = new Gson().fromJson(fr, JsonArray.class);
             assertEquals("wrong number of customers", 1, customers.size());
 
@@ -148,7 +152,7 @@ public class FunctionalTest {
         } finally {
             // cleanup
             contextServiceClient.delete(customer);
-            deleteDir(dir);
+            //deleteDir(dir);
         }
     }
 
