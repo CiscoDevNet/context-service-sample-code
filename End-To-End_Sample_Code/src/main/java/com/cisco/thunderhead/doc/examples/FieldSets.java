@@ -60,7 +60,8 @@ public class FieldSets {
 
     /**
      * Get Restriction from Field
-     * @param contextServiceClient
+     * @param contextServiceClient an initialized Context Service Client
+     * @return a linkedhashmap with the String and the EnumValue
      */
     public static LinkedHashMap<String, EnumValue> fieldRestrictionUsage(ContextServiceClient contextServiceClient) {
 

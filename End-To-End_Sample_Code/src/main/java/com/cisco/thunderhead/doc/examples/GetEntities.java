@@ -71,7 +71,7 @@ public class GetEntities {
 
     /**
      * Extract a detail.comment from Context Service
-     * @param contextServiceClient
+     * @param contextServiceClient an initialized ContextServiceClient
      * @param detailCommentId the ID of the detail.comment to get
      * @return the detail.comment
      */

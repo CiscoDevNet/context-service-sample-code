@@ -61,7 +61,8 @@ public class CreateEntities {
     /**
      * Create a Request with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
-     * @return a newly-created request with the cisco.base.request fieldset
+     * @param customer a pre-existing Customer object
+     * @return a newly-created request associated with the Customer, with the cisco.base.request fieldset
      */
     public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject customer) {
         ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
@@ -179,9 +180,9 @@ public class CreateEntities {
 
     /**
      * Create detail.comment with default field and fieldsets
-     * @param contextServiceClient
-     * @param pod
-     * @return a newly-created detail.comment with cisco.base.comment fieldset
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param pod pre-existing Pod object
+     * @return a newly-created detail.comment associated with the Pod, and with cisco.base.comment fieldset
      */
     public static ContextObject createDetailCommentWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
         ContextObject detailComment = new ContextObject("detail.comment");
@@ -202,9 +203,9 @@ public class CreateEntities {
 
     /**
      * Create detail.feedback with default field and fieldsets
-     * @param contextServiceClient
-     * @param pod
-     * @return a newly-created detail.feedback with cisco.base.comment fieldset
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param pod pre-existing Pod object
+     * @return a newly-created detail.feedback associated with the Pod, and with cisco.base.comment fieldset
      */
     public static ContextObject createDetailFeedbackWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
         ContextObject detailComment = new ContextObject("detail.feedback");

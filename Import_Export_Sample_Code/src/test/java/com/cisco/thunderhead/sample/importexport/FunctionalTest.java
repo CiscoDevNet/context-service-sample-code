@@ -137,12 +137,9 @@ public class FunctionalTest {
 
             //System.out.println("Output directory is: " + dir.toAbsolutePath());
             LOGGER.info("Output directory is: " + dir.toAbsolutePath());
-
             // Validate size of customer JSON file
             File file = new File(dir.toFile(), "customer.json");
-            LOGGER.info("File to read is: " + file.toString());
             FileReader fr = new FileReader(file);
-
             LOGGER.info("File Reader to read is: " + fr.toString());
             JsonArray customers = new Gson().fromJson(fr, JsonArray.class);
             assertEquals("wrong number of customers", 1, customers.size());
@@ -152,7 +149,7 @@ public class FunctionalTest {
         } finally {
             // cleanup
             contextServiceClient.delete(customer);
-            //deleteDir(dir);
+            deleteDir(dir);
         }
     }
 
@@ -205,7 +202,7 @@ public class FunctionalTest {
         ClientResponse clientResponse = contextServiceClient.create(customer);
 
         String id = SDKUtils.getIdFromResponse(clientResponse);
-        LOGGER.info("********************createCustomerAndWait*********customerId=" + id);
+        LOGGER.info("Created customerId=" + id);
         Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), ContextObject.class, ContextObject.Types.CUSTOMER);
         Thread.sleep(10000);
         return customer;
