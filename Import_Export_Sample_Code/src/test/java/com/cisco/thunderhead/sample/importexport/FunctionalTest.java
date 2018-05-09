@@ -35,10 +35,14 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Tests import/export works
  */
 public class FunctionalTest {
+    private static Logger LOGGER = LoggerFactory.getLogger(Export.class);
     static ContextServiceClient contextServiceClient;
 
     @BeforeClass
@@ -197,8 +201,9 @@ public class FunctionalTest {
         ClientResponse clientResponse = contextServiceClient.create(customer);
 
         String id = SDKUtils.getIdFromResponse(clientResponse);
+        LOGGER.info("********************createCustomerAndWait*********customerId=" + id);
         Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), ContextObject.class, ContextObject.Types.CUSTOMER);
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         return customer;
     }
 }
