@@ -27,14 +27,14 @@ public class FlushEntities {
     public static void flushAllEntities(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
         LOGGER.info("Flushing workgroup data...");
 
-        contextServiceClient.flush("detail.comment");
-        contextServiceClient.flush("detail.feedback");
+        contextServiceClient.flush(ContextObject.Types.DETAIL + ".comment");
+        contextServiceClient.flush(ContextObject.Types.DETAIL + ".feedback");
         contextServiceClient.flush(ContextObject.Types.POD);
         contextServiceClient.flush(ContextObject.Types.REQUEST);
         contextServiceClient.flush(ContextObject.Types.CUSTOMER);
 
-        waitForFlushComplete(contextServiceClient, "detail.comment");
-        waitForFlushComplete(contextServiceClient, "detail.feedback");
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.DETAIL + ".comment");
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.DETAIL + ".feedback");
         waitForFlushComplete(contextServiceClient, ContextObject.Types.POD);
         waitForFlushComplete(contextServiceClient, ContextObject.Types.CUSTOMER);
         waitForFlushComplete(contextServiceClient, ContextObject.Types.REQUEST);
@@ -99,8 +99,8 @@ public class FlushEntities {
      * @throws InterruptedException thrown if an interrupt signal is caught during the wait
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
-    public static void flushDetailComments(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        flushContextObject(contextServiceClient, "detail.comment");
+    public static void flushComments(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
+        flushContextObject(contextServiceClient, ContextObject.Types.DETAIL + ".comment");
     }
 
     /**
@@ -110,8 +110,8 @@ public class FlushEntities {
      * @throws InterruptedException thrown if an interrupt signal is caught during the wait
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
-    public static void flushDetailFeedbacks(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        flushContextObject(contextServiceClient, "detail.feedback");
+    public static void flushFeedbacks(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
+        flushContextObject(contextServiceClient, ContextObject.Types.DETAIL + ".feedback");
     }
 
     /**

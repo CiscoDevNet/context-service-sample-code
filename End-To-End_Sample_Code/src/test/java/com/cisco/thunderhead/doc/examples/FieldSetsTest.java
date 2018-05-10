@@ -65,7 +65,7 @@ public class FieldSetsTest extends BaseExamplesTest {
 
     @Test
     public void testFieldRestrictionUsage() {
-        LinkedHashMap<String, EnumValue> enumValues =  FieldSets.fieldRestrictionUsage(contextServiceClient);
+        LinkedHashMap<String, EnumValue> enumValues =  FieldSets.getEnumValues(contextServiceClient);
         EnumValue spanish = enumValues.get("es-ES");
         assertNotNull(spanish);
         assertEquals(true, spanish.isActive());

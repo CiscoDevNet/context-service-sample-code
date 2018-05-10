@@ -72,20 +72,21 @@ public class GetEntities {
     /**
      * Extract a detail.comment from Context Service
      * @param contextServiceClient an initialized ContextServiceClient
-     * @param detailCommentId the ID of the detail.comment to get
+     * @param commentId the ID of the detail.comment to get
      * @return the detail.comment
      */
-    public static ContextObject getDetailComment(ContextServiceClient contextServiceClient, UUID detailCommentId) {
-        return contextServiceClient.getContextObject("detail.comment", detailCommentId.toString());
+    public static ContextObject getComment(ContextServiceClient contextServiceClient, UUID commentId) {
+        String type = ContextObject.Types.DETAIL + ".comment";
+        return contextServiceClient.getContextObject(type, commentId.toString());
     }
 
     /**
      * Extract the Context_Comment value out of a detail.comment
-     * @param detailComment the detail.comment to extract the Context_Comment from
+     * @param comment the detail.comment to extract the Context_Comment from
      * @return the Context_Comment
      */
-    public static String getDetailCommentContextComment(ContextObject detailComment) {
-        return (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("Context_Comment");
+    public static String getContextComment(ContextObject comment) {
+        return (String) DataElementUtils.convertDataSetToMap(comment.getDataElements()).get("Context_Comment");
     }
 
     /**

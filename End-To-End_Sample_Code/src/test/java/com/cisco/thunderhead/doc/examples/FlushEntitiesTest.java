@@ -16,14 +16,14 @@ public class FlushEntitiesTest extends BaseExamplesTest {
         CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
-        CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
-        CreateEntities.createDetailFeedbackWithBaseFieldset(contextServiceClient, pod);
+        CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        CreateEntities.createFeedbackWithBaseFieldset(contextServiceClient, pod);
     }
 
     @Test
     public void testFlushDetailComments() {
         try {
-            FlushEntities.flushDetailComments(contextServiceClient);
+            FlushEntities.flushComments(contextServiceClient);
         } catch (InterruptedException e) {
             fail("Caught InterruptedException.");
         } catch (TimeoutException e) {
@@ -34,7 +34,7 @@ public class FlushEntitiesTest extends BaseExamplesTest {
     @Test
     public void testFlushDetailFeedback() {
         try {
-            FlushEntities.flushDetailFeedbacks(contextServiceClient);
+            FlushEntities.flushFeedbacks(contextServiceClient);
         } catch (InterruptedException e) {
             fail("Caught InterruptedException.");
         } catch (TimeoutException e) {

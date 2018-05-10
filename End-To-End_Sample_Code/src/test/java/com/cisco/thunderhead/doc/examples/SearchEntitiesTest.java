@@ -330,7 +330,6 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         return contextServiceClient.create(customer);
     }
 
-    //huiche TODO
     private static ClientResponse createRequest(final String title, final String description, String customerId) {
         ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
         request.setDataElements(

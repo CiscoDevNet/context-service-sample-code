@@ -54,16 +54,16 @@ public class GetEntitiesTest extends BaseExamplesTest {
     @Test
     public void getDetailCommentTest() {
         ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
-        ContextObject originalDetailComment = CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
-        ContextObject gottenDetailComment = GetEntities.getDetailComment(contextServiceClient, originalDetailComment.getId());
+        ContextObject originalDetailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        ContextObject gottenDetailComment = GetEntities.getComment(contextServiceClient, originalDetailComment.getId());
         assertEquals(originalDetailComment.getId(), gottenDetailComment.getId());
     }
 
     @Test
     public void getDetailCommentCommentTest() {
         ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
-        ContextObject detailComment = CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
-        assertEquals("Detailed context comment.", GetEntities.getDetailCommentContextComment(detailComment));
+        ContextObject detailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        assertEquals("Detailed context comment.", GetEntities.getContextComment(detailComment));
     }
 
     @Test

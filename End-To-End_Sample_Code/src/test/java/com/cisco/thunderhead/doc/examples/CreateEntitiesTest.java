@@ -16,7 +16,7 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
         ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
-        ContextObject detailComment = CreateEntities.createDetailCommentWithBaseFieldset(contextServiceClient, pod);
+        ContextObject detailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
         assertNotNull(detailComment.getId());
         String contextComment = (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("Context_Comment");
         assertEquals("Detailed context comment.", contextComment);
@@ -27,7 +27,7 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
         ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
-        ContextObject detailComment = CreateEntities.createDetailFeedbackWithBaseFieldset(contextServiceClient, pod);
+        ContextObject detailComment = CreateEntities.createFeedbackWithBaseFieldset(contextServiceClient, pod);
         assertNotNull(detailComment.getId());
         String contextComment = (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("Context_Comment");
         assertEquals("Detailed context feedback.", contextComment);

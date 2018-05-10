@@ -59,11 +59,11 @@ public class FieldSets {
     }
 
     /**
-     * Get Restriction from Field
+     * Get an enumValues from Field
      * @param contextServiceClient an initialized Context Service Client
      * @return a linkedhashmap with the String and the EnumValue
      */
-    public static LinkedHashMap<String, EnumValue> fieldRestrictionUsage(ContextServiceClient contextServiceClient) {
+    public static LinkedHashMap<String, EnumValue> getEnumValues(ContextServiceClient contextServiceClient) {
 
         Field preferredLanguage = contextServiceClient.get(Field.class, "Context_Preferred_Language");
         com.cisco.thunderhead.dictionary.Restriction restriction = preferredLanguage.getRestriction();

@@ -184,9 +184,10 @@ public class CreateEntities {
      * @param pod pre-existing Pod object
      * @return a newly-created detail.comment associated with the Pod, and with cisco.base.comment fieldset
      */
-    public static ContextObject createDetailCommentWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
-        ContextObject detailComment = new ContextObject("detail.comment");
-        detailComment.setDataElements(
+    public static ContextObject createCommentWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        String type = ContextObject.Types.DETAIL + ".comment";
+        ContextObject comment = new ContextObject(type);
+        comment.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Comment", "Detailed context comment.");
@@ -195,10 +196,10 @@ public class CreateEntities {
                         }}
                 )
         );
-        detailComment.setFieldsets(Arrays.asList("cisco.base.comment"));
-        detailComment.setParentId(pod.getId());
-        contextServiceClient.create(detailComment);
-        return detailComment;
+        comment.setFieldsets(Arrays.asList("cisco.base.comment"));
+        comment.setParentId(pod.getId());
+        contextServiceClient.create(comment);
+        return comment;
     }
 
     /**
@@ -207,9 +208,10 @@ public class CreateEntities {
      * @param pod pre-existing Pod object
      * @return a newly-created detail.feedback associated with the Pod, and with cisco.base.comment fieldset
      */
-    public static ContextObject createDetailFeedbackWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
-        ContextObject detailComment = new ContextObject("detail.feedback");
-        detailComment.setDataElements(
+    public static ContextObject createFeedbackWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        String type = ContextObject.Types.DETAIL + ".feedback";
+        ContextObject feedback = new ContextObject(type);
+        feedback.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Comment", "Detailed context feedback.");
@@ -218,9 +220,9 @@ public class CreateEntities {
                         }}
                 )
         );
-        detailComment.setFieldsets(Arrays.asList("cisco.base.comment"));
-        detailComment.setParentId(pod.getId());
-        contextServiceClient.create(detailComment);
-        return detailComment;
+        feedback.setFieldsets(Arrays.asList("cisco.base.comment"));
+        feedback.setParentId(pod.getId());
+        contextServiceClient.create(feedback);
+        return feedback;
     }
 }

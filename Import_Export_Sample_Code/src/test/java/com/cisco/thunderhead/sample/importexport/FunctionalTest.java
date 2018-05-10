@@ -135,7 +135,6 @@ public class FunctionalTest {
             // Do the export!!
             Export.doExport(contextServiceClient, dir.toFile().getAbsolutePath(), true, true, 50, startDate, endDate, 1000);
 
-            //System.out.println("Output directory is: " + dir.toAbsolutePath());
             LOGGER.info("Output directory is: " + dir.toAbsolutePath());
             // Validate size of customer JSON file
             File file = new File(dir.toFile(), "customer.json");
