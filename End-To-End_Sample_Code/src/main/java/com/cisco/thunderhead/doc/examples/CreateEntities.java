@@ -214,13 +214,12 @@ public class CreateEntities {
         feedback.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
-                            put("Context_Comment", "Detailed context feedback.");
-                            put("Context_Visible", true);
-                            put("Context_DisplayName", "Display name");
+                            put("cccRatingComments", "Detailed rating comments.");
+                            put("cccRatingPoints", "Rating points");
                         }}
                 )
         );
-        feedback.setFieldsets(Arrays.asList("cisco.base.comment"));
+        feedback.setFieldsets(Arrays.asList("cisco.base.rating"));
         feedback.setParentId(pod.getId());
         contextServiceClient.create(feedback);
         return feedback;
