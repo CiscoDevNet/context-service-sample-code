@@ -1,10 +1,10 @@
 package com.cisco.thunderhead.sample.importexport;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.Operation;
 import com.cisco.thunderhead.client.SearchParameters;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.RFC3339Date;
 import com.cisco.thunderhead.util.SDKUtils;
@@ -19,18 +19,30 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Tests import/export works
  */
 public class FunctionalTest {
+    private static Logger LOGGER = LoggerFactory.getLogger(Export.class);
     static ContextServiceClient contextServiceClient;
 
     @BeforeClass
@@ -58,7 +70,7 @@ public class FunctionalTest {
         SearchParameters sp = new SearchParameters() {{
             add("type","customer");
         }};
-        List<Customer> beforeCustomers = contextServiceClient.search(Customer.class, sp, Operation.OR);
+        List<ContextObject> beforeCustomers = contextServiceClient.search(ContextObject.class, sp, Operation.OR);
 
         // Do the import!
         Import.doImport(contextServiceClient, inputDir.toFile().getAbsolutePath(), outputDir.toFile().getAbsolutePath(), false);
@@ -66,7 +78,7 @@ public class FunctionalTest {
         assertEquals("number imported is incorrect", 1, Import.getNumberOfImportedEntities());
         assertEquals("number failed to import is incorrect", 0, Import.getNumberOfFailedEntities());
 
-        List<Customer> afterCustomers = waitForCustomerToBeCreated(contextServiceClient, beforeCustomers, sp);
+        List<ContextObject> afterCustomers = waitForCustomerToBeCreated(contextServiceClient, beforeCustomers, sp);
         assertEquals("should be an extra customer", 1, afterCustomers.size());
 
         // cleanup
@@ -77,11 +89,11 @@ public class FunctionalTest {
     /**
      * This waits for the customer to be created.
      */
-    private List<Customer> waitForCustomerToBeCreated(ContextServiceClient contextServiceClient, List<Customer> beforeCustomers, SearchParameters sp) throws InterruptedException {
+    private List<ContextObject> waitForCustomerToBeCreated(ContextServiceClient contextServiceClient, List<ContextObject> beforeCustomers, SearchParameters sp) throws InterruptedException {
         int attempts = 0;
-        List<Customer> afterCustomers = Collections.emptyList();
+        List<ContextObject> afterCustomers = Collections.emptyList();
         while (attempts<10) {
-            afterCustomers = contextServiceClient.search(Customer.class, sp, Operation.OR);
+            afterCustomers = contextServiceClient.search(ContextObject.class, sp, Operation.OR);
             if (afterCustomers.size()>beforeCustomers.size()) {
                 break;
             }
@@ -113,7 +125,7 @@ public class FunctionalTest {
             put("Context_ZIP", "90210");
         }};
 
-        Customer customer = createCustomerAndWait(contextServiceClient, map);
+        ContextObject customer = createCustomerAndWait(contextServiceClient, map);
         Path dir = Files.createTempDirectory("export");
 
         try {
@@ -123,11 +135,11 @@ public class FunctionalTest {
             // Do the export!!
             Export.doExport(contextServiceClient, dir.toFile().getAbsolutePath(), true, true, 50, startDate, endDate, 1000);
 
-            System.out.println("Output directory is: " + dir.toAbsolutePath());
-
+            LOGGER.info("Output directory is: " + dir.toAbsolutePath());
             // Validate size of customer JSON file
             File file = new File(dir.toFile(), "customer.json");
             FileReader fr = new FileReader(file);
+            LOGGER.info("File Reader to read is: " + fr.toString());
             JsonArray customers = new Gson().fromJson(fr, JsonArray.class);
             assertEquals("wrong number of customers", 1, customers.size());
 
@@ -180,16 +192,18 @@ public class FunctionalTest {
     /**
      * Creates a customer and waits for it to be searchable.
      */
-    private Customer createCustomerAndWait(ContextServiceClient contextServiceClient, Map<String, Object> map) throws InterruptedException {
-        Customer customer = new Customer(
+    private ContextObject createCustomerAndWait(ContextServiceClient contextServiceClient, Map<String, Object> map) throws InterruptedException {
+        ContextObject customer = new ContextObject(ContextObject.Types.CUSTOMER);
+        customer.setDataElements(
                 DataElementUtils.convertDataMapToSet(map)
         );
         customer.setFieldsets(Collections.singletonList("cisco.base.customer"));
         ClientResponse clientResponse = contextServiceClient.create(customer);
 
         String id = SDKUtils.getIdFromResponse(clientResponse);
-        Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), Customer.class);
-        Thread.sleep(5000);
+        LOGGER.info("Created customerId=" + id);
+        Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), ContextObject.class, ContextObject.Types.CUSTOMER);
+        Thread.sleep(10000);
         return customer;
     }
 }

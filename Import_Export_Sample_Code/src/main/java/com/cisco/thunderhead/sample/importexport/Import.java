@@ -4,18 +4,20 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.cisco.thunderhead.ContextBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ClientResponse;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.rest.FlushStatusBean;
 import com.cisco.thunderhead.sample.importexport.gsonutils.CSGsonFactory;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,7 +61,7 @@ public class Import {
     private static Gson gson = CSGsonFactory.getCSJson();
 
     // Map of bean type to file writer
-    private static HashMap<Class<? extends ContextBean>,JsonArrayWriter> writerMap = new HashMap<>();
+    private static HashMap<String, JsonArrayWriter> writerMap = new HashMap<>();
     // Mapping between the original (exported) object IDs and their new IDs after import.
     private static Map<UUID, UUID> idMap = new HashMap<>();
 
@@ -109,9 +111,9 @@ public class Import {
             BufferedReader req = new BufferedReader(new FileReader(reqFile));
         ){
             long lStartTime = System.currentTimeMillis();
-            readAndVisit(cust, Customer.class, createAndMapCustomerAndRequest);
-            readAndVisit(req, Request.class, createAndMapCustomerAndRequest);
-            readAndVisit(pod, Pod.class, createPodEntity);
+            readAndVisit(cust, ContextObject.class, createAndMapCustomerAndRequest);
+            readAndVisit(req, ContextObject.class, createAndMapCustomerAndRequest);
+            readAndVisit(pod, ContextObject.class, createPodEntity);
             long lEndTime = System.currentTimeMillis();
 
             LOGGER.info("Total number of objects imported : " + numberOfImportedEntities);
@@ -134,14 +136,14 @@ public class Import {
     private static void flush() throws InterruptedException, TimeoutException {
         LOGGER.info("Flushing workgroup data...");
 
-        contextServiceClient.flush(Pod.class);
-        contextServiceClient.flush(Request.class);
-        contextServiceClient.flush(Customer.class);
+        contextServiceClient.flush(ContextObject.Types.POD);
+        contextServiceClient.flush(ContextObject.Types.REQUEST);
+        contextServiceClient.flush(ContextObject.Types.CUSTOMER);
 
         FlushStatusBean status = null;
 
         // Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
-        status = contextServiceClient.waitForFlushComplete(Pod.class, 30);
+        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.POD, 30);
         if (status.isCompleted()) {
             LOGGER.info("Flush of pods complete. Flushed " + status.getNumberFlushed() + " pods.");
         } else {
@@ -149,7 +151,7 @@ public class Import {
             throw new TimeoutException();
         }
 
-        status = contextServiceClient.waitForFlushComplete(Request.class, 30);
+        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.REQUEST, 30);
         if (status.isCompleted()) {
             LOGGER.info("Flush of requests complete. Flushed " + status.getNumberFlushed() + " requests.");
         } else {
@@ -157,7 +159,7 @@ public class Import {
             throw new TimeoutException();
         }
 
-        status = contextServiceClient.waitForFlushComplete(Customer.class, 30);
+        status = contextServiceClient.waitForFlushComplete(ContextObject.Types.CUSTOMER, 30);
         if (status.isCompleted()) {
             LOGGER.info("Flush of customers complete. Flushed " + status.getNumberFlushed() + " customers.");
         } else {
@@ -172,12 +174,11 @@ public class Import {
     /**
      * This method reads the specified file and invokes the specified callback function for each
      * object contained in the file.
-     *
      * @param  bufferedReader  Input stream of objects to import.
-     * @param  type  Type of object to import.
+     * @param  clazz  Type of object to import.
      * @param  visitor  Consumer lambda which gets invoked for each object.
      */
-    private static <T extends ContextBean> void readAndVisit(BufferedReader bufferedReader, Class<T> type, Function visitor) throws Exception {
+    private static <T extends ContextBean> void readAndVisit(BufferedReader bufferedReader, Class<T> clazz, Function visitor) throws Exception {
 
         int totalReadEntities = 0;
         int totalCreatedEntities = 0;
@@ -186,19 +187,19 @@ public class Import {
             reader.beginArray();
             while (reader.hasNext()) {
                 // deserialize a bean from json and invoke the callback function
-                totalCreatedEntities += (int) visitor.apply(gson.fromJson(reader, type));
+                totalCreatedEntities += (int) visitor.apply(gson.fromJson(reader, clazz));
                 totalReadEntities++;
             }
             reader.endArray();
         }
 
-        LOGGER.info("Total number of " + type.getSimpleName() + " created : " + totalCreatedEntities);
+        LOGGER.info("Total number of " + clazz.getSimpleName() + " created : " + totalCreatedEntities);
 
         // Count number of imports failed and log them
         int createFailCount = totalReadEntities - totalCreatedEntities;
         if (createFailCount > 0) {
             numberOfFailedEntities += createFailCount;
-            LOGGER.info("Failed to create " + createFailCount +" "+ type.getSimpleName());
+            LOGGER.info("Failed to create " + createFailCount +" "+ clazz.getSimpleName());
         }
 
         // Add number of objects created to total number of imports
@@ -211,7 +212,7 @@ public class Import {
      * new (after import) ID.
      * The function returns the number of objects created. 1 or 0
      */
-    private static Function<ContextBean, Integer> createAndMapCustomerAndRequest = (bean) -> {
+    private static Function<ContextObject, Integer> createAndMapCustomerAndRequest = (bean) -> {
         try {
             UUID oldId = bean.getId();
             ClientResponse res = contextServiceClient.create(bean);
@@ -230,7 +231,7 @@ public class Import {
 
         // A problem occurred importing the object.  Record the object in the output directory.
         try {
-            writerMap.get(bean.getClass()).writeEntity(bean);
+            writerMap.get(bean.getType()).writeEntity(bean);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,"Exception while writing " + bean.toString(), e);
         }
@@ -243,18 +244,18 @@ public class Import {
      * for those objects.
      * The function returns the number of objects created. 1 or 0
      */
-    private static Function<Pod, Integer> createPodEntity = (podBean) -> {
+    private static Function<ContextObject, Integer> createPodEntity = (podBean) -> {
         try {
             // Map the original customer and request IDs to their newly imported values.
             UUID customerId = podBean.getCustomerId();
-            UUID requestId = podBean.getRequestId();
+            UUID requestId = podBean.getParentId();
 
             if (idMap.containsKey(customerId)) {
                 podBean.setCustomerId(idMap.get(customerId));
             }
 
             if (idMap.containsKey(requestId)) {
-                podBean.setRequestId(idMap.get(requestId));
+                podBean.setParentId(idMap.get(requestId));
             }
 
             // Create the pod
@@ -322,11 +323,11 @@ public class Import {
      */
     public static void createFailedObjectFiles(Path outputDirectoryPath, String podFile, String customerFile, String requestFile) throws IOException {
         JsonArrayWriter pErrWriter = new JsonArrayWriter(podFile,outputDirectoryPath,false,true);
-        writerMap.put(Pod.class,pErrWriter);
+        writerMap.put(ContextObject.Types.POD,pErrWriter);
         JsonArrayWriter cErrWriter = new JsonArrayWriter(customerFile,outputDirectoryPath,false,true);
-        writerMap.put(Customer.class,cErrWriter);
+        writerMap.put(ContextObject.Types.CUSTOMER,cErrWriter);
         JsonArrayWriter rErrWriter = new JsonArrayWriter(requestFile,outputDirectoryPath,false,true);
-        writerMap.put(Request.class,rErrWriter);
+        writerMap.put(ContextObject.Types.REQUEST,rErrWriter);
     }
 
     /**

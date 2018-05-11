@@ -1,14 +1,16 @@
 package com.cisco.thunderhead.doc.examples;
 
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.datatypes.ElementClassification;
 import com.cisco.thunderhead.datatypes.ElementDataType;
 import com.cisco.thunderhead.datatypes.LanguageType;
+import com.cisco.thunderhead.dictionary.EnumRestriction;
+import com.cisco.thunderhead.dictionary.EnumValue;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
-import com.cisco.thunderhead.pod.Pod;
 import com.cisco.thunderhead.util.DataElementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +57,26 @@ public class FieldSets {
 
         return field;
     }
+
+    /**
+     * Get an enumValues from Field
+     * @param contextServiceClient an initialized Context Service Client
+     * @return a linkedhashmap with the String and the EnumValue
+     */
+    public static LinkedHashMap<String, EnumValue> getEnumValues(ContextServiceClient contextServiceClient) {
+
+        Field preferredLanguage = contextServiceClient.get(Field.class, "Context_Preferred_Language");
+        com.cisco.thunderhead.dictionary.Restriction restriction = preferredLanguage.getRestriction();
+        LOGGER.info("Restriction Type: ", restriction.getType());
+
+        LinkedHashMap<String, EnumValue> enumValues = ((EnumRestriction)restriction).getEnumValues();
+        EnumValue spanish = enumValues.get("es-ES");
+
+        LOGGER.info("Spanish enum value: isActive: ", spanish.isActive());
+        LOGGER.info("The English translation of the Spanish enum value:", spanish.getTranslations().get("en_US"));
+
+        return enumValues;
+    }
     
     /**
      * Delete the specified field.
@@ -70,17 +93,18 @@ public class FieldSets {
      * Create two new fields and add them to a fieldset.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return a fieldset
      */
-    public static FieldSet createFieldSet(ContextServiceClient contextServiceClient){
+    public static FieldSet createFieldSet(ContextServiceClient contextServiceClient, String uniqueName){
 
-        Field field1 = new Field("sdkExample_fieldOne", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
+        Field field1 = new Field("sdkExample_" + uniqueName + "fieldOne", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
         contextServiceClient.create(field1);
 
-        Field field2 = new Field("sdkExample_fieldTwo", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
+        Field field2 = new Field("sdkExample_" + uniqueName + "fieldTwo", ElementClassification.UNENCRYPTED, ElementDataType.STRING, false, null);
         contextServiceClient.create(field2);
 
-        FieldSet fieldset = new FieldSet("sdkExample_fieldSet", new HashSet<>(Arrays.asList(field1.getIdentifier(), field2.getIdentifier())), false);
+        FieldSet fieldset = new FieldSet("sdkExample_" + uniqueName + "fieldSet", new HashSet<>(Arrays.asList(field1.getIdentifier(), field2.getIdentifier())), false);
         contextServiceClient.create(fieldset);
 
         LOGGER.info("Created fieldset: "+fieldset.getId()+" with fields: "+fieldset.getFields().toString());
@@ -121,13 +145,14 @@ public class FieldSets {
      * Search fieldsets using a search query.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return List<FieldSet> a list of fieldsets that match the search query
      */
-    public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient){
+    public static List<FieldSet> searchFieldSet(ContextServiceClient contextServiceClient, String uniqueName){
 
         LOGGER.info("Constructing search query ...");
         SearchParameters params =  new SearchParameters();
-        params.add("id","sdkExample_fieldSet");
+        params.add("id","sdkExample_" + uniqueName + "fieldSet");
 
         LOGGER.info("Searching for fieldSet in ContextService based on query: " + params.toString());
         List<FieldSet> fieldsets = contextServiceClient.search(FieldSet.class, params, OR);
@@ -141,15 +166,16 @@ public class FieldSets {
      * Search fields using a search query.
      *
      * @param contextServiceClient an initialized Context Service Client
+     * @param uniqueName
      * @return List<Field> a list of fields that match the search query
      */
-    public static List<Field> searchField(ContextServiceClient contextServiceClient){
+    public static List<Field> searchField(ContextServiceClient contextServiceClient, String uniqueName){
 
         LOGGER.info("Constructing search query ...");
         SearchParameters params =  new SearchParameters();
-        params.add("id", "sdkExample_fieldOne");
-        params.add("id", "sdkExample_fieldTwo");
-        params.add("id", "sdkExample_fieldThree");
+        params.add("id", "sdkExample_" + uniqueName + "fieldOne");
+        params.add("id", "sdkExample_" + uniqueName + "fieldTwo");
+        params.add("id", "sdkExample_" + uniqueName + "fieldThree");
 
         LOGGER.info("Searching for fields in ContextService based on query: " + params.toString());
         List<Field> fields = contextServiceClient.search(Field.class, params, OR);
@@ -165,9 +191,9 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Cisco base fieldset
      */
-    public static Pod ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject ciscoBaseFieldSetUsage(ContextServiceClient contextServiceClient){
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setDataElements(DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{
                     put("Context_Notes", "Notes about this context.");
@@ -189,7 +215,7 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod uses Custom Fieldset
      */
-    public static Pod customFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject customFieldSetUsage(ContextServiceClient contextServiceClient){
 
         LOGGER.info("Creating custom fieldSet ...");
 
@@ -204,7 +230,7 @@ public class FieldSets {
 
         LOGGER.info("Created custom fieldSet " + fieldset.getId() + " containing fields: " + field1.getId() + " " + field2.getId());
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setFieldsets(Arrays.asList(fieldset.getId()));
         pod.setDataElements( DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{
@@ -225,7 +251,7 @@ public class FieldSets {
      * @param contextServiceClient an initialized Context Service Client
      * @return a pod which uses Cisco Base Fieldset and Custom Fieldset
      */
-    public static Pod customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
+    public static ContextObject customAndCiscoFieldSetUsage(ContextServiceClient contextServiceClient){
 
         LOGGER.info("Creating custom fieldSet ...");
 
@@ -240,7 +266,7 @@ public class FieldSets {
 
         LOGGER.info("Created custom fieldSet "+fieldset.getId()+" containing field: "+field1.getId());
 
-        Pod pod = new Pod();
+        ContextObject pod = new ContextObject(ContextObject.Types.POD);
         pod.setFieldsets(Arrays.asList(fieldset.getId(), "cisco.base.pod"));
         pod.setDataElements(DataElementUtils.convertDataMapToSet(
                 new HashMap<String, Object>() {{

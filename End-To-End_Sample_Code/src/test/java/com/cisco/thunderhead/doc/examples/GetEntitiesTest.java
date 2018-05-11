@@ -1,10 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
-import com.cisco.thunderhead.customer.Customer;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.errors.ApiErrorType;
 import com.cisco.thunderhead.errors.ApiException;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,41 +12,58 @@ public class GetEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void getPodTest() {
-        Pod originalPod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
-        Pod gottenPod = GetEntities.getPod(contextServiceClient, originalPod.getId());
+        ContextObject originalPod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject gottenPod = GetEntities.getPod(contextServiceClient, originalPod.getId());
         assertEquals(originalPod.getId(), gottenPod.getId());
     }
 
     @Test
     public void getContextNotesTest() {
-        Pod pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         assertEquals("Notes about this context.", GetEntities.getContextNotes(pod));
     }
 
     @Test
     public void getCustomerTest() {
-        Customer originalCustomer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        Customer gottenCustomer = GetEntities.getCustomer(contextServiceClient, originalCustomer.getId());
+        ContextObject originalCustomer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject gottenCustomer = GetEntities.getCustomer(contextServiceClient, originalCustomer.getId());
         assertEquals(originalCustomer.getId(), gottenCustomer.getId());
     }
 
     @Test
     public void getCustomerFirstNameTest() {
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         assertEquals("John", GetEntities.getCustomerFirstName(customer));
     }
 
     @Test
     public void getRequestTest() {
-        Request originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
-        Request gottenRequest = GetEntities.getRequest(contextServiceClient, originalRequest.getId());
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        ContextObject gottenRequest = GetEntities.getRequest(contextServiceClient, originalRequest.getId());
         assertEquals(originalRequest.getId(), gottenRequest.getId());
     }
 
     @Test
     public void getRequestTitleTest() {
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         assertEquals("Request1 Title", GetEntities.getRequestTitle(request));
+    }
+
+    @Test
+    public void getCommentTest() {
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject originalDetailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        ContextObject gottenDetailComment = GetEntities.getComment(contextServiceClient, originalDetailComment.getId());
+        assertEquals(originalDetailComment.getId(), gottenDetailComment.getId());
+    }
+
+    @Test
+    public void getContextCommentTest() {
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject detailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        assertEquals("Detailed context comment.", GetEntities.getContextComment(detailComment));
     }
 
     @Test

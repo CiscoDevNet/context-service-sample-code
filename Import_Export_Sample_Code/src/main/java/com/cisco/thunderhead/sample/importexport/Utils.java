@@ -80,14 +80,14 @@ public class Utils {
         return connectionData;
     }
 
-    static <T extends BaseDbBean> void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<T> clazz) {
+    static <T extends BaseDbBean> void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<T> clazz, String searchType) {
         java.util.List result;
         do {
-            result = search(contextServiceClient, fields, clazz);
+            result = search(contextServiceClient, fields, clazz, searchType);
         } while (result.size()!=fields.size());
     }
 
-    static <T extends BaseDbBean> List<T> search(ContextServiceClient contextServiceClient, Collection<String> ids, Class<T> clazz) {
+    static <T extends BaseDbBean> List<T> search(ContextServiceClient contextServiceClient, Collection<String> ids, Class<T> clazz, String searchType) {
         List<T> beans = new ArrayList<>();
         Set<String> idsToSearch = new HashSet<>(ids);
         while (idsToSearch.size()>0) {
@@ -98,6 +98,7 @@ public class Utils {
                     break;
                 }
                 searchParameters.add("id", it.next());
+                searchParameters.add("type", searchType);
                 it.remove();
             }
             List<T> beanSubset = contextServiceClient.search(clazz, searchParameters, Operation.OR);

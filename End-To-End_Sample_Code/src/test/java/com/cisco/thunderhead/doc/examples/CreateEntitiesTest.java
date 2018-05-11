@@ -1,8 +1,6 @@
 package com.cisco.thunderhead.doc.examples;
 
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.util.DataElementUtils;
 import org.junit.Test;
 
@@ -14,8 +12,31 @@ import static org.junit.Assert.assertNotNull;
 public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
+    public void testCreateCommentWithBaseFieldset() {
+
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
+        ContextObject detailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        assertNotNull(detailComment.getId());
+        String contextComment = (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("Context_Comment");
+        assertEquals("Detailed context comment.", contextComment);
+    }
+
+    @Test
+    public void testCreateFeedbackWithBaseFieldset() {
+
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
+        ContextObject detailComment = CreateEntities.createFeedbackWithBaseFieldset(contextServiceClient, pod);
+        assertNotNull(detailComment.getId());
+        String contextComment = (String) DataElementUtils.convertDataSetToMap(detailComment.getDataElements()).get("cccRatingComments");
+        assertEquals("Detailed rating comments.", contextComment);
+    }
+
+
+    @Test
     public void testCreatePodWithBaseFieldset() {
-        Pod pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         assertNotNull(pod.getId());
         String contextNotes = (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get("Context_Notes");
         assertEquals("Notes about this context.", contextNotes);
@@ -23,7 +44,7 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testCreateCustomerWithBaseFieldset() {
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
         assertNotNull(customer.getId());
         String customerEmail = (String) DataElementUtils.convertDataSetToMap(customer.getDataElements()).get("Context_Work_Email");
         assertEquals("john.doe@example.com", customerEmail);
@@ -31,7 +52,8 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testCreateRequestWithBaseFieldset() {
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         assertNotNull(request.getId());
         String contextTitle = (String) DataElementUtils.convertDataSetToMap(request.getDataElements()).get("Context_Title");
         assertEquals("Request1 Title", contextTitle);
@@ -39,35 +61,36 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testCreatePodWithCustomer() {
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        Pod pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithCustomer(contextServiceClient, customer);
         assertNotNull(pod.getId());
         assertEquals(customer.getId(), pod.getCustomerId());
     }
 
     @Test
     public void testCreatePodWithRequest() {
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
-        Pod pod = CreateEntities.createPodWithRequest(contextServiceClient, request);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        ContextObject pod = CreateEntities.createPodWithRequest(contextServiceClient, request);
         assertNotNull(pod.getId());
-        assertEquals(request.getId(), pod.getRequestId());
+        assertEquals(request.getId(), pod.getParentId());
     }
 
     @Test
     public void testCreatePodWithCustomerAndRequest() {
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
-        Pod pod = CreateEntities.createPodWithCustomerAndRequest(contextServiceClient, customer, request);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        ContextObject pod = CreateEntities.createPodWithCustomerAndRequest(contextServiceClient, customer, request);
         assertNotNull(pod.getId());
         assertEquals(customer.getId(), pod.getCustomerId());
-        assertEquals(request.getId(), pod.getRequestId());
+        assertEquals(request.getId(), pod.getParentId());
     }
 
     @Test
     public void testCreateMultiplePodsWithSameCustomer() {
-        Customer customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        List<Pod> pods = CreateEntities.createMultiplePodsWithSameCustomer(contextServiceClient, customer);
-        for (Pod pod: pods) {
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        List<ContextObject> pods = CreateEntities.createMultiplePodsWithSameCustomer(contextServiceClient, customer);
+        for (ContextObject pod: pods) {
             assertNotNull(pod.getId());
             assertEquals(customer.getId(), pod.getCustomerId());
         }
@@ -75,11 +98,12 @@ public class CreateEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void testCreateMultiplePodsWithSameRequest() {
-        Request request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
-        List<Pod> pods = CreateEntities.createMultiplePodsWithSameRequest(contextServiceClient, request);
-        for (Pod pod: pods) {
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        List<ContextObject> pods = CreateEntities.createMultiplePodsWithSameRequest(contextServiceClient, request);
+        for (ContextObject pod: pods) {
             assertNotNull(pod.getId());
-            assertEquals(request.getId(), pod.getRequestId());
+            assertEquals(request.getId(), pod.getParentId());
         }
     }
 }

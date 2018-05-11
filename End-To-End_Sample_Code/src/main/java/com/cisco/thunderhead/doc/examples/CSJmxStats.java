@@ -32,7 +32,7 @@ public class CSJmxStats {
      */
     public static <T> Double invokeStatsValueMethod() throws MBeanException, InstanceNotFoundException, ReflectionException {
         final String statsOpName= "statsValue";
-        final Object[] statsParams= {"Pod.Delete", "min"};
+        final Object[] statsParams= {"pod.Delete", "min"};
         final String[] statsValueSignature= new String[]{"java.lang.String", "java.lang.String"};
         Object result = mbeanServer.invoke(contextObjName, statsOpName, statsParams, statsValueSignature);
         return (Double) result.getClass().cast(result);
@@ -45,7 +45,7 @@ public class CSJmxStats {
     public static <T> Long invokeCountValueMethod() throws MBeanException, InstanceNotFoundException, ReflectionException {
         final String countOpName= "countValue";
         final String[] countValueSignature= new String[]{"java.lang.String"};
-        final Object[] countParams= {"Pod.Create"};
+        final Object[] countParams= {"pod.Create"};
         Object result =  mbeanServer.invoke(contextObjName, countOpName, countParams, countValueSignature);
         return (Long) result.getClass().cast(result);
     }
@@ -58,7 +58,7 @@ public class CSJmxStats {
 
         final String countOpName= "countValue";
         final String[] countValueSignature= new String[]{"java.lang.String"};
-        final Object[] errorCountParams= {"Pod.Get.error.notFound"};
+        final Object[] errorCountParams= {"pod.Get.error.notFound"};
         Object result  =  mbeanServer.invoke(contextObjName, countOpName, errorCountParams, countValueSignature);
         return (Long) result.getClass().cast(result);
     }
@@ -87,7 +87,7 @@ public class CSJmxStats {
      */
     public static <T> Double invokeAbsoluteStatsValueMethod() throws MBeanException, InstanceNotFoundException, ReflectionException {
         final String statsOpName= "absoluteStatsValue";
-        final Object[] statsParams= {"Pod.Delete", "min"};
+        final Object[] statsParams= {"pod.Delete", "min"};
         final String[] statsValueSignature= new String[]{"java.lang.String", "java.lang.String"};
         Object result = mbeanServer.invoke(contextObjName, statsOpName, statsParams, statsValueSignature);
         return (Double) result.getClass().cast(result);
@@ -100,7 +100,7 @@ public class CSJmxStats {
     public static <T> Long invokeAbsoluteCountValueMethod() throws MBeanException, InstanceNotFoundException, ReflectionException {
         final String countOpName= "absoluteCountValue";
         final String[] countValueSignature= new String[]{"java.lang.String"};
-        final Object[] countParams= {"Pod.Create"};
+        final Object[] countParams= {"pod.Create"};
         Object result =  mbeanServer.invoke(contextObjName, countOpName, countParams, countValueSignature);
         return (Long) result.getClass().cast(result);
     }

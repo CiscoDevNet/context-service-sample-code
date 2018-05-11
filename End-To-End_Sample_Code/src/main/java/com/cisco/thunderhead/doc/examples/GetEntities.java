@@ -1,10 +1,8 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.customer.Customer;
 import com.cisco.thunderhead.errors.ApiException;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.util.DataElementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +18,8 @@ public class GetEntities {
      * @param podId the ID of the pod to get
      * @return the pod
      */
-    public static Pod getPod(ContextServiceClient contextServiceClient, UUID podId) {
-        return contextServiceClient.get(Pod.class, podId.toString());
+    public static ContextObject getPod(ContextServiceClient contextServiceClient, UUID podId) {
+        return contextServiceClient.getContextObject(ContextObject.Types.POD, podId.toString());
     }
 
     /**
@@ -29,7 +27,7 @@ public class GetEntities {
      * @param pod the pod to extract the Context_Notes from
      * @return the Context_Notes
      */
-    public static String getContextNotes(Pod pod) {
+    public static String getContextNotes(ContextObject pod) {
         return (String) DataElementUtils.convertDataSetToMap(pod.getDataElements()).get("Context_Notes");
     }
 
@@ -39,8 +37,8 @@ public class GetEntities {
      * @param customerId the ID of the customer to get
      * @return the customer
      */
-    public static Customer getCustomer(ContextServiceClient contextServiceClient, UUID customerId) {
-        return contextServiceClient.get(Customer.class, customerId.toString());
+    public static ContextObject getCustomer(ContextServiceClient contextServiceClient, UUID customerId) {
+        return contextServiceClient.getContextObject(ContextObject.Types.CUSTOMER, customerId.toString());
     }
 
     /**
@@ -48,7 +46,7 @@ public class GetEntities {
      * @param customer the customer to extract the Context_First_Name from
      * @return the Context_First_Name
      */
-    public static String getCustomerFirstName(Customer customer) {
+    public static String getCustomerFirstName(ContextObject customer) {
         return (String) DataElementUtils.convertDataSetToMap(customer.getDataElements()).get("Context_First_Name");
     }
 
@@ -58,8 +56,8 @@ public class GetEntities {
      * @param requestId the ID of the request to get
      * @return the request
      */
-    public static Request getRequest(ContextServiceClient contextServiceClient, UUID requestId) {
-        return contextServiceClient.get(Request.class, requestId.toString());
+    public static ContextObject getRequest(ContextServiceClient contextServiceClient, UUID requestId) {
+        return contextServiceClient.getContextObject(ContextObject.Types.REQUEST, requestId.toString());
     }
 
     /**
@@ -67,8 +65,28 @@ public class GetEntities {
      * @param request the request to extract the Context_First_Name from
      * @return the Context_Title
      */
-    public static String getRequestTitle(Request request) {
+    public static String getRequestTitle(ContextObject request) {
         return (String) DataElementUtils.convertDataSetToMap(request.getDataElements()).get("Context_Title");
+    }
+
+    /**
+     * Extract a detail.comment from Context Service
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param commentId the ID of the detail.comment to get
+     * @return the detail.comment
+     */
+    public static ContextObject getComment(ContextServiceClient contextServiceClient, UUID commentId) {
+        String type = ContextObject.Types.DETAIL + ".comment";
+        return contextServiceClient.getContextObject(type, commentId.toString());
+    }
+
+    /**
+     * Extract the Context_Comment value out of a detail.comment
+     * @param comment the detail.comment to extract the Context_Comment from
+     * @return the Context_Comment
+     */
+    public static String getContextComment(ContextObject comment) {
+        return (String) DataElementUtils.convertDataSetToMap(comment.getDataElements()).get("Context_Comment");
     }
 
     /**
@@ -78,7 +96,7 @@ public class GetEntities {
     public static void throwErrorOnGet(ContextServiceClient contextServiceClient) {
         try {
             String invalidId = "2472ae10-4f8c-11e6-87cb-851eced64b31";
-            contextServiceClient.get(Pod.class, invalidId);
+            contextServiceClient.getContextObject(ContextObject.Types.POD, invalidId);
         } catch (ApiException e) {
             LOGGER.info("get failed as expected (pod id was invalid): " + e);
             throw e;

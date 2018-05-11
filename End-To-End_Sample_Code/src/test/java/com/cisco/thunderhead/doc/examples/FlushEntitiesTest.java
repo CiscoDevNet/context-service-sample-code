@@ -1,5 +1,6 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,9 +12,34 @@ public class FlushEntitiesTest extends BaseExamplesTest {
 
     @Before
     public void createDataToFlush() {
-        CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
         CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
-        CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
+        CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        CreateEntities.createFeedbackWithBaseFieldset(contextServiceClient, pod);
+    }
+
+    @Test
+    public void testFlushDetailComments() {
+        try {
+            FlushEntities.flushComments(contextServiceClient);
+        } catch (InterruptedException e) {
+            fail("Caught InterruptedException.");
+        } catch (TimeoutException e) {
+            fail("Flush did not complete within timeout.");
+        }
+    }
+
+    @Test
+    public void testFlushDetailFeedback() {
+        try {
+            FlushEntities.flushFeedbacks(contextServiceClient);
+        } catch (InterruptedException e) {
+            fail("Caught InterruptedException.");
+        } catch (TimeoutException e) {
+            fail("Flush did not complete within timeout.");
+        }
     }
 
     @Test

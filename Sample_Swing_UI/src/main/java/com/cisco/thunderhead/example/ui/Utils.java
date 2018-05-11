@@ -1,6 +1,7 @@
 package com.cisco.thunderhead.example.ui;
 
 import com.cisco.thunderhead.BaseDbBean;
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
 import com.cisco.thunderhead.client.ContextServiceClientConstants;
 import com.cisco.thunderhead.client.Operation;
@@ -80,6 +81,10 @@ public class Utils {
         System.out.println("\n\n*** Finished ***\n\n");
     }
 
+    /**
+     * Wait for an object to become searchable (after created). Used for Field or Fieldset (or any other
+     * non-<code>ContextObject</code> object types.
+     */
     static <T extends BaseDbBean> void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, Class<T> clazz) {
         java.util.List result;
         do {
@@ -89,7 +94,21 @@ public class Utils {
     }
 
     /**
-     * This returns all the beans represented by the ids.  Search has a max limit on the result set so this
+     * Wait for an object to become searchable (after created). Used for <code>ContextObject</code> object types.
+     */
+    static void waitForSearchable(ContextServiceClient contextServiceClient, Collection<String> fields, String type) {
+        java.util.List result;
+        do {
+            result = search(contextServiceClient, fields, type);
+            LOGGER.info("waitForSearchable expected: " + fields.size() + ", actual: " + result.size());
+        } while (result.size()!=fields.size());
+    }
+
+    /**
+     * This returns all the beans represented by the ids.  This is used when searching for Context beans that <em>are not</em>
+     * <code>ContextObject</code>s, such as Field and Fieldset objects.
+     *
+     * Search has a max limit on the result set so this
      * does multiple search requests to return all the beans requested.
      */
     static <T extends BaseDbBean> List<T> search(ContextServiceClient contextServiceClient, Collection<String> ids, Class<T> clazz) {
@@ -111,10 +130,53 @@ public class Utils {
         return beans;
     }
 
+    /**
+     * This returns all the beans represented by the ids.  This is used when searching for <code>ContextObject</code>
+     * objects. For those searches a "type" parameter is required in the "searchParameters" argument of the actual
+     * search API call, and this method automatically provides that.
+     *
+     * Search has a max limit on the result set so this
+     * does multiple search requests to return all the beans requested.
+     */
+    static List<ContextObject> search(ContextServiceClient contextServiceClient, Collection<String> ids, String type) {
+        List<ContextObject> beans = new ArrayList<>();
+        Set<String> idsToSearch = new HashSet<>(ids);
+        while (idsToSearch.size()>0) {
+            SearchParameters searchParameters = new SearchParameters();
+            Iterator<String> it = idsToSearch.iterator();
+            for (int i=0; i<MAX_RESULTS; i++) {
+                if (!it.hasNext()) {
+                    break;
+                }
+                searchParameters.add("id", it.next());
+                it.remove();
+            }
+            searchParameters.add("type", type);
+            List<ContextObject> beanSubset = contextServiceClient.search(ContextObject.class, searchParameters, Operation.OR);
+            beans.addAll(beanSubset);
+        }
+        return beans;
+    }
+
+    /**
+     * Wait for an object to not be searchable (deleted). Used for Field or Fieldset (or any other non-<code>ContextObject</code>
+     * object types.
+     */
     static void waitForNotSearchable(ContextServiceClient contextServiceClient, BaseDbBean contextBean, Class<? extends BaseDbBean> clazz) {
         java.util.List result;
         do {
             result = search(contextServiceClient, Collections.singletonList(contextBean.getId().toString()), clazz);
+            LOGGER.info("waitForSearchable expected: 0, actual: " + result.size());
+        } while (result.size()!=0);
+    }
+
+    /**
+     * Wait for an object to not be searchable (deleted). Used for <code>ContextObject</code> object types.
+     */
+    static void waitForNotSearchable(ContextServiceClient contextServiceClient, ContextObject contextBean) {
+        java.util.List result;
+        do {
+            result = search(contextServiceClient, Collections.singletonList(contextBean.getId().toString()), contextBean.getType());
             LOGGER.info("waitForSearchable expected: 0, actual: " + result.size());
         } while (result.size()!=0);
     }

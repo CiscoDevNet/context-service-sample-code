@@ -1,9 +1,7 @@
 package com.cisco.thunderhead.doc.examples;
 
+import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.client.ContextServiceClient;
-import com.cisco.thunderhead.customer.Customer;
-import com.cisco.thunderhead.pod.Pod;
-import com.cisco.thunderhead.request.Request;
 import com.cisco.thunderhead.rest.FlushStatusBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,39 +27,36 @@ public class FlushEntities {
     public static void flushAllEntities(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
         LOGGER.info("Flushing workgroup data...");
 
-        contextServiceClient.flush(Pod.class);
-        contextServiceClient.flush(Request.class);
-        contextServiceClient.flush(Customer.class);
+        contextServiceClient.flush(ContextObject.Types.DETAIL + ".comment");
+        contextServiceClient.flush(ContextObject.Types.DETAIL + ".feedback");
+        contextServiceClient.flush(ContextObject.Types.POD);
+        contextServiceClient.flush(ContextObject.Types.REQUEST);
+        contextServiceClient.flush(ContextObject.Types.CUSTOMER);
 
-        FlushStatusBean status = null;
-
-        // Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
-        status = contextServiceClient.waitForFlushComplete(Pod.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of pods complete. Flushed " + status.getNumberFlushed() + " pods.");
-        } else {
-            LOGGER.info("Flush of pods not complete. Flushed " + status.getNumberFlushed() + " pods. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(Request.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of requests complete. Flushed " + status.getNumberFlushed() + " requests.");
-        } else {
-            LOGGER.info("Flush of requests not complete. Flushed " + status.getNumberFlushed() + " requests. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        status = contextServiceClient.waitForFlushComplete(Customer.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of customers complete. Flushed " + status.getNumberFlushed() + " customers.");
-        } else {
-            LOGGER.info("Flush of customers not complete. Flushed " + status.getNumberFlushed() + " customers. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.DETAIL + ".comment");
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.DETAIL + ".feedback");
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.POD);
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.CUSTOMER);
+        waitForFlushComplete(contextServiceClient, ContextObject.Types.REQUEST);
 
         LOGGER.info("Flushed workgroup data.");
+    }
 
+    /**
+     * waitForFlushComplete
+     * @param contextServiceClient the contextServiceClient
+     * @param contextObjectType the type of the ContextObject to be flushed
+     * @throws TimeoutException
+     */
+    private static void waitForFlushComplete(ContextServiceClient contextServiceClient, String contextObjectType) throws TimeoutException {
+        FlushStatusBean status;// Use SDK to wait for flush to complete.  In this case, allow up to 30 seconds...
+        status = contextServiceClient.waitForFlushComplete(contextObjectType, MAX_FLUSH_WAIT_IN_SECONDS);
+        if (status.isCompleted()) {
+            LOGGER.info("Flush of " + contextObjectType + "s complete. Flushed " + status.getNumberFlushed() + " " + contextObjectType + "s.");
+        } else {
+            LOGGER.info("Flush of " + contextObjectType + "s not complete. Flushed " + status.getNumberFlushed() + " " + contextObjectType + "s." + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
+            throw new TimeoutException();
+        }
     }
 
     /**
@@ -72,19 +67,7 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushCustomers(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing customer data...");
-        contextServiceClient.flush(Customer.class);
-
-        FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(Customer.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of customers complete. Flushed " + status.getNumberFlushed() + " customers.");
-        } else {
-            LOGGER.info("Flush of customers not complete. Flushed " + status.getNumberFlushed() + " customers. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        LOGGER.info("Flushed customer data.");
+        flushContextObject(contextServiceClient, ContextObject.Types.CUSTOMER);
     }
 
     /**
@@ -95,19 +78,7 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushPods(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing pod data...");
-        contextServiceClient.flush(Pod.class);
-
-        FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(Pod.class, MAX_FLUSH_WAIT_IN_SECONDS);
-        if (status.isCompleted()) {
-            LOGGER.info("Flush of pods complete. Flushed " + status.getNumberFlushed() + " pods.");
-        } else {
-            LOGGER.info("Flush of pods not complete. Flushed " + status.getNumberFlushed() + " pods. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
-            throw new TimeoutException();
-        }
-
-        LOGGER.info("Flushed pod data.");
+        flushContextObject(contextServiceClient, ContextObject.Types.POD);
     }
 
     /**
@@ -118,19 +89,50 @@ public class FlushEntities {
      * @throws TimeoutException thrown if a flush has not completed when the timeout expires
      */
     public static void flushRequests(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
-        LOGGER.info("Flushing request data...");
-        contextServiceClient.flush(Request.class);
+        flushContextObject(contextServiceClient, ContextObject.Types.REQUEST);
+    }
+
+    /**
+     * Note: flush is only supported in "lab" (not "production") mode.
+     *
+     * @param contextServiceClient an initialized Context Service Client
+     * @throws InterruptedException thrown if an interrupt signal is caught during the wait
+     * @throws TimeoutException thrown if a flush has not completed when the timeout expires
+     */
+    public static void flushComments(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
+        flushContextObject(contextServiceClient, ContextObject.Types.DETAIL + ".comment");
+    }
+
+    /**
+     * Note: flush is only supported in "lab" (not "production") mode.
+     *
+     * @param contextServiceClient an initialized Context Service Client
+     * @throws InterruptedException thrown if an interrupt signal is caught during the wait
+     * @throws TimeoutException thrown if a flush has not completed when the timeout expires
+     */
+    public static void flushFeedbacks(ContextServiceClient contextServiceClient) throws InterruptedException, TimeoutException {
+        flushContextObject(contextServiceClient, ContextObject.Types.DETAIL + ".feedback");
+    }
+
+    /**
+     * flush context object
+     * @param contextServiceClient
+     * @param contextObjectType
+     * @throws TimeoutException
+     */
+    private static void flushContextObject(ContextServiceClient contextServiceClient, String contextObjectType) throws TimeoutException {
+        LOGGER.info("Flushing " + contextObjectType + " data...");
+        contextServiceClient.flush(contextObjectType);
 
         FlushStatusBean status = null;
-        status = contextServiceClient.waitForFlushComplete(Request.class, MAX_FLUSH_WAIT_IN_SECONDS);
+        status = contextServiceClient.waitForFlushComplete(contextObjectType, MAX_FLUSH_WAIT_IN_SECONDS);
         if (status.isCompleted()) {
-            LOGGER.info("Flush of requests complete. Flushed " + status.getNumberFlushed() + " requests.");
+            LOGGER.info("Flush of "  + contextObjectType + " requests complete. Flushed " + status.getNumberFlushed() + contextObjectType + ".");
         } else {
-            LOGGER.info("Flush of requests not complete. Flushed " + status.getNumberFlushed() + " requests. " + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
+            LOGGER.info("Flush of requests not complete. Flushed " + status.getNumberFlushed() + contextObjectType + "."  + (!StringUtils.isEmpty(status.getMessage()) ? status.getMessage() : ""));
             throw new TimeoutException();
         }
 
-        LOGGER.info("Flushed request data.");
+        LOGGER.info("Flushed " + contextObjectType + " data.");
     }
-
 }
