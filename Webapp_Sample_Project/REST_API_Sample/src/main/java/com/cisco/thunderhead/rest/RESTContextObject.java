@@ -19,6 +19,8 @@ import java.util.UUID;
 public class RESTContextObject {
     @ExposeMember private UUID id;
     @ExposeMember private String type;
+    @ExposeMember private UUID customerId;
+    @ExposeMember private UUID parentId;
     @ExposeMember private List<String> fieldsets = new LinkedList<String>();
     @ExposeMember private List<ContextDataElement> dataElements = new ArrayList<>();
     @ExposeMember private RFC3339Date created;
@@ -33,6 +35,8 @@ public class RESTContextObject {
      */
     public RESTContextObject(ContextObject bean) {
         type = bean.getType();
+        customerId = bean.getCustomerId();
+        parentId = bean.getParentId();
         for (DataElement dataElement : bean.getDataElements()) {
             ContextDataElement contextDataElement = new ContextDataElement(
                     dataElement.getDataKey(),
@@ -52,6 +56,21 @@ public class RESTContextObject {
 
     public String getType() {
         return type;
+    }
+    public UUID getCustomerId() {
+        return this.customerId;
+    }
+
+    public void setCustomerId(UUID customerId) {
+        this.customerId = customerId;
+    }
+
+    public UUID getParentId() {
+        return this.parentId;
+    }
+
+    public void setParentId(UUID parentId) {
+        this.parentId = parentId;
     }
 
     public void setType(String type) {
@@ -105,6 +124,8 @@ public class RESTContextObject {
             throw new ContextException("Object types do not match");
         }
 
+        dest.setParentId(src.parentId);
+        dest.setCustomerId(src.customerId);
         dest.setCreated(src.getCreated());
         dest.setLastUpdated(src.getLastUpdated());
         dest.setFieldsets(src.getFieldsets());
