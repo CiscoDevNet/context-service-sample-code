@@ -38,15 +38,32 @@ public class GetEntitiesTest extends BaseExamplesTest {
 
     @Test
     public void getRequestTest() {
-        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject originalRequest = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         ContextObject gottenRequest = GetEntities.getRequest(contextServiceClient, originalRequest.getId());
         assertEquals(originalRequest.getId(), gottenRequest.getId());
     }
 
     @Test
     public void getRequestTitleTest() {
-        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient);
+        ContextObject customer = CreateEntities.createCustomerWithBaseFieldset(contextServiceClient);
+        ContextObject request = CreateEntities.createRequestWithBaseFieldset(contextServiceClient, customer);
         assertEquals("Request1 Title", GetEntities.getRequestTitle(request));
+    }
+
+    @Test
+    public void getCommentTest() {
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject originalDetailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        ContextObject gottenDetailComment = GetEntities.getComment(contextServiceClient, originalDetailComment.getId());
+        assertEquals(originalDetailComment.getId(), gottenDetailComment.getId());
+    }
+
+    @Test
+    public void getContextCommentTest() {
+        ContextObject pod = CreateEntities.createPodWithBaseFieldset(contextServiceClient);
+        ContextObject detailComment = CreateEntities.createCommentWithBaseFieldset(contextServiceClient, pod);
+        assertEquals("Detailed context comment.", GetEntities.getContextComment(detailComment));
     }
 
     @Test

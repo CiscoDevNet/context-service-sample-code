@@ -70,6 +70,26 @@ public class GetEntities {
     }
 
     /**
+     * Extract a detail.comment from Context Service
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param commentId the ID of the detail.comment to get
+     * @return the detail.comment
+     */
+    public static ContextObject getComment(ContextServiceClient contextServiceClient, UUID commentId) {
+        String type = ContextObject.Types.DETAIL + ".comment";
+        return contextServiceClient.getContextObject(type, commentId.toString());
+    }
+
+    /**
+     * Extract the Context_Comment value out of a detail.comment
+     * @param comment the detail.comment to extract the Context_Comment from
+     * @return the Context_Comment
+     */
+    public static String getContextComment(ContextObject comment) {
+        return (String) DataElementUtils.convertDataSetToMap(comment.getDataElements()).get("Context_Comment");
+    }
+
+    /**
      * Demonstrate catching and throwing a Get error
      * @param contextServiceClient an initialized ContextServiceClient
      */

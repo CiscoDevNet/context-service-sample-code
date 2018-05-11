@@ -175,6 +175,8 @@ public class Export {
             entityIds.add(bean.getId().toString());
         }
 
+        LOGGER.info("Fetched ContextObject of type " + entityType + " ids=" + entityIds.toString());
+
         return entityIds;
     }
 
@@ -208,7 +210,6 @@ public class Export {
             if (visitor != null) {
                 someEntities.forEach(visitor);
             }
-
             // write the entities to a file
             if(someEntities.size() > 0) {
                 writer.writeEntities(someEntities);

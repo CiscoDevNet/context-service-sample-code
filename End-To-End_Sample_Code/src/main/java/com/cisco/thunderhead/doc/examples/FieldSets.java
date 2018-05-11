@@ -7,6 +7,8 @@ import com.cisco.thunderhead.client.SearchParameters;
 import com.cisco.thunderhead.datatypes.ElementClassification;
 import com.cisco.thunderhead.datatypes.ElementDataType;
 import com.cisco.thunderhead.datatypes.LanguageType;
+import com.cisco.thunderhead.dictionary.EnumRestriction;
+import com.cisco.thunderhead.dictionary.EnumValue;
 import com.cisco.thunderhead.dictionary.Field;
 import com.cisco.thunderhead.dictionary.FieldSet;
 import com.cisco.thunderhead.util.DataElementUtils;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +56,26 @@ public class FieldSets {
         LOGGER.info("Created field: "+field.getId()+" with translations: "+translations.toString() + " and locales: " + String.join(", ", locales));
 
         return field;
+    }
+
+    /**
+     * Get an enumValues from Field
+     * @param contextServiceClient an initialized Context Service Client
+     * @return a linkedhashmap with the String and the EnumValue
+     */
+    public static LinkedHashMap<String, EnumValue> getEnumValues(ContextServiceClient contextServiceClient) {
+
+        Field preferredLanguage = contextServiceClient.get(Field.class, "Context_Preferred_Language");
+        com.cisco.thunderhead.dictionary.Restriction restriction = preferredLanguage.getRestriction();
+        LOGGER.info("Restriction Type: ", restriction.getType());
+
+        LinkedHashMap<String, EnumValue> enumValues = ((EnumRestriction)restriction).getEnumValues();
+        EnumValue spanish = enumValues.get("es-ES");
+
+        LOGGER.info("Spanish enum value: isActive: ", spanish.isActive());
+        LOGGER.info("The English translation of the Spanish enum value:", spanish.getTranslations().get("en_US"));
+
+        return enumValues;
     }
     
     /**

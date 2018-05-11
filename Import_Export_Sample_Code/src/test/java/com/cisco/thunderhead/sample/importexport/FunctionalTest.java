@@ -35,10 +35,14 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Tests import/export works
  */
 public class FunctionalTest {
+    private static Logger LOGGER = LoggerFactory.getLogger(Export.class);
     static ContextServiceClient contextServiceClient;
 
     @BeforeClass
@@ -131,11 +135,11 @@ public class FunctionalTest {
             // Do the export!!
             Export.doExport(contextServiceClient, dir.toFile().getAbsolutePath(), true, true, 50, startDate, endDate, 1000);
 
-            System.out.println("Output directory is: " + dir.toAbsolutePath());
-
+            LOGGER.info("Output directory is: " + dir.toAbsolutePath());
             // Validate size of customer JSON file
             File file = new File(dir.toFile(), "customer.json");
             FileReader fr = new FileReader(file);
+            LOGGER.info("File Reader to read is: " + fr.toString());
             JsonArray customers = new Gson().fromJson(fr, JsonArray.class);
             assertEquals("wrong number of customers", 1, customers.size());
 
@@ -197,8 +201,9 @@ public class FunctionalTest {
         ClientResponse clientResponse = contextServiceClient.create(customer);
 
         String id = SDKUtils.getIdFromResponse(clientResponse);
+        LOGGER.info("Created customerId=" + id);
         Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), ContextObject.class, ContextObject.Types.CUSTOMER);
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         return customer;
     }
 }

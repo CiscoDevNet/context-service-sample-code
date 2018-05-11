@@ -70,7 +70,7 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         response = createCustomer("Jane", "Smith", "111-111-3333", "bronze");
         custId3 = validateClientResponseAndReturnId(response, 201);
 
-        response = createRequest("Title 1", "This is a request.");
+        response = createRequest("Title 1", "This is a request.", custId1);
         reqId1 = validateClientResponseAndReturnId(response, 201);
 
         response = createPod("This is first pod.", "Juan.Important@customer.com", "111-111-1111", "apple", tagSet1, custId1, reqId1);
@@ -330,17 +330,17 @@ public class SearchEntitiesTest extends BaseExamplesTest {
         return contextServiceClient.create(customer);
     }
 
-    private static ClientResponse createRequest(final String title, final String description) {
-        Request request = new Request(
+    private static ClientResponse createRequest(final String title, final String description, String customerId) {
+        ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
+        request.setDataElements(
                 DataElementUtils.convertDataMapToSet(
                         new HashMap<String, Object>() {{
                             put("Context_Title", title);
                             put("Context_Description", description);
-                        }}
-                )
+                        }})
         );
         request.setFieldsets(Arrays.asList("cisco.base.request"));
-
+        request.setCustomerId(UUID.fromString(customerId));
         return contextServiceClient.create(request);
     }
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CreateEntities {
+
     /**
      * Create POD with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
@@ -60,9 +61,10 @@ public class CreateEntities {
     /**
      * Create a Request with default fields and fieldsets.
      * @param contextServiceClient an initialized ContextServiceClient
-     * @return a newly-created request with the cisco.base.request fieldset
+     * @param customer a pre-existing Customer object
+     * @return a newly-created request associated with the Customer, with the cisco.base.request fieldset
      */
-    public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient) {
+    public static ContextObject createRequestWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject customer) {
         ContextObject request = new ContextObject(ContextObject.Types.REQUEST);
         request.setDataElements(
                 DataElementUtils.convertDataMapToSet(
@@ -73,6 +75,7 @@ public class CreateEntities {
                 )
         );
         request.setFieldsets(Arrays.asList("cisco.base.request"));
+        request.setCustomerId(customer.getId());
         contextServiceClient.create(request);
         return request;
     }
@@ -173,5 +176,52 @@ public class CreateEntities {
             pods.add(createPodWithRequest(contextServiceClient, request));
         }
         return pods;
+    }
+
+    /**
+     * Create detail.comment with default field and fieldsets
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param pod pre-existing Pod object
+     * @return a newly-created detail.comment associated with the Pod, and with cisco.base.comment fieldset
+     */
+    public static ContextObject createCommentWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        String type = ContextObject.Types.DETAIL + ".comment";
+        ContextObject comment = new ContextObject(type);
+        comment.setDataElements(
+                DataElementUtils.convertDataMapToSet(
+                        new HashMap<String, Object>() {{
+                            put("Context_Comment", "Detailed context comment.");
+                            put("Context_Visible", true);
+                            put("Context_DisplayName", "Display name");
+                        }}
+                )
+        );
+        comment.setFieldsets(Arrays.asList("cisco.base.comment"));
+        comment.setParentId(pod.getId());
+        contextServiceClient.create(comment);
+        return comment;
+    }
+
+    /**
+     * Create detail.feedback with default field and fieldsets
+     * @param contextServiceClient an initialized ContextServiceClient
+     * @param pod pre-existing Pod object
+     * @return a newly-created detail.feedback associated with the Pod, and with cisco.base.comment fieldset
+     */
+    public static ContextObject createFeedbackWithBaseFieldset(ContextServiceClient contextServiceClient, ContextObject pod) {
+        String type = ContextObject.Types.DETAIL + ".feedback";
+        ContextObject feedback = new ContextObject(type);
+        feedback.setDataElements(
+                DataElementUtils.convertDataMapToSet(
+                        new HashMap<String, Object>() {{
+                            put("cccRatingComments", "Detailed rating comments.");
+                            put("cccRatingPoints", "Rating points");
+                        }}
+                )
+        );
+        feedback.setFieldsets(Arrays.asList("cisco.base.rating"));
+        feedback.setParentId(pod.getId());
+        contextServiceClient.create(feedback);
+        return feedback;
     }
 }
