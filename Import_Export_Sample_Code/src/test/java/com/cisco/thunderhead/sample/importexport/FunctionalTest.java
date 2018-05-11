@@ -203,7 +203,7 @@ public class FunctionalTest {
         String id = SDKUtils.getIdFromResponse(clientResponse);
         LOGGER.info("Created customerId=" + id);
         Utils.waitForSearchable(contextServiceClient, Collections.singletonList(id), ContextObject.class, ContextObject.Types.CUSTOMER);
-        Thread.sleep(10000);
+        Thread.sleep(30000);
         return customer;
     }
 }
