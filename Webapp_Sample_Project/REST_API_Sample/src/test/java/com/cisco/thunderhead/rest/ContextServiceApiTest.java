@@ -50,7 +50,7 @@ public class ContextServiceApiTest {
     private static String REQUEST_TYPE ="request";
 
     /**
-     * Setup.  Create a dummy context object used by tests in this class.
+     * Setup.  Create a  customer, request and an activity used by tests in this class.
      */
     @BeforeClass
     public static void setUp() {
@@ -60,11 +60,10 @@ public class ContextServiceApiTest {
         CUSTOMER_ID = UUID.fromString(createContextObject(CUSTOMER_TYPE, "cisco.base.customer", "Context_Home_Phone","123-456-7890",null, null));
         REQUEST_ID = UUID.fromString(createContextObject(REQUEST_TYPE, "cisco.base.request", "Context_Description","testing CustomerId", CUSTOMER_ID, null));
         ACTIVITY_ID = createContextObject(POD_TYPE,"cisco.base.pod", "Context_Notes",FIELD_DATA, null, null);
-
     }
 
     /**
-     * Cleanup.
+     * Cleanup. Delete the customer, request and activity created in the beginning of the test
      */
     @AfterClass
     public static void tearDown() {
