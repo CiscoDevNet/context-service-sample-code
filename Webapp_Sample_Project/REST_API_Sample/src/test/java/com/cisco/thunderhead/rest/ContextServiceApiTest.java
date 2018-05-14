@@ -43,8 +43,8 @@ public class ContextServiceApiTest {
     private static Client client;
     private static String ACTIVITY_ID;
     private static String FIELD_DATA;
-    private static UUID CUSTOMER_ID;
-    private static UUID REQUEST_ID;
+    private static String CUSTOMER_ID;
+    private static String REQUEST_ID;
     private static String POD_TYPE ="pod";
     private static String CUSTOMER_TYPE ="customer";
     private static String REQUEST_TYPE ="request";
@@ -57,9 +57,9 @@ public class ContextServiceApiTest {
         client = ClientBuilder.newClient();
         client.register(new LoggingFilter()); // so we can see HTTP traffic
         FIELD_DATA = UUID.randomUUID().toString();
-        CUSTOMER_ID = UUID.fromString(createContextObject(CUSTOMER_TYPE, "cisco.base.customer", "Context_Home_Phone","123-456-7890",null, null));
-        REQUEST_ID = UUID.fromString(createContextObject(REQUEST_TYPE, "cisco.base.request", "Context_Description","testing CustomerId", CUSTOMER_ID, null));
-        ACTIVITY_ID = createContextObject(POD_TYPE,"cisco.base.pod", "Context_Notes",FIELD_DATA, null, null);
+        CUSTOMER_ID = createContextObject(CUSTOMER_TYPE, "cisco.base.customer", "Context_Home_Phone","123-456-7890",null, null);
+        REQUEST_ID = createContextObject(REQUEST_TYPE, "cisco.base.request", "Context_Description","testing CustomerId", CUSTOMER_ID, null);
+        ACTIVITY_ID = createContextObject(POD_TYPE,"cisco.base.pod", "Context_Notes", FIELD_DATA, null, null);
     }
 
     /**
@@ -77,7 +77,7 @@ public class ContextServiceApiTest {
      */
     @Test
     public void testCreate() {
-        RESTContextObject request = createRequest(POD_TYPE, "cisco.base.pod", null, null);
+        RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", null, null);
         addDataElementsToRequest(request, "Context_Notes", "testing at 3:16", "string");
 
         String requestBody = getGson().toJson(request);
@@ -135,7 +135,7 @@ public class ContextServiceApiTest {
      */
     @Test
     public void testCreateGetSearchDeletePodWithCustomerId() {
-        RESTContextObject request = createRequest(POD_TYPE, "cisco.base.pod", CUSTOMER_ID, null);
+        RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", CUSTOMER_ID, null);
         addDataElementsToRequest(request, "Context_Notes", "testing CustomerId", "string");
 
         String requestBody = getGson().toJson(request);
@@ -151,7 +151,7 @@ public class ContextServiceApiTest {
 
         //get activity
         RESTContextObject contextObject = getContextObject(id, POD_TYPE);
-        assertEquals(CUSTOMER_ID, contextObject.getCustomerId());
+        assertEquals(CUSTOMER_ID, contextObject.getCustomerId().toString());
 
         // search  activity for customerId
         waitForSearchable("customerId", CUSTOMER_ID.toString(), POD_TYPE);
@@ -177,7 +177,7 @@ public class ContextServiceApiTest {
      */
     @Test
     public void testCreateGetSearchDeletePodWithParentId() {
-        RESTContextObject request = createRequest(POD_TYPE, "cisco.base.pod", null, REQUEST_ID);
+        RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", null, REQUEST_ID);
         addDataElementsToRequest(request, "Context_Notes", "testing ParentId", "string");
 
         String requestBody = getGson().toJson(request);
@@ -193,7 +193,7 @@ public class ContextServiceApiTest {
 
         //get activity
         RESTContextObject contextObject = getContextObject(id, POD_TYPE);
-        assertEquals(REQUEST_ID, contextObject.getParentId());
+        assertEquals(REQUEST_ID, contextObject.getParentId().toString());
 
         // search  activity for parentId
         waitForSearchable("parentId", REQUEST_ID.toString(), POD_TYPE);
@@ -219,7 +219,7 @@ public class ContextServiceApiTest {
      */
     @Test
     public void testCreateGetSearchDeletePodWithCustomerAndParentId() {
-        RESTContextObject request = createRequest(POD_TYPE, "cisco.base.pod", CUSTOMER_ID, REQUEST_ID);
+        RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", CUSTOMER_ID, REQUEST_ID);
         addDataElementsToRequest(request, "Context_Notes", "testing ParentId", "string");
 
         String requestBody = getGson().toJson(request);
@@ -235,8 +235,8 @@ public class ContextServiceApiTest {
 
         //get activity
         RESTContextObject contextObject = getContextObject(id, POD_TYPE);
-        assertEquals(REQUEST_ID, contextObject.getParentId());
-        assertEquals(CUSTOMER_ID, contextObject.getCustomerId());
+        assertEquals(REQUEST_ID, contextObject.getParentId().toString());
+        assertEquals(CUSTOMER_ID, contextObject.getCustomerId().toString());
 
         // search  activity for customerId and parentId
         waitForSearchable("parentId", REQUEST_ID.toString(), POD_TYPE);
@@ -315,8 +315,8 @@ public class ContextServiceApiTest {
     /**
      * Helper method to create a context object
      */
-    private static String createContextObject(String type, String fieldset, String dataElement, String fieldData, UUID customerId, UUID parentId) {
-        RESTContextObject request = createRequest(type, fieldset, customerId, parentId);
+    private static String createContextObject(String type, String fieldset, String dataElement, String fieldData, String customerId, String parentId) {
+        RESTContextObject request = createRESTContextObject(type, fieldset, customerId, parentId);
         addDataElementsToRequest(request, dataElement, fieldData, "string");
 
         String requestBody = getGson().toJson(request);
@@ -357,15 +357,15 @@ public class ContextServiceApiTest {
         return jsonResponse.getAsJsonArray();
     }
 
-    private static RESTContextObject createRequest(String type, String fieldset, UUID customerId, UUID parentId) {
+    private static RESTContextObject createRESTContextObject(String type, String fieldset, String customerId, String parentId) {
         RESTContextObject request = new RESTContextObject();
         request.setType(type);
         request.setFieldsets(Arrays.asList(fieldset));
         if(parentId != null){
-            request.setParentId( parentId);
+            request.setParentId(UUID.fromString(parentId));
         }
         if(customerId != null){
-            request.setCustomerId( customerId);
+            request.setCustomerId(UUID.fromString(customerId));
         }
         return request;
     }
