@@ -95,7 +95,7 @@ public class Utils {
         }
 
         // Create a connector properties file to use to initialize the SDK.
-        String homeDir = "/Users/mihaelad/Tomcat/apache-tomcat-8.5.31"; //System.getProperty("catalina.base");
+        String homeDir = System.getProperty("catalina.base");
         String path = homeDir + "/context-service";
         File connectorPropertyFile = new File(path, "connector.property");
 
@@ -153,7 +153,7 @@ public class Utils {
      * Reads the properties into memory.
      */
     private static Properties readProperties() {
-        String connectionDataFilename = System.getenv(CONNECTION_DATA_FILE_PROP);
+        String connectionDataFilename = System.getProperty(CONNECTION_DATA_FILE_PROP);
         if (connectionDataFilename==null) {
             LOGGER.warn("property must be set: " + CONNECTION_DATA_FILE_PROP);
             return null;
