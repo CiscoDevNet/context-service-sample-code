@@ -118,7 +118,7 @@ Before running the REST API Examples, you must:
 These examples can be run with a REST client such as Postman.
 
 ### Create Context Service Object
-The `type` field must be one of `pod` (activity), `customer`, `request` or `detail`.
+The `type` field must be one of `pod` (activity), `customer`, or `request`.
  
 Use the `fieldsets` parameter to assign fieldsets to an object. Each object must have at least one fieldset assigned to it.
 
@@ -130,7 +130,6 @@ Each type of object in Context Service has different association restrictions:
  * `pod`—You can optionally associate a `pod` with a customer or a request. You can also associate a `pod` with a customer and a request. Enter the `id` value of a `customer` type object in the `customerId` parameter. Enter the `id` value of a `request` type object in the `parentId` parameter.
  * `customer`—You cannot associate a `customer` with another type of Context Service object.
  * `request`—You must associate a `request` with a customer. Enter the `id` value of a `customer` type object in the `customerId` parameter.
- * `detail`—You must associate a `detail` with either a request or an activity. Enter the `id` value of either a `request` or a `pod` type object in the `parentId` parameter.
  
 ![](https://pubhub.devnetcloud.com/media/context-service/docs/cs-sdk-guide/images/ContextObjectAssociations.png)
 
@@ -158,7 +157,7 @@ URL Syntax:
 GET http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 Example response:
 ```
@@ -192,9 +191,9 @@ URL syntax:
 PUT http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
->You cannot update `detail` type objects. You also cannot update `request` type objects that have their `state` set to `closed`.
+>You cannot update `request` type objects that have their `state` set to `closed`.
 
 For example:
 ```
@@ -223,7 +222,7 @@ URL Syntax:
 DELETE http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 ### Search
 The "operation" field can be "or" or "and".
@@ -235,7 +234,7 @@ URL syntax:
 POST http://localhost:8080/rest/search/<type>
 ```
 
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 This example shows searching for a `pod` (activity):
 
