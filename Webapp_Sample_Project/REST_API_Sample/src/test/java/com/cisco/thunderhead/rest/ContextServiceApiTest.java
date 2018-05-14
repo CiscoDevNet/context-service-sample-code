@@ -153,7 +153,7 @@ public class ContextServiceApiTest {
         //get activity
         RESTContextObject contextObject = getContextObject(id, POD_TYPE);
         assertEquals(CUSTOMER_ID, contextObject.getCustomerId());
-        
+
         // search  activity for customerId
         waitForSearchable("customerId", CUSTOMER_ID.toString(), POD_TYPE);
         Map<String, List<String>> query = new HashMap<>();
