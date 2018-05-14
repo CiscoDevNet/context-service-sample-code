@@ -118,22 +118,13 @@ Before running the REST API Examples, you must:
 These examples can be run with a REST client such as Postman.
 
 ### Create Context Service Object
-The `type` field must be one of `pod` (activity), `customer`, `request` or `detail`.
- 
-Use the `fieldsets` parameter to assign fieldsets to an object. Each object must have at least one fieldset assigned to it.
+The "type" field can be "pod" (activity), "customer", or "request".
 
-The items in `dataElements` must be from fields in the fieldsets assigned to the object.
+The "fieldsets" parameter must specify one of the available fieldsets.
 
+The items in "dataElements" must be from fields in the specified fieldsets.
 
-Each type of object in Context Service has different association restrictions:
-
- * `pod`—You can optionally associate a `pod` (activity) with a customer or a request. You can also associate a `pod` (activity) with a customer and a request. Enter the `id` value of a `customer` type object in the `customerId` parameter. Enter the `id` value of a `request` type object in the `parentId` parameter.
- * `customer`—You cannot associate a `customer` with another type of Context Service object.
- * `request`—You must associate a `request` with a customer. Enter the `id` value of a `customer` type object in the `customerId` parameter.
- * `detail`—You must associate a `detail` with either a request or a pod (activity). Enter the `id` value of either a `request` or a `pod` (activity) type object in the `parentId` parameter.
- 
-
-The example below demonstrates how to create an activity. The type must be `pod` to create an activity.
+The example below demonstrates how to create an activity. The type must be "pod" to create an activity.
 
 ```
 POST http://localhost:8080/rest
@@ -157,7 +148,7 @@ URL Syntax:
 GET http://localhost:8080/rest/<type>/<your-id>
 ```
 
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
+The \<type\> in the URL must be one of `pod`, `customer`, or `request`.
 
 Example response:
 ```
@@ -184,15 +175,12 @@ Example response:
 ```
 
 ### Update Context Service Object
-To update a pod, you must include the `lastUpdated` field and match the existing object's lastUpdated value.
+To update a pod, you must include the "lastUpdated" field and match the existing object's lastUpdated value.
 
 URL syntax:
 ```
 PUT http://localhost:8080/rest/<type>/<your-id>
 ```
-
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
-
 
 For example:
 ```
@@ -213,15 +201,12 @@ PUT http://localhost:8080/rest/pod/<your-id>
 ```
 
 ### Delete Context Service Object
-Delete is only available in lab mode. 
-
+Delete is only available in lab mode.
 
 URL Syntax:
 ```
 DELETE http://localhost:8080/rest/<type>/<your-id>
 ```
-
-The \<type\> in the URL must be one of `pod`, `customer`, `request`, or `detail`.
 
 ### Search
 The "operation" field can be "or" or "and".
