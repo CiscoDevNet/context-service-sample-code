@@ -129,7 +129,7 @@ public class ContextServiceApiTest {
     }
 
     /**
-     * This creates the activity with customerId
+     * This creates the activity with customerId and not requestID
      * Get the activity and verify the customerId and parentId
      * Search for the activity that has bot customerId and requestId and verify it
      */
@@ -171,7 +171,7 @@ public class ContextServiceApiTest {
 
 
     /**
-     * This creates the activity with requestId
+     * This creates the activity with requestId and no customerId
      * Get the activity and verify the customerId and parentId
      * Search for the activity that has bot customerId and requestId and verify it
      */
