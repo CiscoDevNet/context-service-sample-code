@@ -129,8 +129,10 @@ public class ContextServiceApiTest {
         assertEquals("wrong field data", FIELD_DATA, dataElements.get(0).getAsJsonObject().get("value").getAsString());
     }
 
-       /**
-     * This creates the request.  It re-uses the server-side RESTContextObject to make creating the request easier.
+    /**
+     * This creates the activity with customerId
+     * Get the activity and verify the customerId and parentId
+     * Search for the activity that has bot customerId and requestId and verify it
      */
     @Test
     public void testCreateGetSearchDeletePodWithCustomerId() {
@@ -151,8 +153,7 @@ public class ContextServiceApiTest {
         //get activity
         RESTContextObject contextObject = getContextObject(id, POD_TYPE);
         assertEquals(CUSTOMER_ID, contextObject.getCustomerId());
-
-
+        
         // search  activity for customerId
         waitForSearchable("customerId", CUSTOMER_ID.toString(), POD_TYPE);
         Map<String, List<String>> query = new HashMap<>();
@@ -171,7 +172,9 @@ public class ContextServiceApiTest {
 
 
     /**
-     * This creates the request.  It re-uses the server-side RESTContextObject to make creating the request easier.
+     * This creates the activity with requestId
+     * Get the activity and verify the customerId and parentId
+     * Search for the activity that has bot customerId and requestId and verify it
      */
     @Test
     public void testCreateGetSearchDeletePodWithParentId() {
