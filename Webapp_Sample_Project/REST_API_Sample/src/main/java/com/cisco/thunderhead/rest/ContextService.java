@@ -57,7 +57,8 @@ public class ContextService {
      */
     @PUT
     @Path("/{type}/{id}")
-    public Response put(@PathParam("type") String type, @PathParam("id") String id, RESTContextObject restContextObject) throws ContextException {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("type") String type, @PathParam("id") String id, RESTContextObject restContextObject) throws ContextException {
 
         validateType(type, restContextObject);
 
