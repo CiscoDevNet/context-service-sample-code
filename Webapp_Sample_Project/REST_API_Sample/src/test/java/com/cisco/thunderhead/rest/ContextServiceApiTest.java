@@ -176,7 +176,7 @@ public class ContextServiceApiTest {
      * Search for the activity that has bot customerId and requestId and verify it
      */
     @Test
-    public void testCreateGetSearchDeletePodWithParentId() {
+    public void testCreateGetSearchDeletePodWithParentId() throws InterruptedException {
         RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", null, REQUEST_ID);
         addDataElementsToRequest(request, "Context_Notes", "testing ParentId", "string");
 
@@ -201,6 +201,8 @@ public class ContextServiceApiTest {
         query.put("parentId", Arrays.asList(REQUEST_ID.toString()));
         SearchParams searchParams = new SearchParams("or", query);
         requestBody = getGson().toJson(searchParams);
+
+        Thread.sleep(2000);
         JsonArray objects = searchContextObject(requestBody, POD_TYPE);
         assertEquals("should be only 1", 1, objects.size());
         String parentId = objects.get(0).getAsJsonObject().get("parentId").getAsString();
@@ -218,7 +220,7 @@ public class ContextServiceApiTest {
      * Search for the activity that has bot customerId and requestId and verify it
      */
     @Test
-    public void testCreateGetSearchDeletePodWithCustomerAndParentId() {
+    public void testCreateGetSearchDeletePodWithCustomerAndParentId() throws InterruptedException {
         RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.base.pod", CUSTOMER_ID, REQUEST_ID);
         addDataElementsToRequest(request, "Context_Notes", "testing ParentId", "string");
 
@@ -245,6 +247,9 @@ public class ContextServiceApiTest {
         query.put("customerId", Arrays.asList(CUSTOMER_ID.toString()));
         SearchParams searchParams = new SearchParams("and", query);
         requestBody = getGson().toJson(searchParams);
+
+        Thread.sleep(2000);
+
         JsonArray objects = searchContextObject(requestBody, POD_TYPE);
         assertEquals("should be only 1", 1, objects.size());
         String parentId = objects.get(0).getAsJsonObject().get("parentId").getAsString();

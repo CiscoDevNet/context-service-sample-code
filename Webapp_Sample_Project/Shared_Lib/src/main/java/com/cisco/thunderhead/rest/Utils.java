@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Various utility methods.
@@ -31,6 +32,8 @@ public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     private static final String CONNECTION_DATA_FILE_PROP = "connection.info.file";
     private static final String CONNECTION_DATA_PROP = "connection.data";
+    private static final String EXTENSION_PATH = "/context-service-extension";
+    private static final String EXTENSION_JAR_PREFIX = "context-service-sdk-extension-";
 
     public static ContextServiceClient getInitializedContextServiceClient(File connectorPropertyFile, String jsonConnectionData) {
         // initialize connector factory
@@ -85,11 +88,25 @@ public class Utils {
      */
     public static File initializeConnectorPropertyFile(ServletContext servletContext) {
         // assumes running in Tomcat
-        String contextServiceSdkExtensionName = "context-service-sdk-extension-2.0.4.jar";
+        String contextServiceSdkExtensionName = null;
         URL extensionUrl = null;
         try {
             // Find the location of the extension JAR bundled into the WAR.
-            extensionUrl = servletContext.getResource("/context-service-extension/" + contextServiceSdkExtensionName);
+            Set<String> resourcePaths = servletContext.getResourcePaths(EXTENSION_PATH);
+            for (String resourcePath : resourcePaths) {
+                String [] paths = resourcePath.split("/");
+                if (paths.length==3
+                        && paths[2].startsWith(EXTENSION_JAR_PREFIX)
+                        && paths[2].endsWith(".jar")) {
+                    contextServiceSdkExtensionName = paths[2];
+                    extensionUrl = servletContext.getResource(resourcePath);
+                }
+            }
+
+            if (contextServiceSdkExtensionName==null) {
+                throw new RuntimeException("couldn't find extension JAR, maybe you haven't run prepareSdk.sh yet");
+            }
+
         } catch (MalformedURLException e) {
             throw new RuntimeException("failed while retrieving " + contextServiceSdkExtensionName + " from WAR file", e);
         }
