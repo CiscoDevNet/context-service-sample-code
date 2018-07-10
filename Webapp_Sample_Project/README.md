@@ -45,6 +45,8 @@ To set up sample code components:
 
 
   This installs the Context Service SDK in your project and configures your connector.properties file.
+  
+>You can connect to Context Service through a proxy by adding `System.setProperty("contextservice.proxyURL", "http://<proxy_host>:<port_number>");` to the `getInitializedContextServiceClient()` and `getInitializedManagementConnector()` methods in Utils.java.
 
 5. Change to the context-service-sample-code root directory, then run:
 
@@ -118,6 +120,12 @@ Before running the REST API Examples, you must:
 These examples can be run with a REST client such as Postman.
 
 ### Create Context Service Object
+
+URL Syntax:
+```
+POST http://localhost:8080/rest
+```
+
 The `type` field must be one of `pod` (activity), `customer`, or `request`.
  
 Use the `fieldsets` parameter to assign fieldsets to an object. Each object must have at least one fieldset assigned to it.
