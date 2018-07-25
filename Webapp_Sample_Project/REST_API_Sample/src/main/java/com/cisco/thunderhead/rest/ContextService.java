@@ -39,8 +39,6 @@ public class ContextService {
         final String type = restContextObject.getType();
 
         try {
-            validateType(type);
-
             ContextObject contextBean = new ContextObject(restContextObject.getType());
             RESTContextObject.copyToContextBean(contextBean, restContextObject);
             contextServiceClient.create(contextBean);
@@ -80,8 +78,6 @@ public class ContextService {
     @Path("/{type}/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("type") String type, @PathParam("id") String id) {
-        validateType(type);
-
         ContextObject contextBean = contextServiceClient.getContextObject(type, id);
         return Response.ok().entity(new RESTContextObject(contextBean)).build();
     }
@@ -92,8 +88,6 @@ public class ContextService {
     @DELETE
     @Path("/{type}/{id}")
     public Response delete(@PathParam("type") String type, @PathParam("id") String id) {
-        validateType(type);
-
         // first have to do a GET
         ContextObject contextBean = contextServiceClient.getContextObject(type, id);
 
@@ -108,8 +102,6 @@ public class ContextService {
     @POST
     @Path("/search/{type}")
     public Response search(@PathParam("type") String type, SearchParams searchParams) {
-
-        validateType(type);
 
         if (searchParams.getOperation()==null) {
             throw new ContextException("invalid search parameter operation " + searchParams.operation);
@@ -151,20 +143,8 @@ public class ContextService {
         return Response.ok().entity(status).build();
     }
 
-    private static void validateType(String type) throws ContextException {
-        switch (type) {
-            case ContextObject.Types.REQUEST:
-            case ContextObject.Types.POD:
-            case ContextObject.Types.CUSTOMER:
-                return;
-        }
-
-        throw new ContextException("Unsupported object type " + type);
-    }
-
     private static void validateType(String type, RESTContextObject restContextObject) throws ContextException {
-        validateType(type);
-        if (StringUtils.isNotBlank(restContextObject.getType()) && StringUtils.equals(type, restContextObject.getType())) {
+        if (StringUtils.isNotBlank(restContextObject.getType()) && !StringUtils.equals(type, restContextObject.getType())) {
             throw new ContextException("context object type '" + restContextObject.getType() + "' does not match expected type '" + type + "'");
         }
     }
