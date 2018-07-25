@@ -3,6 +3,7 @@ package com.cisco.thunderhead.rest;
 import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.DataElement;
 import com.cisco.thunderhead.ExposeMember;
+import com.cisco.thunderhead.datatypes.PodMediaType;
 import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.RFC3339Date;
 
@@ -21,6 +22,7 @@ public class RESTContextObject {
     @ExposeMember private String type;
     @ExposeMember private UUID customerId;
     @ExposeMember private UUID parentId;
+    @ExposeMember private String mediaType;
     @ExposeMember private List<String> fieldsets = new LinkedList<String>();
     @ExposeMember private List<ContextDataElement> dataElements = new ArrayList<>();
     @ExposeMember private RFC3339Date created;
@@ -37,6 +39,7 @@ public class RESTContextObject {
         type = bean.getType();
         customerId = bean.getCustomerId();
         parentId = bean.getParentId();
+        mediaType = bean.getMediaType();
         for (DataElement dataElement : bean.getDataElements()) {
             ContextDataElement contextDataElement = new ContextDataElement(
                     dataElement.getDataKey(),
@@ -124,10 +127,15 @@ public class RESTContextObject {
             throw new ContextException("Object types do not match");
         }
 
+        if (src.mediaType != null && ContextObject.Types.POD.equals(src.getType()) && !PodMediaType.isValidType(src.mediaType)) {
+            throw new ContextException("Media type: " + src.mediaType + " for activity object is invalid.");
+        }
+
         dest.setParentId(src.parentId);
         dest.setCustomerId(src.customerId);
         dest.setCreated(src.getCreated());
         dest.setLastUpdated(src.getLastUpdated());
+        dest.setMediaType(src.mediaType);
         dest.setFieldsets(src.getFieldsets());
         dest.setId(src.getId());
         Map<String,Object> dataElements = new HashMap<>();
