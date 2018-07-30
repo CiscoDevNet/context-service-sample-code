@@ -12,7 +12,7 @@ Consider using the sample codes in Lab mode to test and build custom apps for yo
 After compiling with `mvn clean install` you can run `export.sh` to export or `import.sh` to import.
 
 ## Getting Started
-This procedure is for Mac OS and Linux. Windows users should use Bash or Cygwin to follow this procedure.
+This procedure is for Mac OS and Linux. Windows users should use Git Bash to follow this procedure.
 
 To set up sample code components:
 

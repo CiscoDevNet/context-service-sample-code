@@ -130,6 +130,16 @@ The `type` field must be one of `pod` (activity), `customer`, `request`, or `det
  
 Use the `fieldsets` parameter to assign fieldsets to an object. Each object must have at least one fieldset assigned to it.
 
+
+Use the `dataElements` array to add field information to an object. `dataElements` is an array of objects that contain the `key`, `value`, and `type` properties. The `key` property contains the field name as a string. The `value` property contains the field value. The `type` property contains the Context Service field data type as a string. 
+
+| Type Name in Cisco Webex Control Hub | Context Service Field Data Type |
+|------|------|
+| Toggle | boolean |
+| Decimal | double |
+| Number | integer | 
+| Short Text | string |
+
 The items in the `dataElements` array must be fields from the fieldsets assigned to the object.
 
 Each type of object in Context Service has different association restrictions:
@@ -154,7 +164,8 @@ POST http://localhost:8080/rest
     "dataElements": [
         {
             "key": "Context_Notes",
-            "value": "testing at 3:16"
+            "value": "testing at 3:16",
+            "type": "string"
         }
     ]
 }
@@ -170,12 +181,63 @@ POST http://localhost:8080/rest
     "dataElements": [
         {
             "key": "Context_Description",
-            "value": "Test description"
+            "value": "Test description",
+            "type": "string"
         }
     ]
 }
 ```
 
+This example demonstrates how to create an activity with a custom boolean field:
+```
+POST http://localhost:8080/rest
+{
+    "type" : "pod",
+    "mediaType" : "chat",
+    "fieldsets": ["<your-custom-fieldset>"],
+    "dataElements": [
+        {
+            "key": "<your-custom-field>",
+            "value": true,
+            "type": "boolean"
+        }
+    ]
+}
+```
+
+This example demonstrates how to create an activity with a custom integer field:
+```
+POST http://localhost:8080/rest
+{
+    "type" : "pod",
+    "mediaType" : "chat",
+    "fieldsets": ["<your-custom-fieldset>"],
+    "dataElements": [
+        {
+            "key": "<your-custom-field>",
+            "value": 123,
+            "type": "integer"
+        }
+    ]
+}
+```
+
+This example demonstrates how to create an activity with a custom double field:
+```
+POST http://localhost:8080/rest
+{
+    "type" : "pod",
+    "mediaType" : "chat",
+    "fieldsets": ["<your-custom-fieldset>"],
+    "dataElements": [
+        {
+            "key": "<your-custom-field>",
+            "value": 123.4,
+            "type": "double"
+        }
+    ]
+}
+```
 
 
 ### Get Context Service Object
@@ -234,7 +296,8 @@ PUT http://localhost:8080/rest/pod/<your-id>
 	"dataElements": [
         {
             "key": "Context_Notes",
-            "value": "testing at 4:25"
+            "value": "testing at 4:25",
+            "type": "string"
         }
     ],
     "lastUpdated": {
