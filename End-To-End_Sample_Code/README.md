@@ -8,7 +8,7 @@ This project requires:
 * Maven
 
 ## Getting Started
-This procedure is for Mac OS and Linux. Windows users should use Bash or Cygwin to follow this procedure.
+This procedure is for Mac OS and Linux. Windows users should use Git Bash to follow this procedure.
 
 To set up sample code components:
 

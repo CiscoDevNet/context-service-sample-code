@@ -1,14 +1,10 @@
 package com.cisco.thunderhead.rest;
 
-import com.cisco.thunderhead.util.RFC3339Date;
 import com.cisco.thunderhead.util.SDKUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,10 +17,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +25,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the REST API
@@ -262,6 +256,67 @@ public class ContextServiceApiTest {
     }
 
     /**
+     * Create a pod with dataElements containing fields with all 4 types (string, integer, double, and boolean).  Get and
+     * verify created successfully with the appropriate types.  Update all 4 to verify that all 4 types can be updated.
+     * Get and verify.  Delete field to cleanup.
+     */
+    @Test
+    public void testCreateGetUpdateDeletePodAllDataElementTypes() {
+
+        RESTContextObject request = createRESTContextObject(POD_TYPE, "cisco.test.custom", null, null);
+        addDataElementsToRequest(request, "Context_Test_String", "test string, no type provided", null);
+        addDataElementsToRequest(request, "Context_Test_Double", 23.45, "double");
+        addDataElementsToRequest(request, "Context_Test_Boolean", true, "boolean");
+        addDataElementsToRequest(request, "Context_Test_Integer", 19, "integer");
+
+        String requestBody = getGson().toJson(request);
+
+        // do the create
+        Response response = client
+                .target(BASE_URL).request().accept(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(requestBody));
+
+        assertEquals("should have succeeded", 201, response.getStatus());
+        String id = SDKUtils.getIdFromUri(response.getLocation());
+
+        // get activity
+        RESTContextObject contextObject = getContextObject(id, POD_TYPE);
+
+        // assert dataElements added correctly
+        verifyDataElements(contextObject, "Context_Test_String", "test string, no type provided", "string");
+        verifyDataElements(contextObject, "Context_Test_Double", 23.45, "double");
+        verifyDataElements(contextObject, "Context_Test_Boolean", true, "boolean");
+        verifyDataElements(contextObject, "Context_Test_Integer", 19, "integer");
+
+        updateDataElementsOnRequest(contextObject,"Context_Test_Double",25.34);
+        updateDataElementsOnRequest(contextObject,"Context_Test_Boolean",false);
+        updateDataElementsOnRequest(contextObject,"Context_Test_Integer",21);
+        updateDataElementsOnRequest(contextObject,"Context_Test_String","test string, no type provided - updated");
+
+        requestBody = getGson().toJson(contextObject);
+
+        // do the update
+        response = client.target(setBasePath(POD_TYPE) + id).request().accept(MediaType.APPLICATION_JSON_TYPE)
+                .put(Entity.json(requestBody));
+
+        assertEquals("should have succeeded", 202, response.getStatus());
+
+        // get activity
+        RESTContextObject updatedContextObject = getContextObject(id, POD_TYPE);
+
+        // assert dataElements updated correctly
+        verifyDataElements(updatedContextObject, "Context_Test_String", "test string, no type provided - updated", "string");
+        verifyDataElements(updatedContextObject, "Context_Test_Double", 25.34, "double");
+        verifyDataElements(updatedContextObject, "Context_Test_Boolean", false, "boolean");
+        verifyDataElements(updatedContextObject, "Context_Test_Integer", 21, "integer");
+
+        // now delete it
+        response = client.target(setBasePath(POD_TYPE) + id).request().delete();
+        assertEquals("should have succeeded", 202, response.getStatus());
+
+    }
+
+    /**
      * Waits for the data to be searchable.
      */
     private void waitForSearchable(String dataElement, String fieldData, String type) {
@@ -320,11 +375,12 @@ public class ContextServiceApiTest {
     /**
      * Helper method to create a context object
      */
-    private static String createContextObject(String type, String fieldset, String dataElement, String fieldData, String customerId, String parentId) {
+    private static String createContextObject(String type, String fieldset, String dataElement, Object fieldData, String customerId, String parentId) {
         RESTContextObject request = createRESTContextObject(type, fieldset, customerId, parentId);
-        addDataElementsToRequest(request, dataElement, fieldData, "string");
+        addDataElementsToRequest(request, dataElement, fieldData, fieldData.getClass().getSimpleName().toLowerCase());
 
         String requestBody = getGson().toJson(request);
+
         Response response = client
                 .target(BASE_URL).request().accept(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(requestBody));
 
@@ -376,29 +432,49 @@ public class ContextServiceApiTest {
     }
 
     private static Gson getGson() {
-        Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-            @Override
-            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                String datestr = json.getAsString();
-                try {
-                    RFC3339Date date = new RFC3339Date(datestr);
-                    return date.getDate();
-                } catch (ParseException e) {
-                    throw new RuntimeException("couldn't parse date: " + datestr);
-                }
-            }
-        }).create();
-        return gson;
+        return new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
     }
-
-
 
     /**
      * Helper method to add a data element to a request.
      */
-    private static void addDataElementsToRequest(RESTContextObject request, String key, String value, String type) {
+    private static void addDataElementsToRequest(RESTContextObject request, String key, Object value, String type) {
         List<RESTContextObject.ContextDataElement> dataElements = request.getDataElements();
         dataElements.add(new RESTContextObject.ContextDataElement(key, value, type));
+    }
+
+    /**
+     * Helper method to update a data element on a request.
+     */
+    private static void updateDataElementsOnRequest(RESTContextObject request, String key, Object value) {
+        List<RESTContextObject.ContextDataElement> dataElements = request.getDataElements();
+        for(RESTContextObject.ContextDataElement contextDataElement : dataElements) {
+            if(contextDataElement.getKey().equalsIgnoreCase(key)) {
+                contextDataElement.setValue(value);
+            }
+        }
+    }
+
+    /**
+     * Helper method to verify a data elements on a request.
+     */
+    private static void verifyDataElements(RESTContextObject request, String key, Object value, String type) {
+        Boolean foundDataElementKey = false;
+        List<RESTContextObject.ContextDataElement> dataElements = request.getDataElements();
+        for(RESTContextObject.ContextDataElement contextDataElement : dataElements) {
+            if(contextDataElement.getKey().equalsIgnoreCase(key)) {
+                foundDataElementKey = true;
+                assertEquals("type should match",type, contextDataElement.getType());
+                if(type.equalsIgnoreCase("integer")) {
+                    //gson conversion has changed the integer back to a double. Fix it and compare the value.
+                    Double dataElementValue = (Double)contextDataElement.getValue();
+                    assertEquals("value should match",value, Integer.valueOf(dataElementValue.intValue()));
+                }else {
+                    assertEquals("value should match",value, contextDataElement.getValue());
+                }
+            }
+        }
+        assertTrue("dataElement key: " + key + " should have been in dataElements", foundDataElementKey);
     }
 
     private static class LoggingFilter implements ClientRequestFilter {

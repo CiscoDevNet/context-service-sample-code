@@ -3,6 +3,7 @@ package com.cisco.thunderhead.rest;
 import com.cisco.thunderhead.ContextObject;
 import com.cisco.thunderhead.DataElement;
 import com.cisco.thunderhead.ExposeMember;
+import com.cisco.thunderhead.datatypes.ElementDataType;
 import com.cisco.thunderhead.datatypes.PodMediaType;
 import com.cisco.thunderhead.util.DataElementUtils;
 import com.cisco.thunderhead.util.RFC3339Date;
@@ -28,6 +29,14 @@ public class RESTContextObject {
     @ExposeMember private RFC3339Date created;
     @ExposeMember private RFC3339Date lastUpdated;
 
+    private static final Map<Class<?>, String> DATA_TYPE_MAP = new HashMap<Class<?>, String>();
+    static {
+        DATA_TYPE_MAP.put(Integer.class, ElementDataType.INTEGER);
+        DATA_TYPE_MAP.put(Double.class, ElementDataType.DOUBLE);
+        DATA_TYPE_MAP.put(Boolean.class, ElementDataType.BOOLEAN);
+        DATA_TYPE_MAP.put(String.class, ElementDataType.STRING);
+    }
+
     public RESTContextObject() {
     }
 
@@ -43,7 +52,7 @@ public class RESTContextObject {
         for (DataElement dataElement : bean.getDataElements()) {
             ContextDataElement contextDataElement = new ContextDataElement(
                     dataElement.getDataKey(),
-                    dataElement.getDataValue().toString(),
+                    dataElement.getDataValue(),
                     dataElement.getType());
             dataElements.add(contextDataElement);
         }
@@ -104,10 +113,10 @@ public class RESTContextObject {
 
     public static class ContextDataElement {
         @ExposeMember private String key;
-        @ExposeMember private final String value;
+        @ExposeMember private Object value;
         @ExposeMember private final String type;
 
-        public ContextDataElement(String key, String value, String type) {
+        public ContextDataElement(String key, Object value, String type) {
             this.key = key;
             this.value = value;
             this.type = type;
@@ -117,9 +126,18 @@ public class RESTContextObject {
             return key;
         }
 
-        public String getValue() {
+        public Object getValue() {
             return value;
         }
+
+        public void setValue(Object value) {
+            this.value = value;
+        }
+
+        public String getType() {
+            return type;
+        }
+
     }
 
     public static void copyToContextBean(ContextObject dest, RESTContextObject src) {
@@ -140,8 +158,31 @@ public class RESTContextObject {
         dest.setId(src.getId());
         Map<String,Object> dataElements = new HashMap<>();
         for (ContextDataElement dataElement : src.dataElements) {
+            fixDataElementType(dataElement);
             dataElements.put(dataElement.key, dataElement.value);
         }
+
         dest.setDataElements(DataElementUtils.convertDataMapToSet(dataElements));
+    }
+
+    /**
+     * GsonBuilder is automatically guessing that integers are double values, so it is converting 1 to 1.0.  This method
+     * detects that the type should be integer and then converts from a double to an integer before attempting to create
+     * or update the ContextObject.
+     * @param dataElement
+     * @throws ContextException
+     */
+    private static void fixDataElementType(ContextDataElement dataElement) throws ContextException {
+        String type = dataElement.getType();
+        String typeDerivedFromValue = DATA_TYPE_MAP.get(dataElement.getValue().getClass());
+
+        if(type == null && !typeDerivedFromValue.equalsIgnoreCase(ElementDataType.STRING))
+        {
+            throw new ContextException("Must set data element type for non-string data element fields, data element " + dataElement.getKey() + " type was null.");
+        }else if(type != null && type.equalsIgnoreCase(ElementDataType.INTEGER))
+        {
+            Double dataElementValue = (Double)dataElement.getValue();
+            dataElement.setValue(Integer.valueOf(dataElementValue.intValue()));
+        }
     }
 }
